@@ -9,7 +9,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            //Test();
+            Test();
         }
 
         private static void Test()
@@ -18,28 +18,55 @@ namespace Test
             Random rd = new Random();
             for (int i = 0; i < fl.Length; i++)
             {
+
                 fl[i] = rd.Next();
             }
+            List<int> list = fl.ToList();
             while (string.IsNullOrEmpty(Console.ReadLine()))
             {
+                /*
+                    List,lambda 760.000     耗时最久
+                    List,For 520.000
+                    Array,lambda 704.000
+                    Array,For 421.000       耗时最少
 
+                 */
                 DateTime dt = DateTime.Now;
                 for (int i = 0; i < 10000; i++)
                 {
-                    int max = fl.Max();
+                    int max = list.Max();
                 }
-                Console.WriteLine("lambda " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
+                Console.WriteLine("List,lambda " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
                 dt = DateTime.Now;
                 for (int i = 0; i < 10000; i++)
                 {
-                    int max = fl[0];
-                    for (int j = 0; j < fl.Length; j++)
+                    int max = list[0];
+                    for (int j = 0; j < list.Count; j++)
                     {
-                        if (max < fl[j])
-                            max = fl[j];
+                        if (max < list[j])
+                            max = list[j];
                     }
                 }
-                Console.WriteLine("For " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
+                Console.WriteLine("List,For " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
+                dt = DateTime.Now;
+                for (int i = 0; i < 10000; i++)
+                {
+                    int[] arr = list.ToArray();
+                    int max = arr.Max();
+                }
+                Console.WriteLine("Array,lambda " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
+                dt = DateTime.Now;
+                for (int i = 0; i < 10000; i++)
+                {
+                    int[] arr = list.ToArray();
+                    int max = arr[0];
+                    for (int j = 0; j < list.Count; j++)
+                    {
+                        if (max < arr[j])
+                            max = arr[j];
+                    }
+                }
+                Console.WriteLine("Array,For " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
             }
         }
     }
