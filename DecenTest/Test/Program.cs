@@ -18,7 +18,7 @@ namespace Test
             Random rd = new Random();
             for (int i = 0; i < fl.Length; i++)
             {
-
+                /////////////////////////
                 fl[i] = rd.Next();
             }
             List<int> list = fl.ToList();
