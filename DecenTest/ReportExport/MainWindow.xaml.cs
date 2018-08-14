@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +29,8 @@ namespace ReportExport
 
             ReportExport.OpenXmlReport.ExportReport report = new OpenXmlReport.ExportReport();
             report.Export();
-            WriteRandomValuesSAX(@"E:\Project\Tracker800_V9\trunk\Client\Bin\Data\Report\Test.xlsx", 100, 4);
+            //WriteRandomValuesSAX(@"E:\Project\Tracker800_V9\trunk\Client\Bin\Data\Report\Test.xlsx", 100, 4);
+         
         }
 
         void WriteRandomValuesSAX(string filename, int numRows, int numCols)

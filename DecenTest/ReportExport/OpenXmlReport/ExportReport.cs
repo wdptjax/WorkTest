@@ -37,26 +37,24 @@ namespace ReportExport.OpenXmlReport
 
         public void Export()
         {
-            string filename = @"E:\Project\Tracker800_V9\trunk\Client\Bin\Data\Report\Test.xlsx";
+            string filename = @"D:\Test.xlsx";
             CreateDocument(filename);
             // 添加一个工作区
             _document.AddWorkbookPart();
 
             WorksheetPart workSheetPart = _document.WorkbookPart.AddNewPart<WorksheetPart>();
-
             WorkbookStylesPart wbsp = _document.WorkbookPart.AddNewPart<WorkbookStylesPart>();
 
             var style = GetStylesheet();
 
             wbsp.Stylesheet = style;
             wbsp.Stylesheet.Save();
+            SheetDataAppend.IniSheet(workSheetPart);
+            FillTitle(workSheetPart);
+            //SheetDataAppend.FillData(workSheetPart, SheetDataAppend.GetData(), 4, 1);
 
-            SheetDataAppend.FillData(SheetDataAppend.GetData(), workSheetPart, 4, 1);
-
-            var workSheet = GetWorksheet();
-            workSheetPart.Worksheet = workSheet;
-            workSheetPart.Worksheet.Save();
-
+            FillColumns(workSheetPart);
+            FillMerge(workSheetPart);
 
             if (_document.WorkbookPart.Workbook == null)
             {
@@ -71,26 +69,17 @@ namespace ReportExport.OpenXmlReport
                 Id = _document.WorkbookPart.GetIdOfPart(workSheetPart)
             };
             _document.WorkbookPart.Workbook.Sheets.Append(sheet);
-            _document.Close();
-            using (SpreadsheetDocument myDoc = SpreadsheetDocument.Open(filename, true))
+            workSheetPart = _document.WorkbookPart.AddNewPart<WorksheetPart>();
+            //SheetDataAppend.IniSheet(workSheetPart);
+            SheetDataAppend.FillData(workSheetPart, SheetDataAppend.GetData(), 4, 1);
+            var sheet1 = new Sheet()
             {
-                WorksheetPart part = myDoc.WorkbookPart.AddNewPart<WorksheetPart>();
-
-                SheetDataAppend.FillData(SheetDataAppend.GetData(), part, 4, 1);
-                if (myDoc.WorkbookPart.Workbook == null)
-                {
-                    myDoc.WorkbookPart.Workbook = new Workbook();
-                    myDoc.WorkbookPart.Workbook.Append(new Sheets());
-                }
-                //数据写入完成后，注册一个sheet引用到workbook.xml, 也就是在excel最下面的sheet name
-                var sheet1 = new Sheet()
-                {
-                    Name = "test",
-                    SheetId = UInt32Value.FromUInt32(1),
-                    Id = myDoc.WorkbookPart.GetIdOfPart(part)
-                };
-                myDoc.WorkbookPart.Workbook.Sheets.Append(sheet1);
-            }
+                Name = "7月-2",
+                SheetId = (UInt32Value)2U,
+                Id = _document.WorkbookPart.GetIdOfPart(workSheetPart)
+            };
+            _document.WorkbookPart.Workbook.Sheets.Append(sheet1);
+            _document.Close();
         }
 
         private Stylesheet GetStylesheet()
@@ -205,12 +194,8 @@ namespace ReportExport.OpenXmlReport
             return style;
         }
 
-        private Worksheet GetWorksheet()
+        private void FillTitle(WorksheetPart worksheetPart)
         {
-            Column col1 = SheetDataAppend.GetColumn(1, 4, 0, true, 20);
-            List<Column> colList = new List<Column>();
-            colList.Add(col1);
-
             Cell cell1 = SheetDataAppend.GetCell("     省（区、市） 2018年7 月份重点频段占用度统计表", "A1", 1);
             Cell cell2 = SheetDataAppend.GetCell("", "B1", 1);
             Cell cell3 = SheetDataAppend.GetCell("", "C1", 1);
@@ -252,15 +237,24 @@ namespace ReportExport.OpenXmlReport
             rowList.Add(row2);
             rowList.Add(row3);
 
-            var data = SheetDataAppend.GetSheetData(rowList);
+            SheetDataAppend.FillRows(worksheetPart, rowList, 1, 3);
+        }
+        private void FillColumns(WorksheetPart worksheetPart)
+        {
+            Column col1 = SheetDataAppend.GetColumn(1, 4, 0, true, 20);
+            List<Column> colList = new List<Column>();
+            colList.Add(col1);
+            SheetDataAppend.FillColumns(worksheetPart, colList);
+        }
+
+        private void FillMerge(WorksheetPart worksheetPart)
+        {
             MergeCell merge1 = SheetDataAppend.GetMergeCell("A1", "D1");
             MergeCell merge2 = SheetDataAppend.GetMergeCell("A3", "D3");
             List<MergeCell> mergeList = new List<MergeCell>();
             mergeList.Add(merge1);
             mergeList.Add(merge2);
-
-            Worksheet worksheet = SheetDataAppend.GetWorkSheet(colList, data, mergeList);
-            return worksheet;
+            SheetDataAppend.FillMerge(worksheetPart, mergeList);
         }
 
     }

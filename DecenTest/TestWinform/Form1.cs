@@ -6,6 +6,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TestWinform
@@ -35,8 +37,75 @@ namespace TestWinform
             dt.Rows.Add(true, "aaa", "bbb");
             dt.Rows.Add(false, "aaa", "bbb");
             dataGridView1.DataSource = dt;
+
+            test();
         }
 
+        private void test()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("col1", typeof(int));
+            dt.Columns.Add("col2", typeof(string));
+            dt.Columns.Add("col3", typeof(double));
+            dataGridView2.DataSource = dt;
+
+            Task.Factory.StartNew(scan);
+        }
+
+        private void scan()
+        {
+            int index = 0;
+            Random rd = new Random();
+            DataTable dt = (DataTable)dataGridView2.DataSource;
+            // 测试Datagridview异步显示
+            while (true)
+            {
+                Thread.Sleep(100);
+                try
+                {
+                    int[] arr = new int[3 + index];
+                    for (int i = 0; i < arr.Length; i++)
+                    {
+                        arr[i] = i + 1;
+                        if (i < dt.Rows.Count)
+                        {
+                            DataRow dr = dt.Rows[i];
+                            dr[0] = arr[i];
+                            dr[1] = Guid.NewGuid().ToString();
+                            dr[2] = rd.NextDouble();
+                        }
+                        else
+                        {
+                            dataGridView2.Invoke(new Action(() =>
+                            {
+                                DataRow dr = dt.NewRow();
+                                dr[0] = arr[i];
+                                dr[1] = Guid.NewGuid().ToString();
+                                dr[2] = rd.NextDouble();
+                                dt.Rows.Add(dr);
+                            }));
+                        }
+                    }
+                    while (dt.Rows.Count > arr.Length)
+                    {
+                        dataGridView2.Invoke(new Action(() =>
+                        {
+                            dt.Rows.RemoveAt(dt.Rows.Count - 1);
+                        }));
+                    }
+
+
+
+                    index++;
+                    if (index == 3)
+                        index = 0;
+                }
+                catch (Exception ex)
+                {
+                }
+             
+            }
+        }
 
         private void dataGridView1_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {

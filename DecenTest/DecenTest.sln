@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWinform", "TestWinform\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportExport", "ReportExport\ReportExport.csproj", "{3EFABAF2-3635-45DA-BAD8-54E6451BBC8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenXmlReport", "OpenXmlReport\OpenXmlReport.csproj", "{D748DB08-8E39-41CC-BD76-E066FF82E715}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{3EFABAF2-3635-45DA-BAD8-54E6451BBC8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EFABAF2-3635-45DA-BAD8-54E6451BBC8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EFABAF2-3635-45DA-BAD8-54E6451BBC8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D748DB08-8E39-41CC-BD76-E066FF82E715}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D748DB08-8E39-41CC-BD76-E066FF82E715}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D748DB08-8E39-41CC-BD76-E066FF82E715}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D748DB08-8E39-41CC-BD76-E066FF82E715}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
