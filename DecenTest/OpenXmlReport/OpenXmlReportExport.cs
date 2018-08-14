@@ -44,7 +44,6 @@ namespace OpenXmlReport
         /// </summary>
         public OpenXmlReportExport():base()
         {
-     
         }
 
         #region 重写
@@ -216,14 +215,15 @@ namespace OpenXmlReport
         /// <returns></returns>
         private bool FillSheet(DataTable dataTable)
         {
-            WorksheetPart workSheetPart = _document.WorkbookPart.AddNewPart<WorksheetPart>();
+            WorksheetPart workSheetPart = AddNewSheetPart();
 
             int rowCount = dataTable.Rows.Count + 1 + 1;//数据行+一行总标题+一行列标题
             int colCount = dataTable.Columns.Count;
-            _exportSegmentString = dataTable.TableName;
 
-            int progress = (int)_progress * 100 / (int)_maxValue;
-            Message = string.Format("[进度:{0}%] -> 正在生成报表[{1}] 开始组合数据……", progress, _exportSegmentString);
+            string sheetName = dataTable.TableName;
+            string msg = string.Format("正在生成报表[{0}] 开始组合数据……", sheetName);
+            CallProgress(sheetName, msg);
+
             // 初始化数据空间
             object[,] data = new object[rowCount, colCount];
             uint[,] styles = new uint[rowCount, colCount];
@@ -231,7 +231,7 @@ namespace OpenXmlReport
 
             // 填充标题（第一行） 宋体-16-加粗 背景淡黄-前景绿色
             int startRow = 0;
-            string titleString = _exportSegmentString;
+            string titleString = sheetName;
             data[startRow, 0] = titleString;
             styles[startRow, 0] = 5;// 表格样式对应方法[GetStylesheet]中的样式ID
             for (int i = 1; i < data.GetLength(1); i++)
@@ -284,25 +284,12 @@ namespace OpenXmlReport
 
             #endregion
 
-            progress = (int)_progress * 100 / (int)_maxValue;
-            Message = string.Format("[进度:{0}%] -> 正在生成报表[{1}] 开始导出数据……", progress, _exportSegmentString);
-            _dataExport.FillData(workSheetPart, data, styles, rowHeights, colList, mergeList, 1, 1);
+            msg = string.Format("正在生成报表[{0}] 开始导出数据……", sheetName);
+            CallProgress(sheetName, msg);
 
-            if (_document.WorkbookPart.Workbook == null)
-            {
-                _document.WorkbookPart.Workbook = new Workbook();
-                _document.WorkbookPart.Workbook.Append(new Sheets());
-            }
+            FillData(workSheetPart, data, styles, rowHeights, colList, mergeList);
 
-            //数据写入完成后，注册一个sheet引用到workbook.xml, 也就是在excel最下面的sheet name
-            _sheetID++;
-            var sheet = new Sheet()
-            {
-                Name = _exportSegmentString,
-                SheetId = (UInt32Value)_sheetID,
-                Id = _document.WorkbookPart.GetIdOfPart(workSheetPart)
-            };
-            _document.WorkbookPart.Workbook.Sheets.Append(sheet);
+            AddSheet(workSheetPart);
 
             return true;
         }

@@ -116,8 +116,8 @@ namespace OpenXmlReport
         private uint _sheetID = 1;
         private string _filePath;
         private string _fileDir;
-        // 当前导出的频段信息(Sheet页的标题)
-        private string _exportSegmentString = "";
+        // 当前导出的Sheet页的标题
+        private string _sheetName = "";
         // 进度条展示窗体
         private ShowProgress _showExport = null;
 
@@ -141,11 +141,13 @@ namespace OpenXmlReport
         /// 开始导出过程
         /// </summary>
         /// <param name="FilePath"></param>
-        public virtual void Start(string FilePath = "")
+        public virtual void Start(string filePath = "")
         {
             _fileDir = AppDomain.CurrentDomain.BaseDirectory + "Data\\Report\\";
             CreateDir(_fileDir);
-            FileName = FilePath + ".xlsx";
+            if (string.IsNullOrEmpty(filePath))
+                filePath = Guid.NewGuid().ToString();
+            FileName = filePath + ".xlsx";
             _filePath = _fileDir + _fileName;
             _thdScan = new Thread(Scan);
             _thdScan.IsBackground = true;
@@ -196,9 +198,64 @@ namespace OpenXmlReport
             ExportCompleted = false;
             _dataExport.IsExportCanceled = true;
             int progress = (int)_progress * 100 / (int)_maxValue;
-            Message = string.Format("[进度:{0}%] -> 报表[{1}]取消导出……", progress, _exportSegmentString);
+            Message = string.Format("[进度:{0}%] -> 报表[{1}]取消导出……", progress, _sheetName);
         }
 
+        /// <summary>
+        /// 创建一个新的sheet页
+        /// </summary>
+        /// <returns></returns>
+        protected WorksheetPart AddNewSheetPart()
+        {
+            return _document.WorkbookPart.AddNewPart<WorksheetPart>();
+        }
+
+        /// <summary>
+        /// 发送到前台显示进度
+        /// </summary>
+        /// <param name="exportName"></param>
+        /// <param name="message"></param>
+        /// <param name="progress">默认-1，自动显示进度</param>
+        protected void CallProgress(string exportName, string message, int progress = -1)
+        {
+            _sheetName = exportName;
+            if (progress >= 0)
+                Progress = progress;
+            int val = (int)Progress * 100 / (int)_maxValue;
+            Message = string.Format("[进度:{0}%] -> {1}", val, message);
+        }
+
+        protected void FillData(WorksheetPart workSheetPart,
+            object[,] data, uint[,] styles, double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
+            int startRow = 1, int startColumn = 1)
+        {
+            _dataExport.FillData(workSheetPart, data, styles, rowHeights, columnList, mergeCellList, startRow, startColumn);
+        }
+
+        /// <summary>
+        /// 添加Sheet（数据填充完毕以后添加）
+        /// </summary>
+        /// <param name="workSheetPart"></param>
+        protected void AddSheet(WorksheetPart workSheetPart)
+        {
+            if (_document.WorkbookPart.Workbook == null)
+            {
+                _document.WorkbookPart.Workbook = new Workbook();
+                _document.WorkbookPart.Workbook.Append(new Sheets());
+            }
+
+            //数据写入完成后，注册一个sheet引用到workbook.xml, 也就是在excel最下面的sheet name
+            _sheetID++;
+            var sheet = new Sheet()
+            {
+                Name = _sheetName,
+                SheetId = (UInt32Value)_sheetID,
+                Id = _document.WorkbookPart.GetIdOfPart(workSheetPart)
+            };
+            _document.WorkbookPart.Workbook.Sheets.Append(sheet);
+        }
+
+        #region 私有函数
 
         // 导出进度变化事件
         private void SheetDataAppend_ProgressChangedEvent(double value, double maxValue)
@@ -208,7 +265,7 @@ namespace OpenXmlReport
 
             Progress++;
             int progress = (int)_progress * 100 / (int)_maxValue;
-            string show = string.Format("[进度:{0}%] -> 正在生成报表[{1}] [{2},{3}]", progress, _exportSegmentString, maxValue, value);
+            string show = string.Format("[进度:{0}%] -> 正在生成报表[{1}] [{2},{3}]", progress, _sheetName, maxValue, value);
             Message = show;
         }
 
@@ -284,6 +341,8 @@ namespace OpenXmlReport
             CreateDir(dir2);
             Directory.CreateDirectory(dir1);
         }
+
+        #endregion 私有函数
 
         /// <summary>
         /// 自定义样式
