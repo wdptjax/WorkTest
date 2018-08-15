@@ -8,6 +8,7 @@
  * 创作日期:    2018-7-24 16:27:00
  * 
  * 备    注:    报表导出的例子，使用OpenXml工具进行导出，在导出数据量特别大时效率高，而且不会出现内存溢出的情况
+ *              在本实例中使用DataSet作为导出的数据源，根据需要可以修改为自定义的其他集合
  *              
  *                                
  *               
@@ -39,10 +40,24 @@ namespace OpenXmlReport
         /// </summary>
         public DataSet ExportData { get; set; }
 
+        // 数值格式
+        private string _numberFormatStr = "0.00_ ";
+        // 时间格式
+        private string _dateTimeFormatStr = "yyyy/MM/dd hh:mm:ss";
+        // 数据格式的ID，ID从176开始（通过Open Xml SDK工具查看到的都是从176开始，可能176之前的是系统定义的格式）
+        private uint _numberFormatIdStart = 176;
+
         /// <summary>
         /// 构造函数
         /// </summary>
         public OpenXmlReportExport() : base()
+        {
+        }
+
+        /// <summary>
+        /// 如果需要清理相关资源，比如导出以后需要清理数据源，则重写这个方法
+        /// </summary>
+        protected override void ClearData()
         {
         }
 
@@ -78,16 +93,19 @@ namespace OpenXmlReport
         /// <returns></returns>
         protected override Stylesheet GetStylesheet()
         {
-            // 数据格式，ID从176开始（通过Open Xml SDK工具查看到的都是从176开始，可能176之前的是系统定义的格式）
+            #region 数据格式
+            // ID从176开始（通过Open Xml SDK工具查看到的都是从176开始，可能176之前的是系统定义的格式）
             // 如果是数值，需要的格式如下：[0.00_ ]后面必须跟下划线与空格，否则会报错：(
-            NumberingFormat num1 = SheetStyles.GetNumberingFormat(176, "0.00_ ");
-            NumberingFormat num2 = SheetStyles.GetNumberingFormat(177, "yyyy/MM/dd hh:mm:ss");
+            NumberingFormat num1 = SheetStyles.GetNumberingFormat(_numberFormatIdStart, _numberFormatStr);
+            NumberingFormat num2 = SheetStyles.GetNumberingFormat(++_numberFormatIdStart, _dateTimeFormatStr);
             List<NumberingFormat> numfList = new List<NumberingFormat>()
             {
                 num1,num2
             };
+            #endregion
 
-            // 字体样式
+            #region 字体样式
+
             Font font1 = SheetStyles.GetFont(11, "宋体");
             Font font2 = SheetStyles.GetFont(16, "宋体", "000000", UnderlineValues.Single, true);
             Font font3 = SheetStyles.GetFont(12, "宋体");
@@ -109,7 +127,9 @@ namespace OpenXmlReport
                 font8
             };
 
-            // 填充样式
+            #endregion
+
+            #region 填充样式
             Fill fill1 = SheetStyles.GetFill(PatternValues.None);
             Fill fill2 = SheetStyles.GetFill(PatternValues.Gray125);
             Fill fill3 = SheetStyles.GetFill(PatternValues.Solid, "FFFFFF99");
@@ -121,7 +141,10 @@ namespace OpenXmlReport
                 fill3
             };
 
-            // 边框样式
+            #endregion
+
+            #region 边框样式
+
             //无边框
             LeftBorder left0 = (LeftBorder)SheetStyles.GetBorderLineStyle(2, BorderStyleValues.None);
             RightBorder right0 = (RightBorder)SheetStyles.GetBorderLineStyle(3, BorderStyleValues.None);
@@ -174,7 +197,10 @@ namespace OpenXmlReport
                 border3
             };
 
-            // 单元格样式
+            #endregion
+
+            #region 单元格样式
+
             // CellFormat的fontId,fillId,borderId分别对应上面的fontlist、filllist、borderList从0开始的索引
             CellFormat cellFormat0 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 0, 0, 0);
@@ -222,6 +248,8 @@ namespace OpenXmlReport
                 cellFormat13,
             };
 
+            #endregion
+
             Stylesheet style = SheetStyles.GetStyleSheet(numfList, fontlist, filllist, borderList, cellList);
             return style;
         }
@@ -263,7 +291,6 @@ namespace OpenXmlReport
                 data[startRow, i] = "";
                 formats[startRow, i] = CellDataType.String;
             }
-
 
             #region 填充列标题
 

@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TestForm
@@ -19,7 +20,9 @@ namespace TestForm
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Test();
+            button1.Enabled = false;
+            button2.Enabled = false;
+            Task.Factory.StartNew(Test);
         }
 
         private void Test()
@@ -42,8 +45,8 @@ namespace TestForm
                         dt.Columns.Add(colName, typeof(string));
                 }
 
-                Console.WriteLine(string.Format("开始生成第{0}组数据====", i + 1));
-                for (int r = 0; r < (i + 1) * 100; r++)
+                this.Invoke(new Action(() => label1.Text = string.Format("开始生成第{0}组数据====", i + 1)));
+                for (int r = 0; r < (i + 1) * 10000; r++)
                 {
                     DataRow dr = dt.NewRow();
                     for (int c = 0; c < dt.Columns.Count; c++)
@@ -64,11 +67,16 @@ namespace TestForm
                     }
                     dt.Rows.Add(dr);
                 }
-                Console.WriteLine(string.Format("第{0}组数据生成完毕----", i + 1));
+                this.Invoke(new Action(() => label1.Text = string.Format("第{0}组数据生成完毕----", i + 1)));
                 ds.Tables.Add(dt);
             }
-
-            dataGridView1.DataSource = ds;
+            this.Invoke(new Action(() => dataGridView1.DataSource = ds));
+            this.Invoke(new Action(() => label1.Text = "数据生成完毕"));
+            this.Invoke(new Action(() =>
+            {
+                button1.Enabled = true;
+                button2.Enabled = true;
+            }));
         }
 
         private void button2_Click(object sender, EventArgs e)

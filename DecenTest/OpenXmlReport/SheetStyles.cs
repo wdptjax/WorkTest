@@ -3,7 +3,7 @@
  *	
  * 文件名称:    SheetStyles.cs
  *
- * 作    者:    吴德鹏
+ * 作    者:    wdp
  *	
  * 创作日期:    2018-7-24 16:25:59
  * 
@@ -211,6 +211,7 @@ namespace OpenXmlReport
         /// <summary>
         /// 设置表单格式
         /// </summary>
+        /// <param name="numFormatList"></param>
         /// <param name="fontList"></param>
         /// <param name="fillList"></param>
         /// <param name="borderList"></param>
