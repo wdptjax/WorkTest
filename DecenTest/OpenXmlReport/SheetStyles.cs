@@ -28,6 +28,22 @@ namespace OpenXmlReport
     class SheetStyles
     {
         /// <summary>
+        /// 数值格式
+        /// </summary>
+        /// <param name="formatId">格式ID</param>
+        /// <param name="formatStr">格式字符串</param>
+        /// <returns></returns>
+        public static NumberingFormat GetNumberingFormat(uint formatId, string formatStr)
+        {
+            // ID从176开始
+            NumberingFormat format = new NumberingFormat()
+            {
+                NumberFormatId = formatId,
+                FormatCode = formatStr
+            };
+            return format;
+        }
+        /// <summary>
         /// 创建字体样式
         /// </summary>
         /// <param name="fontSize">字体大小</param>
@@ -164,15 +180,16 @@ namespace OpenXmlReport
         /// </summary>
         /// <param name="horizontal">水平对齐</param>
         /// <param name="vertical">垂直对齐</param>
+        /// <param name="numId">数值格式</param>
         /// <param name="fontId">字体样式ID</param>
         /// <param name="fillId">填充样式ID</param>
         /// <param name="borderId">边框样式ID</param>
         /// <returns></returns>
-        public static CellFormat GetCellFormat(HorizontalAlignmentValues horizontal, VerticalAlignmentValues vertical, UInt32 fontId = 0, UInt32 fillId = 0, UInt32 borderId = 0)
+        public static CellFormat GetCellFormat(HorizontalAlignmentValues horizontal, VerticalAlignmentValues vertical, UInt32 numId = 0, UInt32 fontId = 0, UInt32 fillId = 0, UInt32 borderId = 0)
         {
             CellFormat cellFormat = new CellFormat()
             {
-                NumberFormatId = (UInt32Value)0U,
+                NumberFormatId = (UInt32Value)numId,
                 FontId = (UInt32Value)fontId,
                 FillId = (UInt32Value)fillId,
                 BorderId = (UInt32Value)borderId,
@@ -199,9 +216,16 @@ namespace OpenXmlReport
         /// <param name="borderList"></param>
         /// <param name="cellFormatList"></param>
         /// <returns></returns>
-        public static Stylesheet GetStyleSheet(List<Font> fontList, List<Fill> fillList, List<Border> borderList, List<CellFormat> cellFormatList)
+        public static Stylesheet GetStyleSheet(List<NumberingFormat> numFormatList, List<Font> fontList, List<Fill> fillList, List<Border> borderList, List<CellFormat> cellFormatList)
         {
             Stylesheet stylesheet = new Stylesheet();
+            if (numFormatList != null && numFormatList.Count > 0)
+            {
+                NumberingFormats numFormats = new NumberingFormats() { Count = (UInt32)numFormatList.Count };
+                numFormatList.ForEach(numf => numFormats.Append(numf));
+                stylesheet.Append(numFormats);
+            }
+
             Fonts fonts = new Fonts() { Count = (UInt32)fontList.Count };
             fontList.ForEach(font => fonts.Append(font));
 
@@ -221,7 +245,6 @@ namespace OpenXmlReport
             stylesheet.Append(borders);
             stylesheet.Append(cellStyleFormats);
             stylesheet.Append(cellFormats);
-
             return stylesheet;
         }
 

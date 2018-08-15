@@ -444,12 +444,13 @@ namespace OpenXmlReport
         /// <param name="startRow">起始的行号，从1开始</param>
         /// <param name="startColumn">起始的列号，从1开始</param>
         public void FillData(WorksheetPart workSheetPart,
-            object[,] data, uint[,] styles, string[,] dataFormats, double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
+            object[,] data, uint[,] styles, CellDataType[,] dataFormats, double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
             int startRow = 1, int startColumn = 1)
         {
             double progress = 0;
             double max = data.GetLength(0) * data.GetLength(1);
             OpenXmlWriter writer = OpenXmlWriter.Create(workSheetPart);
+            DateTime localTime = new DateTime(1900, 1, 1);// 初始时间
             try
             {
                 // 拼接表格Xml文档的开头
@@ -462,7 +463,6 @@ namespace OpenXmlReport
                 });
                 writer.WriteEndElement(); //sheetView 关闭标签
                 writer.WriteEndElement(); //sheetViews 关闭标签
-
                 // 拼接列信息
                 if (columnList != null)
                     FillColumn(writer, columnList);
@@ -487,15 +487,30 @@ namespace OpenXmlReport
                     {
                         int colIndex = startColumn + j;
                         attributes = new List<OpenXmlAttribute>();
-                        attributes.Add(new OpenXmlAttribute("t", null, dataFormats[i, j])); //数据格式
-                        attributes.Add(new OpenXmlAttribute("s", null, styles[i, j].ToString())); //string
+                        if (dataFormats[i, j] == CellDataType.String)
+                        {
+                            attributes.Add(new OpenXmlAttribute("t", null, "str")); //数据格式
+                        }
+                        attributes.Add(new OpenXmlAttribute("s", null, styles[i, j].ToString())); //样式
                         attributes.Add(new OpenXmlAttribute("r", "", string.Format("{0}{1}", GetColumnName(colIndex), rowIndex)));
                         writer.WriteStartElement(new Cell(), attributes);
                         if (data[i, j] == null)
                             data[i, j] = "";
-                        CellValue cv = new CellValue(data[i, j].ToString());
+
+                        string val = data[i, j].ToString();
+                        if (dataFormats[i, j] == CellDataType.DateTime)
+                        {
+                            DateTime dt = DateTime.Now;
+                            if(DateTime.TryParse(val,out dt))
+                            {
+                                double span = dt.Subtract(localTime).TotalDays;
+                                val = span.ToString();
+                            }
+                        }
+                        CellValue cv = new CellValue(val);
                         cv.Space = SpaceProcessingModeValues.Preserve;
                         writer.WriteElement(cv);
+
                         writer.WriteEndElement();
                         progress++;
                         CallProgressChanged(progress, max);

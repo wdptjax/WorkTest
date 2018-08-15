@@ -22,7 +22,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock Margin="5" Text="{Binding Message}" 
                            Background="Transparent" Foreground="{Binding ForeColor, ElementName=window}" HorizontalAlignment="Left"/>
-                <TextBlock x:Name="txtShowFile" Text="{Binding FileName}" Background="Transparent" Foreground="Gray" 
+                <TextBlock x:Name="txtShowFile" Text="{Binding FileName}" Background="Transparent" Foreground="DarkGray" 
                            HorizontalAlignment="Right" VerticalAlignment="Center"
                            Visibility="Collapsed" Margin="10,5"/>
                 <Button x:Name="btnShowOpen" HorizontalAlignment="Right" FontWeight="Bold" Grid.ColumnSpan="3" Margin="5" Content="打开文件" Background="Transparent"

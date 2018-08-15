@@ -42,7 +42,7 @@ namespace OpenXmlReport
         /// 标题背景色
         /// </summary>
         public Brush TitleBackColor { get { return (Brush)GetValue(TitleBackColorProperty); } set { SetValue(TitleBackColorProperty, value); } }
-        private static DependencyProperty TitleBackColorProperty = DependencyProperty.Register("TitleBackColor", typeof(Brush), typeof(ShowProgress), new PropertyMetadata(Brushes.DarkGray));
+        private static DependencyProperty TitleBackColorProperty = DependencyProperty.Register("TitleBackColor", typeof(Brush), typeof(ShowProgress), new PropertyMetadata(Brushes.Black));
       
         private static object _lockThis = new object();
         private static ShowProgress _this = null;

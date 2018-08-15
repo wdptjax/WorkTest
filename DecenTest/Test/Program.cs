@@ -16,58 +16,8 @@ namespace Test
             //CreateDir("D:\\Testttttt\\");
             //Test2();
             //Test3();
-            Console.ReadLine();
         }
 
-        private static void Test4()
-        {
-            DataSet ds = new DataSet();
-            DataTable dt;
-            Random rd = new Random();
-            for (int i = 0; i < 10; i++)
-            {
-                string name = string.Format("数据{0}", i + 1);
-                dt = new DataTable(name);
-                for (int j = 0; j < i + 10; j++)
-                {
-                    string colName = string.Format("示例列{0}", j + 1);
-                    if (j == 0)
-                        dt.Columns.Add(colName, typeof(DateTime));
-                    else if (j % 2 == 0)
-                        dt.Columns.Add(colName, typeof(int));
-                    else
-                        dt.Columns.Add(colName, typeof(string));
-                }
-
-                for (int r = 0; r < (i + 1) * 10000; r++)
-                {
-                    DataRow dr = dt.NewRow();
-                    for (int c = 0; c < dt.Columns.Count; c++)
-                    {
-                        if(c==0)
-                        {
-                            DateTime time = DateTime.Now.AddHours(r);
-                            dr[c] = time;
-                        }
-                        else if(c%2==0)
-                        {
-                            dr[c] = rd.Next(0, 1000);
-                        }
-                        else
-                        {
-                            dr[c] = Guid.NewGuid().ToString();
-                        }
-                    }
-                    dt.Rows.Add(dr);
-                }
-
-                ds.Tables.Add(dt);
-            }
-
-            OpenXmlReportExport export = new OpenXmlReportExport();
-            export.ExportData = ds;
-            export.Start();
-        }
 
         private static void Test3()
         {

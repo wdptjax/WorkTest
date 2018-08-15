@@ -232,6 +232,13 @@ namespace OpenXmlReport
             _dataExport.FillData(workSheetPart, data, styles, rowHeights, columnList, mergeCellList, startRow, startColumn);
         }
 
+        protected void FillData(WorksheetPart workSheetPart,
+             object[,] data, uint[,] styles, CellDataType[,] dataFormats, double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
+             int startRow = 1, int startColumn = 1)
+        {
+            _dataExport.FillData(workSheetPart, data, styles, dataFormats, rowHeights, columnList, mergeCellList, startRow, startColumn);
+        }
+
         /// <summary>
         /// 添加Sheet（数据填充完毕以后添加）
         /// </summary>
@@ -281,7 +288,7 @@ namespace OpenXmlReport
                 _showExport.AddNewProgress(this);
                 CreateDocument(filename);
                 Message = "[进度:0%] -> 开始创建文件……";
-                StartFillData();
+                StartExport();
                 if (_isExportCanceled)
                 {
                     if (File.Exists(_filePath))
@@ -306,7 +313,7 @@ namespace OpenXmlReport
         }
 
         // 开始填充数据
-        private void StartFillData()
+        private void StartExport()
         {
             // 添加一个工作区
             _document.AddWorkbookPart();
@@ -314,7 +321,7 @@ namespace OpenXmlReport
             Stylesheet style = GetStylesheet();
             wbsp.Stylesheet = style;
             wbsp.Stylesheet.Save();
-            FillData();
+            ExportSheets();
             _document.Close();
         }
 
@@ -353,7 +360,7 @@ namespace OpenXmlReport
         /// <summary>
         /// 填充数据方法
         /// </summary>
-        protected abstract void FillData();
+        protected abstract void ExportSheets();
 
         /// <summary>
         /// 导出取消或者导出完毕都需要清理

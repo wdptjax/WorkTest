@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportExport", "ReportExpor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenXmlReport", "OpenXmlReport\OpenXmlReport.csproj", "{D748DB08-8E39-41CC-BD76-E066FF82E715}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestForm", "TestForm\TestForm.csproj", "{FB9E08FE-9262-4C58-A599-4EE8186D4604}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D748DB08-8E39-41CC-BD76-E066FF82E715}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D748DB08-8E39-41CC-BD76-E066FF82E715}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D748DB08-8E39-41CC-BD76-E066FF82E715}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB9E08FE-9262-4C58-A599-4EE8186D4604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB9E08FE-9262-4C58-A599-4EE8186D4604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB9E08FE-9262-4C58-A599-4EE8186D4604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB9E08FE-9262-4C58-A599-4EE8186D4604}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

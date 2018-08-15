@@ -42,17 +42,17 @@ namespace OpenXmlReport
         /// <summary>
         /// 构造函数
         /// </summary>
-        public OpenXmlReportExport():base()
+        public OpenXmlReportExport() : base()
         {
         }
 
         #region 重写
 
-        protected override void FillData()
+        protected override void ExportSheets()
         {
             if (ExportData == null || ExportData.Tables.Count == 0)
                 return;
-            foreach(DataTable dt in ExportData.Tables)
+            foreach (DataTable dt in ExportData.Tables)
             {
                 FillSheet(dt);
             }
@@ -72,10 +72,21 @@ namespace OpenXmlReport
         /// 9 SheetN 备注样式 宋体-12-加粗-无下划线-颜色普通-普通边框-居中对齐
         /// 10 所有 普通样式 宋体-12-普通-无下划线-颜色普通-普通边框-居中对齐
         /// 11 SheetN 普通样式 宋体-9-普通-无下划线-颜色普通-普通边框-左对齐
+        /// 12 SheetN 普通样式 宋体-9-普通-无下划线-颜色普通-普通边框-左对齐-数值
+        /// 13 SheetN 普通样式 宋体-9-普通-无下划线-颜色普通-普通边框-左对齐-时间
         /// </summary>
         /// <returns></returns>
         protected override Stylesheet GetStylesheet()
         {
+            // 数据格式，ID从176开始（通过Open Xml SDK工具查看到的都是从176开始，可能176之前的是系统定义的格式）
+            // 如果是数值，需要的格式如下：[0.00_ ]后面必须跟下划线与空格，否则会报错：(
+            NumberingFormat num1 = SheetStyles.GetNumberingFormat(176, "0.00_ ");
+            NumberingFormat num2 = SheetStyles.GetNumberingFormat(177, "yyyy/MM/dd hh:mm:ss");
+            List<NumberingFormat> numfList = new List<NumberingFormat>()
+            {
+                num1,num2
+            };
+
             // 字体样式
             Font font1 = SheetStyles.GetFont(11, "宋体");
             Font font2 = SheetStyles.GetFont(16, "宋体", "000000", UnderlineValues.Single, true);
@@ -166,29 +177,33 @@ namespace OpenXmlReport
             // 单元格样式
             // CellFormat的fontId,fillId,borderId分别对应上面的fontlist、filllist、borderList从0开始的索引
             CellFormat cellFormat0 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
-                VerticalAlignmentValues.Center, 0, 0, 0);
+                VerticalAlignmentValues.Center, 0, 0, 0, 0);
             CellFormat cellFormat1 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
-                 VerticalAlignmentValues.Center, 1, 0, 1);
+                 VerticalAlignmentValues.Center, 0, 1, 0, 1);
             CellFormat cellFormat2 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
-                VerticalAlignmentValues.Center, 2, 0, 1);
+                VerticalAlignmentValues.Center, 0, 2, 0, 1);
             CellFormat cellFormat3 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
-                VerticalAlignmentValues.Center, 3, 0, 2);
+                VerticalAlignmentValues.Center, 0, 3, 0, 2);
             CellFormat cellFormat4 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
-                VerticalAlignmentValues.Center, 4, 0, 1);
+                VerticalAlignmentValues.Center, 0, 4, 0, 1);
             CellFormat cellFormat5 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
-                VerticalAlignmentValues.Center, 5, 2, 1);
+                VerticalAlignmentValues.Center, 0, 5, 2, 1);
             CellFormat cellFormat6 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
-                VerticalAlignmentValues.Center, 6, 0, 2);
+                VerticalAlignmentValues.Center, 0, 6, 0, 2);
             CellFormat cellFormat7 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
-                VerticalAlignmentValues.Center, 6, 0, 1);
+                VerticalAlignmentValues.Center, 0, 6, 0, 1);
             CellFormat cellFormat8 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
-                VerticalAlignmentValues.Center, 7, 0, 1);
+                VerticalAlignmentValues.Center, 0, 7, 0, 1);
             CellFormat cellFormat9 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
-                VerticalAlignmentValues.Center, 7, 0, 1);
+                VerticalAlignmentValues.Center, 0, 7, 0, 1);
             CellFormat cellFormat10 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
-                VerticalAlignmentValues.Center, 2, 0, 1);
+                VerticalAlignmentValues.Center, 0, 2, 0, 1);
             CellFormat cellFormat11 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
-                VerticalAlignmentValues.Center, 6, 0, 1);
+                VerticalAlignmentValues.Center, 0, 6, 0, 1);
+            CellFormat cellFormat12 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+                VerticalAlignmentValues.Center, 176, 6, 0, 1);
+            CellFormat cellFormat13 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+                VerticalAlignmentValues.Center, 177, 6, 0, 1);
             List<CellFormat> cellList = new List<CellFormat>
             {
                 cellFormat0,  //0 默认样式 宋体-11-普通-无下划线-颜色普通-无边框
@@ -203,9 +218,11 @@ namespace OpenXmlReport
                 cellFormat9,  //9 SheetN 备注样式 宋体-12-加粗-无下划线-颜色普通-普通边框-居中对齐
                 cellFormat10, //10 所有 普通样式 宋体-12-普通-无下划线-颜色普通-普通边框-居中对齐
                 cellFormat11, //11 SheetN 普通样式 宋体-9-普通-无下划线-颜色普通-普通边框-左对齐
+                cellFormat12,
+                cellFormat13,
             };
 
-            Stylesheet style = SheetStyles.GetStyleSheet(fontlist, filllist, borderList, cellList);
+            Stylesheet style = SheetStyles.GetStyleSheet(numfList, fontlist, filllist, borderList, cellList);
             return style;
         }
 
@@ -224,9 +241,13 @@ namespace OpenXmlReport
             string msg = string.Format("正在生成报表[{0}] 开始组合数据……", sheetName);
             CallProgress(sheetName, msg);
 
-            // 初始化数据空间
+            // 数据空间
             object[,] data = new object[rowCount, colCount];
+            // 单元格样式
             uint[,] styles = new uint[rowCount, colCount];
+            // 数值格式
+            CellDataType[,] formats = new CellDataType[rowCount, colCount];
+            // 行高
             double[] rowHeights = Enumerable.Repeat(-1D, rowCount).ToArray();//-1代表自动行高
 
             // 填充标题（第一行） 宋体-16-加粗 背景淡黄-前景绿色
@@ -234,10 +255,13 @@ namespace OpenXmlReport
             string titleString = sheetName;
             data[startRow, 0] = titleString;
             styles[startRow, 0] = 5;// 表格样式对应方法[GetStylesheet]中的样式ID
+            rowHeights[0] = 44.5;
+            formats[startRow, 0] = CellDataType.String;
             for (int i = 1; i < data.GetLength(1); i++)
             {
                 // 标题行需要合并，其他单元格用空字符串填充
                 data[startRow, i] = "";
+                formats[startRow, i] = CellDataType.String;
             }
 
 
@@ -248,6 +272,7 @@ namespace OpenXmlReport
             {
                 data[startRow, i] = dataTable.Columns[i].ColumnName;
                 styles[startRow, i] = 9;
+                formats[startRow, i] = CellDataType.String;
             }
 
             #endregion 填充列标题
@@ -262,7 +287,18 @@ namespace OpenXmlReport
                 for (int j = 0; j < dataTable.Columns.Count; j++)
                 {
                     data[startRow + i, j] = dataTable.Rows[i][j];
-                    styles[startRow + i, j] = 7;
+                    styles[startRow + i, j] = 11;
+                    formats[startRow + i, j] = CellDataType.String;
+                    if (dataTable.Columns[j].DataType == typeof(double))
+                    {
+                        styles[startRow + i, j] = 12;
+                        formats[startRow + i, j] = CellDataType.Number;
+                    }
+                    else if (dataTable.Columns[j].DataType == typeof(DateTime))
+                    {
+                        styles[startRow + i, j] = 13;
+                        formats[startRow + i, j] = CellDataType.DateTime;
+                    }
                 }
             }
 
@@ -287,7 +323,7 @@ namespace OpenXmlReport
             msg = string.Format("正在生成报表[{0}] 开始导出数据……", sheetName);
             CallProgress(sheetName, msg);
 
-            FillData(workSheetPart, data, styles, rowHeights, colList, mergeList);
+            FillData(workSheetPart, data, styles, formats, rowHeights, colList, mergeList);
 
             AddSheet(workSheetPart);
 
