@@ -60,7 +60,7 @@ namespace OpenXmlReport
         // 优点是可以在现有Excel的Sheet页中追加数据
         /*
          * 使用这种方式进行导出时，需要以下步骤：
-         * 1. 调用方法[IniSheet]初始化表格信息
+         * 1. 调用方法[IniSheet]初始化表格信息-如果向现有Sheet追加数据，则不能用此方法
          * 2. 调用[FillRows]或[FillData]方法填充表格：
          *      2.1 将需要填充的每个数据使用方法[GetCell]封装成Cell类型(如果使用方法[FillData]进行导出，这一步跳过)
          *      2.2 调用[GetRow]方法将多个Cell类型放到一行(如果使用方法[FillData]进行导出，这一步跳过)

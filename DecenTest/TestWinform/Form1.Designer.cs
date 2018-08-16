@@ -75,10 +75,11 @@
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(347, 12);
+            this.progressBar1.MarqueeAnimationSpeed = 10;
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(100, 23);
+            this.progressBar1.Size = new System.Drawing.Size(99, 26);
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar1.TabIndex = 2;
-            this.progressBar1.Value = 50;
             // 
             // dataGridView2
             // 

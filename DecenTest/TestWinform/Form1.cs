@@ -37,7 +37,6 @@ namespace TestWinform
             dt.Rows.Add(true, "aaa", "bbb");
             dt.Rows.Add(false, "aaa", "bbb");
             dataGridView1.DataSource = dt;
-
             test();
         }
 

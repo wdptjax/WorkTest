@@ -104,7 +104,7 @@ namespace OpenXmlReport
 
         private string _message = "";
         private bool _isExportCompleted = false;
-        private bool _isExportCanceled = false;
+        protected bool _isExportCanceled = false;
         private string _fileName;
 
         #region 内部变量

@@ -70,7 +70,7 @@ namespace TestForm
                 this.Invoke(new Action(() => label1.Text = string.Format("第{0}组数据生成完毕----", i + 1)));
                 ds.Tables.Add(dt);
             }
-            this.Invoke(new Action(() => dataGridView1.DataSource = ds));
+            this.Invoke(new Action(() => dataGridView1.DataSource = ds.Tables));
             this.Invoke(new Action(() => label1.Text = "数据生成完毕"));
             this.Invoke(new Action(() =>
             {

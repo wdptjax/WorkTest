@@ -69,6 +69,8 @@ namespace OpenXmlReport
                 return;
             foreach (DataTable dt in ExportData.Tables)
             {
+                if (_isExportCanceled)
+                    return;
                 FillSheet(dt);
             }
         }
