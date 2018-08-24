@@ -226,6 +226,18 @@ namespace OpenXmlReport
             Message = string.Format("[进度:{0}%] -> {1}", val, message);
         }
 
+        /// <summary>
+        /// 使用OpenXmlWriter填充数据（大数据量）
+        /// 这个方法只能新建，不能向已有的数据追加
+        /// </summary>
+        /// <param name="workSheetPart"></param>
+        /// <param name="data">要填充的数据</param>
+        /// <param name="styles">单元格样式</param>
+        /// <param name="rowHeights">行高数组（自动行高时为-1）</param>
+        /// <param name="columnList">列样式数组</param>
+        /// <param name="mergeCellList">合并单元格数组</param>
+        /// <param name="startRow">起始的行号，从1开始</param>
+        /// <param name="startColumn">起始的列号，从1开始</param>
         protected void FillData(WorksheetPart workSheetPart,
             object[,] data, uint[,] styles, double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
             int startRow = 1, int startColumn = 1)
@@ -233,6 +245,20 @@ namespace OpenXmlReport
             _dataExport.FillData(workSheetPart, data, styles, rowHeights, columnList, mergeCellList, startRow, startColumn);
         }
 
+        /// <summary>
+        /// 使用OpenXmlWriter填充数据（大数据量）
+        /// 这个方法只能新建，不能向已有的数据追加
+        /// </summary>
+        /// <param name="workSheetPart"></param>
+        /// <param name="data">要填充的数据</param>
+        /// <param name="styles">单元格样式</param>
+        /// <param name="dataFormats">数据格式</param>
+        /// <param name="formulas">公式</param>
+        /// <param name="rowHeights">行高数组（自动行高时为-1）</param>
+        /// <param name="columnList">列样式数组</param>
+        /// <param name="mergeCellList">合并单元格数组</param>
+        /// <param name="startRow">起始的行号，从1开始</param>
+        /// <param name="startColumn">起始的列号，从1开始</param>
         public void FillData(WorksheetPart workSheetPart,
             object[,] data, uint[,] styles, CellDataType[,] dataFormats, object[,] formulas,
             double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,

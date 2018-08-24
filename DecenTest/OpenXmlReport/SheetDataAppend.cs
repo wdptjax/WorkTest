@@ -33,6 +33,14 @@ namespace OpenXmlReport
     /// </summary>
     public class SheetDataAppend
     {
+        /// <summary>
+        /// 初始时间，Excel中的时间单元格中为数值，然后显示为时间
+        /// 显示时间的数值是计算从1900年1月1日到当前时间的天数
+        /// 天数的整数部分格式化为年月日
+        /// 天数的小数部分格式化为时分秒以及毫秒
+        /// </summary>
+        private readonly DateTime _localTime = new DateTime(1900, 1, 1);// 初始时间
+
         public delegate void ExportProgressChangedDelegate(double value, double maxValue);
         /// <summary>
         /// 进度变化事件
@@ -452,19 +460,18 @@ namespace OpenXmlReport
             double progress = 0;
             double max = data.GetLength(0) * data.GetLength(1);
             OpenXmlWriter writer = OpenXmlWriter.Create(workSheetPart);
-            DateTime localTime = new DateTime(1900, 1, 1);// 初始时间
             try
             {
                 // 拼接表格Xml文档的开头
                 writer.WriteStartElement(new Worksheet());
-                writer.WriteStartElement(new SheetViews()); //sheetViews
-                writer.WriteStartElement(new SheetView() //sheetView
+                writer.WriteStartElement(new SheetViews()); // sheetViews
+                writer.WriteStartElement(new SheetView() // sheetView
                 {
                     TabSelected = true,
                     WorkbookViewId = 0U  //这里的下标是从0开始的
                 });
-                writer.WriteEndElement(); //sheetView 关闭标签
-                writer.WriteEndElement(); //sheetViews 关闭标签
+                writer.WriteEndElement(); // sheetView 关闭标签
+                writer.WriteEndElement(); // sheetViews 关闭标签
                 // 拼接列信息
                 if (columnList != null)
                     FillColumn(writer, columnList);
@@ -473,7 +480,7 @@ namespace OpenXmlReport
                 for (int i = 0; i < data.GetLength(0); i++)
                 {
                     int rowIndex = startRow + i;
-                    //create a new list of attributes
+                    // create a new list of attributes
                     List<OpenXmlAttribute> attributes = new List<OpenXmlAttribute>();
                     // add the row index attribute to the list
                     attributes.Add(new OpenXmlAttribute("r", null, rowIndex.ToString()));
@@ -491,37 +498,46 @@ namespace OpenXmlReport
                         attributes = new List<OpenXmlAttribute>();
                         if (dataFormats[i, j] == CellDataType.String)
                         {
-                            attributes.Add(new OpenXmlAttribute("t", null, "str")); //数据格式
+                            attributes.Add(new OpenXmlAttribute("t", null, "str")); // 数据格式
                         }
-                        attributes.Add(new OpenXmlAttribute("s", null, styles[i, j].ToString())); //样式
+                        attributes.Add(new OpenXmlAttribute("s", null, styles[i, j].ToString())); // 样式
                         attributes.Add(new OpenXmlAttribute("r", "", string.Format("{0}{1}", GetColumnName(colIndex), rowIndex)));
-                        writer.WriteStartElement(new Cell(), attributes);
+                        // 添加单元格信息（Cell）后面可以跟CellValue\CellFormula\InlineString\ExtensionList等
+                        //     The following table lists the possible child types:
+                        //          CellFormula     <x:f> 
+                        //          CellValue       <x:v>
+                        //          InlineString    <x:is> 
+                        //          ExtensionList   <x:extLst>
+                        writer.WriteStartElement(new Cell(), attributes);// 开始填充单元格
                         if (data[i, j] == null)
                             data[i, j] = "";
+                        // 添加公式
                         if (formulas[i, j] != null)
                         {
                             string f = formulas[i, j].ToString();
                             CellFormula cf = new CellFormula(f);
-                            cf.CalculateCell = true;
+                            cf.CalculateCell = true;// 若要启用公式，必须有这行代码
                             writer.WriteElement(cf);
                         }
+
                         string val = data[i, j].ToString();
+
+                        // 如果是时间格式，需要将时间转换为数值（天以及天的小数部分）
                         if (dataFormats[i, j] == CellDataType.DateTime)
                         {
                             DateTime dt = DateTime.Now;
                             if (DateTime.TryParse(val, out dt))
                             {
-                                double span = dt.Subtract(localTime).TotalDays;
+                                double span = dt.Subtract(_localTime).TotalDays;
                                 val = span.ToString();
                             }
                         }
-
+                        // 添加单元格值
                         CellValue cv = new CellValue(val);
                         cv.Space = SpaceProcessingModeValues.Preserve;
                         writer.WriteElement(cv);
 
-
-                        writer.WriteEndElement();
+                        writer.WriteEndElement();// 结束填充单元格
 
                         progress++;
                         CallProgressChanged(progress, max);
