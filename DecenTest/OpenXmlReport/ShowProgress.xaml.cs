@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 
 namespace OpenXmlReport
@@ -16,6 +17,7 @@ namespace OpenXmlReport
         public ShowProgress()
         {
             InitializeComponent();
+            _helper = new WindowInteropHelper(this);
         }
 
         public ObservableCollection<ReportExportBase> ProgressCollection { get { return (ObservableCollection<ReportExportBase>)GetValue(ProgressCollectionProperty); } set { SetValue(ProgressCollectionProperty, value); } }
@@ -47,11 +49,23 @@ namespace OpenXmlReport
         private static object _lockThis = new object();
         private static ShowProgress _this = null;
 
+        // 设置父窗体句柄使用，WPF与Winform交互
+        // WPF不能直接设置Winform为父窗体，需要用这个类进行设置
+        /*
+            即使设置了父窗体，也不能将子窗体的显示位置设置为CenterOwner
+            因为最后显示的窗口不会位于Owner窗口的中心。
+            事实上，WindowInteropHelper.Owner属性设置的是Window类的_ownerHandle成员,
+            这个成员和Window.Owner设置的成员不是同一个,
+            因此，文档中的说明和WPF的实际实现不相符的。这个问题基本已经确认是WPF的一个BUG。
+         */
+        private WindowInteropHelper _helper = null;
+
         /// <summary>
         /// 单实例模式
         /// </summary>
+        /// <param name="owner">父窗体句柄</param>
         /// <returns></returns>
-        public static ShowProgress GetInstance()
+        public static ShowProgress GetInstance(IntPtr owner)
         {
             lock (_lockThis)
             {
@@ -64,6 +78,7 @@ namespace OpenXmlReport
                 {
                     _this.Show();
                 }
+                _this.SetOwner(owner);
             }
             return _this;
         }
@@ -92,6 +107,13 @@ namespace OpenXmlReport
                 return;
             }
             this.Hide();
+        }
+
+        // 设置父窗体句柄
+        protected void SetOwner(IntPtr owner)
+        {
+            if (_helper != null && owner != IntPtr.Zero)
+                _helper.Owner = owner;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

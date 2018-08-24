@@ -438,13 +438,15 @@ namespace OpenXmlReport
         /// <param name="data">要填充的数据</param>
         /// <param name="styles">单元格样式</param>
         /// <param name="dataFormats">数据格式</param>
+        /// <param name="formulas">公式</param>
         /// <param name="rowHeights">行高数组（自动行高时为-1）</param>
         /// <param name="columnList">列样式数组</param>
         /// <param name="mergeCellList">合并单元格数组</param>
         /// <param name="startRow">起始的行号，从1开始</param>
         /// <param name="startColumn">起始的列号，从1开始</param>
         public void FillData(WorksheetPart workSheetPart,
-            object[,] data, uint[,] styles, CellDataType[,] dataFormats, double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
+            object[,] data, uint[,] styles, CellDataType[,] dataFormats, object[,] formulas,
+            double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
             int startRow = 1, int startColumn = 1)
         {
             double progress = 0;
@@ -496,22 +498,31 @@ namespace OpenXmlReport
                         writer.WriteStartElement(new Cell(), attributes);
                         if (data[i, j] == null)
                             data[i, j] = "";
-
+                        if (formulas[i, j] != null)
+                        {
+                            string f = formulas[i, j].ToString();
+                            CellFormula cf = new CellFormula(f);
+                            cf.CalculateCell = true;
+                            writer.WriteElement(cf);
+                        }
                         string val = data[i, j].ToString();
                         if (dataFormats[i, j] == CellDataType.DateTime)
                         {
                             DateTime dt = DateTime.Now;
-                            if(DateTime.TryParse(val,out dt))
+                            if (DateTime.TryParse(val, out dt))
                             {
                                 double span = dt.Subtract(localTime).TotalDays;
                                 val = span.ToString();
                             }
                         }
+
                         CellValue cv = new CellValue(val);
                         cv.Space = SpaceProcessingModeValues.Preserve;
                         writer.WriteElement(cv);
 
+
                         writer.WriteEndElement();
+
                         progress++;
                         CallProgressChanged(progress, max);
                         if (IsExportCanceled)

@@ -119,7 +119,7 @@ namespace OpenXmlReport
         // 当前导出的Sheet页的标题
         private string _sheetName = "";
         // 进度条展示窗体
-        private ShowProgress _showExport = null;
+        private ShowProgress _showExportView = null;
 
         // 数据整合类
         private SheetDataAppend _dataExport;
@@ -129,9 +129,10 @@ namespace OpenXmlReport
         /// <summary>
         /// 构造函数
         /// </summary>
-        public ReportExportBase()
+        /// <param name="owner">父窗体句柄</param>
+        public ReportExportBase(IntPtr owner)
         {
-            _showExport = ShowProgress.GetInstance();
+            _showExportView = ShowProgress.GetInstance(owner);
             _dataExport = new SheetDataAppend();
             _dataExport.ProgressChangedEvent += SheetDataAppend_ProgressChangedEvent;
             _dataExport.IsExportCanceled = false;
@@ -164,7 +165,7 @@ namespace OpenXmlReport
 
             if (!File.Exists(_filePath))
             {
-                MessageBox.Show(_showExport, "文件不存在");
+                MessageBox.Show(_showExportView, "文件不存在");
                 return;
             }
 
@@ -180,7 +181,7 @@ namespace OpenXmlReport
                 return;
             if (!Directory.Exists(_fileDir))
             {
-                MessageBox.Show(_showExport, "路径不存在");
+                MessageBox.Show(_showExportView, "路径不存在");
                 return;
             }
 
@@ -232,11 +233,12 @@ namespace OpenXmlReport
             _dataExport.FillData(workSheetPart, data, styles, rowHeights, columnList, mergeCellList, startRow, startColumn);
         }
 
-        protected void FillData(WorksheetPart workSheetPart,
-             object[,] data, uint[,] styles, CellDataType[,] dataFormats, double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
-             int startRow = 1, int startColumn = 1)
+        public void FillData(WorksheetPart workSheetPart,
+            object[,] data, uint[,] styles, CellDataType[,] dataFormats, object[,] formulas,
+            double[] rowHeights, List<Column> columnList, List<MergeCell> mergeCellList,
+            int startRow = 1, int startColumn = 1)
         {
-            _dataExport.FillData(workSheetPart, data, styles, dataFormats, rowHeights, columnList, mergeCellList, startRow, startColumn);
+            _dataExport.FillData(workSheetPart, data, styles, dataFormats, formulas, rowHeights, columnList, mergeCellList, startRow, startColumn);
         }
 
         /// <summary>
@@ -285,7 +287,7 @@ namespace OpenXmlReport
                 string filename = _filePath;
                 _maxValue = GetMaxValue();
                 _sheetID = 0;
-                _showExport.AddNewProgress(this);
+                _showExportView.AddNewProgress(this);
                 CreateDocument(filename);
                 Message = "[进度:0%] -> 开始创建文件……";
                 StartExport();
@@ -303,7 +305,7 @@ namespace OpenXmlReport
             }
             catch (Exception ex)
             {
-                _showExport.Dispatcher.Invoke(new Action(() => MessageBox.Show(_showExport, "报表导出失败/" + ex.Message)));
+                _showExportView.Dispatcher.Invoke(new Action(() => MessageBox.Show(_showExportView, "报表导出失败/" + ex.Message)));
             }
             finally
             {

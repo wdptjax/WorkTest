@@ -50,7 +50,7 @@ namespace OpenXmlReport
         /// <summary>
         /// 构造函数
         /// </summary>
-        public OpenXmlReportExport() : base()
+        public OpenXmlReportExport(IntPtr owner) : base(owner)
         {
         }
 
@@ -277,9 +277,10 @@ namespace OpenXmlReport
             uint[,] styles = new uint[rowCount, colCount];
             // 数值格式
             CellDataType[,] formats = new CellDataType[rowCount, colCount];
+            // 公式
+            object[,] formulas = new object[rowCount, colCount];
             // 行高
             double[] rowHeights = Enumerable.Repeat(-1D, rowCount).ToArray();//-1代表自动行高
-
             // 填充标题（第一行） 宋体-16-加粗 背景淡黄-前景绿色
             int startRow = 0;
             string titleString = sheetName;
@@ -328,6 +329,12 @@ namespace OpenXmlReport
                         styles[startRow + i, j] = 13;
                         formats[startRow + i, j] = CellDataType.DateTime;
                     }
+                    if (j == dataTable.Columns.Count - 1)
+                    {
+                        string c1 = SheetDataAppend.GetColumnName(3);
+                        string c2 = SheetDataAppend.GetColumnName(5);
+                        formulas[startRow + i, j] = string.Format("{1}{0}+{2}{0}", startRow + i + 1, c1, c2);
+                    }
                 }
             }
 
@@ -352,7 +359,7 @@ namespace OpenXmlReport
             msg = string.Format("正在生成报表[{0}] 开始导出数据……", sheetName);
             CallProgress(sheetName, msg);
 
-            FillData(workSheetPart, data, styles, formats, rowHeights, colList, mergeList);
+            FillData(workSheetPart, data, styles, formats, formulas, rowHeights, colList, mergeList);
 
             AddSheet(workSheetPart);
 
