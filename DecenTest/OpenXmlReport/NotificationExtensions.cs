@@ -23,6 +23,9 @@ using System.Text;
 
 namespace NotificationExtensions
 {
+    /// <summary>
+    /// wpf扩展，接口INotifyPropertyChanged不需要传入字符串了
+    /// </summary>
     public static class NotificationExtensions
     {
         public static void Notify(this PropertyChangedEventHandler eventHandler, Expression<Func<object>> expression)
