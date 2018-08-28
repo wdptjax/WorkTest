@@ -50,6 +50,7 @@
     <Compile Include="Enums.cs" />
     <Compile Include="OpenXmlReportExport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="NotificationExtensions.cs" />
     <Compile Include="ReportExportBase.cs" />
     <Compile Include="SheetDataAppend.cs" />
     <Compile Include="SheetStyles.cs" />

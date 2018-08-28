@@ -16,6 +16,7 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using NotificationExtensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,12 +36,7 @@ namespace OpenXmlReport
     {
         #region WPF展示使用
 
-        #region INotifyPropertyChanged
-
         public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnNotifyPropertyChanged(string propertyName) { if (this.PropertyChanged != null) { this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName)); } }
-
-        #endregion
 
         /// <summary>
         /// 当前进度
@@ -48,7 +44,7 @@ namespace OpenXmlReport
         public double Progress
         {
             get { return _progress; }
-            set { if (_progress != value) { _progress = value; OnNotifyPropertyChanged("Progress"); } }
+            set { if (_progress != value) { _progress = value; PropertyChanged.Notify(() => this.Progress); } }
         }
 
         /// <summary>
@@ -57,7 +53,7 @@ namespace OpenXmlReport
         public string Message
         {
             get { return _message; }
-            set { if (_message != value) { _message = value; OnNotifyPropertyChanged("Message"); } }
+            set { if (_message != value) { _message = value; PropertyChanged.Notify(() => this.Message); } }
         }
 
         /// <summary>
@@ -66,7 +62,7 @@ namespace OpenXmlReport
         public double MaxValue
         {
             get { return _maxValue; }
-            set { if (_maxValue != value) { _maxValue = value; OnNotifyPropertyChanged("MaxValue"); } }
+            set { if (_maxValue != value) { _maxValue = value; PropertyChanged.Notify(() => this.MaxValue); } }
         }
 
         /// <summary>
@@ -75,7 +71,7 @@ namespace OpenXmlReport
         public bool ExportCompleted
         {
             get { return _isExportCompleted; }
-            set { if (_isExportCompleted != value) { _isExportCompleted = value; OnNotifyPropertyChanged("ExportCompleted"); } }
+            set { if (_isExportCompleted != value) { _isExportCompleted = value; PropertyChanged.Notify(() => this.ExportCompleted); } }
         }
 
         /// <summary>
@@ -84,7 +80,7 @@ namespace OpenXmlReport
         public bool ExportCanceled
         {
             get { return _isExportCanceled; }
-            set { if (_isExportCanceled != value) { _isExportCanceled = value; OnNotifyPropertyChanged("ExportCanceled"); } }
+            set { if (_isExportCanceled != value) { _isExportCanceled = value; PropertyChanged.Notify(() => this.ExportCanceled); } }
         }
 
         /// <summary>
@@ -93,7 +89,7 @@ namespace OpenXmlReport
         public string FileName
         {
             get { return _fileName; }
-            set { if (_fileName != value) { _fileName = value; OnNotifyPropertyChanged("FileName"); } }
+            set { if (_fileName != value) { _fileName = value; PropertyChanged.Notify(() => this.FileName); } }
         }
 
         #endregion
