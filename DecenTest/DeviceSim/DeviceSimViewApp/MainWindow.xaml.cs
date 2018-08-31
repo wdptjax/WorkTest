@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DeviceSimlib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,16 @@ namespace DeviceSimViewApp
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            DeviceManager.GetInstance().AddNew();
         }
     }
 }

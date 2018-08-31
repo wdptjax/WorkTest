@@ -1,12 +1,41 @@
-﻿<Window x:Class="DeviceSimViewApp.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DeviceSimViewApp"
+        xmlns:sim="clr-namespace:DeviceSimlib;assembly=DeviceSimlib"
+        xmlns:DockingLibrary="clr-namespace:DockingLibrary;assembly=DockingLibrary" x:Class="DeviceSimViewApp.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="DeviceInstance" ObjectType="{x:Type sim:DeviceManager}"  MethodName="GetInstance"/>
+        <DataTemplate DataType="{x:Type sim:Device}">
+            <Grid>
+                <TextBlock Text="{Binding Name}"/>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static ApplicationCommands.New}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+    </Window.CommandBindings>
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ToolBarTray>
+            <ToolBar>
+                <Button Content="添加" Command="{x:Static ApplicationCommands.New}"/>
+            </ToolBar>
+        </ToolBarTray>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" MinWidth="120"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ListBox Margin="0,0,5,0" ItemsSource="{Binding Source={StaticResource DeviceInstance},Path=Devices}"/>
+            <GridSplitter Width="5" HorizontalAlignment="Right" VerticalContentAlignment="Stretch"/>
+        </Grid>
     </Grid>
 </Window>

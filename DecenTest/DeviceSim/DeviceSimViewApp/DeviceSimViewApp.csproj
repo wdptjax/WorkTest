@@ -88,5 +88,15 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DeviceSimlib\DeviceSimlib.csproj">
+      <Project>{1859493c-2728-4872-8913-ae6e6069fca1}</Project>
+      <Name>DeviceSimlib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DockingLibrary\DockingLibrary.csproj">
+      <Project>{FA274CD2-57BB-4EB0-B101-A562ADB1685E}</Project>
+      <Name>DockingLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

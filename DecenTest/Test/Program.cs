@@ -1,11 +1,13 @@
-﻿using OpenXmlReport;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Test
 {
@@ -16,8 +18,40 @@ namespace Test
             //CreateDir("D:\\Testttttt\\");
             //Test2();
             //Test3();
+            TestUdp();
         }
 
+        private static void TestUdp()
+        {
+            Task.Factory.StartNew(Server);
+            Client();
+        }
+
+        private static void Server()
+        {
+            Socket srv = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            srv.Bind(new IPEndPoint(IPAddress.Any, 50000));
+            while (true)
+            {
+                EndPoint point = new IPEndPoint(IPAddress.Any, 0);//用来保存发送方的ip和端口号
+                byte[] buffer = new byte[1024];
+                int len = srv.ReceiveFrom(buffer, ref point);
+                string message = Encoding.ASCII.GetString(buffer, 0, len);
+                Console.WriteLine(point.ToString() + ":" + message);
+            }
+        }
+
+        private static void Client()
+        {
+            UdpClient client = new UdpClient("127.0.0.1", 50000);
+            string str = Console.ReadLine();
+            while (!string.IsNullOrEmpty(str))
+            {
+                byte[] data = Encoding.ASCII.GetBytes(str);
+                client.Send(data, data.Length);
+                str = Console.ReadLine();
+            }
+        }
 
         private static void Test3()
         {
