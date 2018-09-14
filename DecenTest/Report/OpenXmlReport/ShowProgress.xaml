@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterScreen" SizeToContent="Height" ShowInTaskbar="False" WindowStyle="None"
         AllowsTransparency="True" ResizeMode="NoResize">
     <Window.Resources>
-        <DataTemplate x:Key="progressTemplete" DataType="{x:Type local:ReportExportBase}">
+        <DataTemplate x:Key="progressTemplete" DataType="{x:Type local:ReportBase}">
             <Grid MinWidth="200" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

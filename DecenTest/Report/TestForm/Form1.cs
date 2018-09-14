@@ -1,4 +1,6 @@
 ﻿using OpenXmlReport;
+using OpenXmlReport.Excel;
+using OpenXmlReport.Word;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -88,10 +90,16 @@ namespace TestForm
 
         private void button2_Click(object sender, EventArgs e)
         {
-            OpenXmlReportExport export = new OpenXmlReportExport(this.Handle);
+            OpenXmlReportExportExcel export = new OpenXmlReportExportExcel(this.Handle);
             export.ExportData = ds;
             export.Start();
             Console.ReadLine();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            WordReportExportBase test = new WordReportExportBase(this.Handle);
+            test.Test();
         }
     }
 }

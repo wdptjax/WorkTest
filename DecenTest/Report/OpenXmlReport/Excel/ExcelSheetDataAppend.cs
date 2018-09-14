@@ -1,7 +1,7 @@
 ﻿
 /*********************************************************************************************
  *	
- * 文件名称:    SheetDataAppend.cs
+ * 文件名称:    ExcelSheetDataAppend.cs
  *
  * 作    者:    wdp
  *	
@@ -19,6 +19,7 @@
 *********************************************************************************************/
 
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
@@ -26,12 +27,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OpenXmlReport
+namespace OpenXmlReport.Excel
 {
     /// <summary>
     /// 表格数据处理
     /// </summary>
-    public class SheetDataAppend
+    public class ExcelSheetDataAppend
     {
         /// <summary>
         /// 初始时间，Excel中的时间单元格中为数值，然后显示为时间
@@ -52,7 +53,7 @@ namespace OpenXmlReport
         /// </summary>
         public bool IsExportCanceled { get; set; }
 
-        public SheetDataAppend()
+        public ExcelSheetDataAppend()
         {
 
         }

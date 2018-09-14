@@ -28,12 +28,12 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 
-namespace OpenXmlReport
+namespace OpenXmlReport.Excel
 {
     /// <summary>
     /// 报表导出例子
     /// </summary>
-    public class OpenXmlReportExport : ReportExportBase
+    public class OpenXmlReportExportExcel : ExcelReportExportBase
     {
         /// <summary>
         /// 需要导出的数据
@@ -50,7 +50,7 @@ namespace OpenXmlReport
         /// <summary>
         /// 构造函数
         /// </summary>
-        public OpenXmlReportExport(IntPtr owner) : base(owner)
+        public OpenXmlReportExportExcel(IntPtr owner) : base(owner)
         {
         }
 
@@ -69,7 +69,7 @@ namespace OpenXmlReport
                 return;
             foreach (DataTable dt in ExportData.Tables)
             {
-                if (_isExportCanceled)
+                if (ExportCanceled)
                     return;
                 FillSheet(dt);
             }
@@ -98,8 +98,8 @@ namespace OpenXmlReport
             #region 数据格式
             // ID从176开始（通过Open Xml SDK工具查看到的都是从176开始，可能176之前的是系统定义的格式）
             // 如果是数值，需要的格式如下：[0.00_ ]后面必须跟下划线与空格，否则会报错：(
-            NumberingFormat num1 = SheetStyles.GetNumberingFormat(_numberFormatIdStart, _numberFormatStr);
-            NumberingFormat num2 = SheetStyles.GetNumberingFormat(++_numberFormatIdStart, _dateTimeFormatStr);
+            NumberingFormat num1 = ExcelSheetStyles.GetNumberingFormat(_numberFormatIdStart, _numberFormatStr);
+            NumberingFormat num2 = ExcelSheetStyles.GetNumberingFormat(++_numberFormatIdStart, _dateTimeFormatStr);
             List<NumberingFormat> numfList = new List<NumberingFormat>()
             {
                 num1,num2
@@ -108,14 +108,14 @@ namespace OpenXmlReport
 
             #region 字体样式
 
-            Font font1 = SheetStyles.GetFont(11, "宋体");
-            Font font2 = SheetStyles.GetFont(16, "宋体", "000000", UnderlineValues.Single, true);
-            Font font3 = SheetStyles.GetFont(12, "宋体");
-            Font font4 = SheetStyles.GetFont(11, "宋体");
-            Font font5 = SheetStyles.GetFont(9, "宋体", "000000", UnderlineValues.None, true);
-            Font font6 = SheetStyles.GetFont(16, "宋体", "008000", UnderlineValues.None, true);
-            Font font7 = SheetStyles.GetFont(9, "宋体");
-            Font font8 = SheetStyles.GetFont(12, "宋体", "000000", UnderlineValues.None, true);
+            Font font1 = ExcelSheetStyles.GetFont(11, "宋体");
+            Font font2 = ExcelSheetStyles.GetFont(16, "宋体", "000000", UnderlineValues.Single, true);
+            Font font3 = ExcelSheetStyles.GetFont(12, "宋体");
+            Font font4 = ExcelSheetStyles.GetFont(11, "宋体");
+            Font font5 = ExcelSheetStyles.GetFont(9, "宋体", "000000", UnderlineValues.None, true);
+            Font font6 = ExcelSheetStyles.GetFont(16, "宋体", "008000", UnderlineValues.None, true);
+            Font font7 = ExcelSheetStyles.GetFont(9, "宋体");
+            Font font8 = ExcelSheetStyles.GetFont(12, "宋体", "000000", UnderlineValues.None, true);
 
             List<Font> fontlist = new List<Font>
             {
@@ -132,9 +132,9 @@ namespace OpenXmlReport
             #endregion
 
             #region 填充样式
-            Fill fill1 = SheetStyles.GetFill(PatternValues.None);
-            Fill fill2 = SheetStyles.GetFill(PatternValues.Gray125);
-            Fill fill3 = SheetStyles.GetFill(PatternValues.Solid, "FFFFFF99");
+            Fill fill1 = ExcelSheetStyles.GetFill(PatternValues.None);
+            Fill fill2 = ExcelSheetStyles.GetFill(PatternValues.Gray125);
+            Fill fill3 = ExcelSheetStyles.GetFill(PatternValues.Solid, "FFFFFF99");
 
             List<Fill> filllist = new List<Fill>
             {
@@ -148,22 +148,22 @@ namespace OpenXmlReport
             #region 边框样式
 
             //无边框
-            LeftBorder left0 = (LeftBorder)SheetStyles.GetBorderLineStyle(2, BorderStyleValues.None);
-            RightBorder right0 = (RightBorder)SheetStyles.GetBorderLineStyle(3, BorderStyleValues.None);
-            TopBorder top0 = (TopBorder)SheetStyles.GetBorderLineStyle(0, BorderStyleValues.None);
-            BottomBorder bottom0 = (BottomBorder)SheetStyles.GetBorderLineStyle(1, BorderStyleValues.None);
-            DiagonalBorder diag0 = (DiagonalBorder)SheetStyles.GetBorderLineStyle(4, BorderStyleValues.None);
+            LeftBorder left0 = (LeftBorder)ExcelSheetStyles.GetBorderLineStyle(2, BorderStyleValues.None);
+            RightBorder right0 = (RightBorder)ExcelSheetStyles.GetBorderLineStyle(3, BorderStyleValues.None);
+            TopBorder top0 = (TopBorder)ExcelSheetStyles.GetBorderLineStyle(0, BorderStyleValues.None);
+            BottomBorder bottom0 = (BottomBorder)ExcelSheetStyles.GetBorderLineStyle(1, BorderStyleValues.None);
+            DiagonalBorder diag0 = (DiagonalBorder)ExcelSheetStyles.GetBorderLineStyle(4, BorderStyleValues.None);
             //单边框
-            LeftBorder left1 = (LeftBorder)SheetStyles.GetBorderLineStyle(2, BorderStyleValues.Thin, "000000");
-            RightBorder right1 = (RightBorder)SheetStyles.GetBorderLineStyle(3, BorderStyleValues.Thin, "000000");
-            TopBorder top1 = (TopBorder)SheetStyles.GetBorderLineStyle(0, BorderStyleValues.Thin, "000000");
-            BottomBorder bottom1 = (BottomBorder)SheetStyles.GetBorderLineStyle(1, BorderStyleValues.Thin, "000000");
+            LeftBorder left1 = (LeftBorder)ExcelSheetStyles.GetBorderLineStyle(2, BorderStyleValues.Thin, "000000");
+            RightBorder right1 = (RightBorder)ExcelSheetStyles.GetBorderLineStyle(3, BorderStyleValues.Thin, "000000");
+            TopBorder top1 = (TopBorder)ExcelSheetStyles.GetBorderLineStyle(0, BorderStyleValues.Thin, "000000");
+            BottomBorder bottom1 = (BottomBorder)ExcelSheetStyles.GetBorderLineStyle(1, BorderStyleValues.Thin, "000000");
             //单边框以及斜线
-            LeftBorder left2 = (LeftBorder)SheetStyles.GetBorderLineStyle(2, BorderStyleValues.Thin, "000000");
-            RightBorder right2 = (RightBorder)SheetStyles.GetBorderLineStyle(3, BorderStyleValues.Thin, "000000");
-            TopBorder top2 = (TopBorder)SheetStyles.GetBorderLineStyle(0, BorderStyleValues.Thin, "000000");
-            BottomBorder bottom2 = (BottomBorder)SheetStyles.GetBorderLineStyle(1, BorderStyleValues.Thin, "000000");
-            DiagonalBorder diag2 = (DiagonalBorder)SheetStyles.GetBorderLineStyle(4, BorderStyleValues.Thin, "000000");
+            LeftBorder left2 = (LeftBorder)ExcelSheetStyles.GetBorderLineStyle(2, BorderStyleValues.Thin, "000000");
+            RightBorder right2 = (RightBorder)ExcelSheetStyles.GetBorderLineStyle(3, BorderStyleValues.Thin, "000000");
+            TopBorder top2 = (TopBorder)ExcelSheetStyles.GetBorderLineStyle(0, BorderStyleValues.Thin, "000000");
+            BottomBorder bottom2 = (BottomBorder)ExcelSheetStyles.GetBorderLineStyle(1, BorderStyleValues.Thin, "000000");
+            DiagonalBorder diag2 = (DiagonalBorder)ExcelSheetStyles.GetBorderLineStyle(4, BorderStyleValues.Thin, "000000");
 
             List<BorderPropertiesType> list = new List<BorderPropertiesType>
             {
@@ -173,7 +173,7 @@ namespace OpenXmlReport
                 bottom0
             };
             // 无边框
-            Border border1 = SheetStyles.GetBorder(list);
+            Border border1 = ExcelSheetStyles.GetBorder(list);
 
             list.Clear();
             list.Add(left1);
@@ -181,7 +181,7 @@ namespace OpenXmlReport
             list.Add(top1);
             list.Add(bottom1);
             // 有边框
-            Border border2 = SheetStyles.GetBorder(list);
+            Border border2 = ExcelSheetStyles.GetBorder(list);
 
             list.Clear();
             list.Add(left2);
@@ -190,7 +190,7 @@ namespace OpenXmlReport
             list.Add(bottom2);
             list.Add(diag2);
             // 中间有斜边框
-            Border border3 = SheetStyles.GetBorder(list, false, true);
+            Border border3 = ExcelSheetStyles.GetBorder(list, false, true);
 
             List<Border> borderList = new List<Border>
             {
@@ -204,33 +204,33 @@ namespace OpenXmlReport
             #region 单元格样式
 
             // CellFormat的fontId,fillId,borderId分别对应上面的fontlist、filllist、borderList从0开始的索引
-            CellFormat cellFormat0 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat0 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 0, 0, 0);
-            CellFormat cellFormat1 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
+            CellFormat cellFormat1 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
                  VerticalAlignmentValues.Center, 0, 1, 0, 1);
-            CellFormat cellFormat2 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat2 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 2, 0, 1);
-            CellFormat cellFormat3 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat3 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 3, 0, 2);
-            CellFormat cellFormat4 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat4 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 4, 0, 1);
-            CellFormat cellFormat5 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
+            CellFormat cellFormat5 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
                 VerticalAlignmentValues.Center, 0, 5, 2, 1);
-            CellFormat cellFormat6 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat6 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 6, 0, 2);
-            CellFormat cellFormat7 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
+            CellFormat cellFormat7 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
                 VerticalAlignmentValues.Center, 0, 6, 0, 1);
-            CellFormat cellFormat8 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat8 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 7, 0, 1);
-            CellFormat cellFormat9 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
+            CellFormat cellFormat9 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
                 VerticalAlignmentValues.Center, 0, 7, 0, 1);
-            CellFormat cellFormat10 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
+            CellFormat cellFormat10 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Center,
                 VerticalAlignmentValues.Center, 0, 2, 0, 1);
-            CellFormat cellFormat11 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat11 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 0, 6, 0, 1);
-            CellFormat cellFormat12 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat12 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 176, 6, 0, 1);
-            CellFormat cellFormat13 = SheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
+            CellFormat cellFormat13 = ExcelSheetStyles.GetCellFormat(HorizontalAlignmentValues.Left,
                 VerticalAlignmentValues.Center, 177, 6, 0, 1);
             List<CellFormat> cellList = new List<CellFormat>
             {
@@ -252,7 +252,7 @@ namespace OpenXmlReport
 
             #endregion
 
-            Stylesheet style = SheetStyles.GetStyleSheet(numfList, fontlist, filllist, borderList, cellList);
+            Stylesheet style = ExcelSheetStyles.GetStyleSheet(numfList, fontlist, filllist, borderList, cellList);
             return style;
         }
 
@@ -331,8 +331,8 @@ namespace OpenXmlReport
                     }
                     if (j == dataTable.Columns.Count - 1)
                     {
-                        string c1 = SheetDataAppend.GetColumnName(3);
-                        string c2 = SheetDataAppend.GetColumnName(5);
+                        string c1 = ExcelSheetDataAppend.GetColumnName(3);
+                        string c2 = ExcelSheetDataAppend.GetColumnName(5);
                         formulas[startRow + i, j] = string.Format("{1}{0}+{2}{0}", startRow + i + 1, c1, c2);
                     }
                 }
@@ -343,15 +343,15 @@ namespace OpenXmlReport
             #region 设置列格式以及合并单元格
             // 向表格插入列格式设置（列宽）
             List<Column> colList = new List<Column>();
-            Column col1 = SheetDataAppend.GetColumn(1, (uint)colCount, 0, true, 18);
+            Column col1 = ExcelSheetDataAppend.GetColumn(1, (uint)colCount, 0, true, 18);
             colList.Add(col1);
 
             // 向表格中插入合并单元格信息
             // 这里只是将第一行的总标题合并
             List<MergeCell> mergeList = new List<MergeCell>();
             string startCell = "A1";
-            string stopCell = string.Format("{0}1", SheetDataAppend.GetColumnName(colCount));
-            MergeCell merge = SheetDataAppend.GetMergeCell(startCell, stopCell);
+            string stopCell = string.Format("{0}1", ExcelSheetDataAppend.GetColumnName(colCount));
+            MergeCell merge = ExcelSheetDataAppend.GetMergeCell(startCell, stopCell);
             mergeList.Add(merge);
 
             #endregion

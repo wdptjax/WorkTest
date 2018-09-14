@@ -20,12 +20,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OpenXmlReport
+namespace OpenXmlReport.Excel
 {
     /// <summary>
     /// 自定义表格样式
     /// </summary>
-    class SheetStyles
+    class ExcelSheetStyles
     {
         /// <summary>
         /// 数值格式

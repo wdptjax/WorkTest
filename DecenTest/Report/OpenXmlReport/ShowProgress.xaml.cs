@@ -20,8 +20,8 @@ namespace OpenXmlReport
             _helper = new WindowInteropHelper(this);
         }
 
-        public ObservableCollection<ReportExportBase> ProgressCollection { get { return (ObservableCollection<ReportExportBase>)GetValue(ProgressCollectionProperty); } set { SetValue(ProgressCollectionProperty, value); } }
-        private static DependencyProperty ProgressCollectionProperty = DependencyProperty.Register("ProgressCollection", typeof(ObservableCollection<ReportExportBase>), typeof(ShowProgress), new PropertyMetadata(new ObservableCollection<ReportExportBase>()));
+        public ObservableCollection<ReportBase> ProgressCollection { get { return (ObservableCollection<ReportBase>)GetValue(ProgressCollectionProperty); } set { SetValue(ProgressCollectionProperty, value); } }
+        private static DependencyProperty ProgressCollectionProperty = DependencyProperty.Register("ProgressCollection", typeof(ObservableCollection<ReportBase>), typeof(ShowProgress), new PropertyMetadata(new ObservableCollection<ReportBase>()));
 
         /// <summary>
         /// 正文前景色
@@ -87,7 +87,7 @@ namespace OpenXmlReport
         /// 添加新的导出过程
         /// </summary>
         /// <param name="export"></param>
-        public void AddNewProgress(ReportExportBase export)
+        public void AddNewProgress(ReportBase export)
         {
             this.Dispatcher.Invoke(new Action(() => ProgressCollection.Add(export)));
         }
@@ -129,7 +129,7 @@ namespace OpenXmlReport
                 if (e.Parameter == null)
                     return;
 
-                ReportExportBase export = e.Parameter as ReportExportBase;
+                ReportBase export = e.Parameter as ReportBase;
                 export.OpenFile();
             }
             // 取消导出
@@ -138,7 +138,7 @@ namespace OpenXmlReport
                 if (e.Parameter == null)
                     return;
 
-                ReportExportBase export = e.Parameter as ReportExportBase;
+                ReportBase export = e.Parameter as ReportBase;
                 export.Cancel();
             }
             // 关闭界面（隐藏界面）
@@ -152,7 +152,7 @@ namespace OpenXmlReport
                 if (e.Parameter == null)
                     return;
 
-                ReportExportBase export = e.Parameter as ReportExportBase;
+                ReportBase export = e.Parameter as ReportBase;
                 export.OpenDir();
             }
             // 清理条目
@@ -161,7 +161,7 @@ namespace OpenXmlReport
                 if (e.Parameter == null)
                     return;
 
-                ReportExportBase export = e.Parameter as ReportExportBase;
+                ReportBase export = e.Parameter as ReportBase;
                 ProgressCollection.Remove(export);
             }
         }

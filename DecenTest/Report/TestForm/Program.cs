@@ -15,7 +15,6 @@ namespace TestForm
         {
             DateTime dt = DateTime.Now;
             double span = dt.Subtract(new DateTime(1900,1,1)).TotalDays;
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());

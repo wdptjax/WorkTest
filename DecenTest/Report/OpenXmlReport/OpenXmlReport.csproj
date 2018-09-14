@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,14 +31,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DocumentFormat.OpenXml, Version=2.8.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\DocumentFormat.OpenXml.dll</HintPath>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.5.5631.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -48,15 +50,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
-    <Compile Include="OpenXmlReportExport.cs" />
+    <Compile Include="Excel\OpenXmlReportExportExcel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NotificationExtensions.cs" />
-    <Compile Include="ReportExportBase.cs" />
-    <Compile Include="SheetDataAppend.cs" />
-    <Compile Include="SheetStyles.cs" />
+    <Compile Include="Excel\ExcelReportExportBase.cs" />
+    <Compile Include="Excel\ExcelSheetDataAppend.cs" />
+    <Compile Include="Excel\ExcelSheetStyles.cs" />
+    <Compile Include="ReportBase.cs" />
     <Compile Include="ShowProgress.xaml.cs">
       <DependentUpon>ShowProgress.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Word\OpenXmlEmbeddedObject.cs" />
+    <Compile Include="Word\OpenXmlHelper.cs" />
+    <Compile Include="Word\WordReportExportBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="ShowProgress.xaml">
@@ -67,6 +73,16 @@
   <ItemGroup>
     <Content Include="DocumentFormat.OpenXml.dll" />
     <Content Include="DocumentFormat.OpenXml.xml" />
+    <Content Include="ole32.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenXmlCidGenerator\OpenXmlCidGenerator.csproj">
+      <Project>{db7fbf65-ff65-4965-a6ff-e12c34b38219}</Project>
+      <Name>OpenXmlCidGenerator</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
