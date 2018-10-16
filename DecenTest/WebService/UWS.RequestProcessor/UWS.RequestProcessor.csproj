@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>local</ProjectType>
+    <ProjectVersion>7.10.377</ProjectVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{60FCDD03-F756-43E6-914A-FA28BAD5F29A}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <AssemblyName>UWS.RequestProcessor</AssemblyName>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="System.Web" />
+    <Reference Include="System" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Global.cs" />
+    <Compile Include="UltiDev\WebServer\Core\IListenerMonitor.cs" />
+    <Compile Include="UltiDev\WebServer\Core\ApplicationMonitor.cs" />
+    <Compile Include="UltiDev\WebServer\Core\RequestDispatcher.cs" />
+    <Compile Include="UltiDev\WebServer\Core\ApplicationRequestDispatcher.cs" />
+    <Compile Include="UltiDev\WebServer\Core\AppPoolController.cs" />
+    <Compile Include="UltiDev\WebServer\Core\ChunkedTransferDecoder.cs" />
+    <Compile Include="UltiDev\WebServer\Core\CompressionData.cs" />
+    <Compile Include="UltiDev\WebServer\Core\CompressionStats.cs" />
+    <Compile Include="UltiDev\WebServer\Core\Extensions.cs" />
+    <Compile Include="UltiDev\WebServer\Core\ListenerMonitorFactory.cs" />
+    <Compile Include="UltiDev\WebServer\Core\Messages.cs" />
+    <Compile Include="UltiDev\WebServer\Core\RedirectorMonitor.cs" />
+    <Compile Include="UltiDev\WebServer\Core\RedirectRequestDispatcher.cs" />
+    <Compile Include="UltiDev\WebServer\Core\Resources.cs" />
+    <Compile Include="UltiDev\WebServer\Core\Trace.cs" />
+    <Compile Include="UltiDev\WebServer\Core\WebAppDomain.cs" />
+    <Compile Include="UltiDev\WebServer\Core\RequestMethodTracer.cs" />
+    <Compile Include="UltiDev\WebServer\Core\AspNetRequest.cs" />
+    <Compile Include="UltiDev\WebServer\Core\WindowsAuthHelper.cs" />
+    <EmbeddedResource Include="UltiDev.WebServer.Core.Resources.resources" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UWS.Configuration\UWS.Configuration.csproj">
+      <Project>{48ab6528-e9da-4254-a446-a4989af10c26}</Project>
+      <Name>UWS.Configuration</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

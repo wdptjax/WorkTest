@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>local</ProjectType>
+    <ProjectVersion>7.10.377</ProjectVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{48AB6528-E9DA-4254-A446-A4989AF10C26}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <AssemblyName>UWS.Configuration</AssemblyName>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="Interop.NetFwTypeLib" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Management" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Global.cs" />
+    <Compile Include="UWS\Configuration\HostProcessConfigEntry.cs" />
+    <Compile Include="UWS\Configuration\AppPoolIDs.cs" />
+    <Compile Include="UWS\Configuration\HostProcessClrAndBitness.cs" />
+    <Compile Include="UWS\Configuration\AppPoolRegistrationHelper.cs" />
+    <Compile Include="UWS\Configuration\COM\IAppShortcut1.cs" />
+    <Compile Include="UWS\Configuration\AppShortcut.cs" />
+    <Compile Include="UWS\Configuration\COM\IComCompatibleCollection.cs" />
+    <Compile Include="UWS\Configuration\COM\ComCompatibleCollection.cs" />
+    <Compile Include="UWS\Framework\RegWow64Options.cs" />
+    <Compile Include="UWS\Framework\RegistryRights.cs" />
+    <Compile Include="UWS\Framework\RegistryHelpers.cs" />
+    <Compile Include="HttpConfig\UrlPermission.cs" />
+    <Compile Include="HttpConfig\Acl.cs" />
+    <Compile Include="HttpConfig\Ace.cs" />
+    <Compile Include="HttpConfig\HttpApi.cs" />
+    <Compile Include="HttpConfig\ErrorCheck.cs" />
+    <Compile Include="UWS\Configuration\ListenAddress.cs" />
+    <Compile Include="UWS\Configuration\ListenAddressList.cs" />
+    <Compile Include="UWS\Configuration\ListenEndpoint.cs" />
+    <Compile Include="UWS\Configuration\COM\IListenEndpoint1.cs" />
+    <Compile Include="UWS\Configuration\COM\ListenEndpointComServer!1.cs" />
+    <Compile Include="UWS\Configuration\COM\ListenAddressComCollection.cs" />
+    <Compile Include="UWS\Configuration\RuntimeVersion.cs" />
+    <Compile Include="UWS\Configuration\ApplicationCollection.cs" />
+    <Compile Include="UWS\Configuration\HostProcessCollection.cs" />
+    <Compile Include="UWS\Configuration\RedirectionCollection.cs" />
+    <Compile Include="UWS\Configuration\MetabaseSerializationHelper.cs" />
+    <Compile Include="UWS\Configuration\MsiHelper.cs" />
+    <Compile Include="UWS\Configuration\MsiNativeMethods.cs" />
+    <Compile Include="UWS\Configuration\Properties\Resources.cs" />
+    <Compile Include="UWS\Configuration\RedirectCode.cs" />
+    <Compile Include="UWS\Configuration\RedirectionConfigEntry.cs" />
+    <Compile Include="UWS\Configuration\COM\IRedirectionConfigEntry1.cs" />
+    <Compile Include="UWS\Configuration\COM\RedirectionConfigEntryComServer.cs" />
+    <Compile Include="UWS\Framework\ProcessIdentity.cs" />
+    <Compile Include="UWS\Framework\SecurityHelper.cs" />
+    <Compile Include="UltiDev\Framework\XmlSerializationHelper.cs" />
+    <Compile Include="UltiDev\Framework\IniFileHelper.cs" />
+    <Compile Include="UltiDev\Framework\Windows\ServiceControlAccessRights.cs" />
+    <Compile Include="UltiDev\Framework\Windows\ServiceAccessRights.cs" />
+    <Compile Include="UltiDev\Framework\Windows\ServiceConfig2InfoLevel.cs" />
+    <Compile Include="UltiDev\Framework\Windows\SC_ACTION_TYPE.cs" />
+    <Compile Include="UltiDev\Framework\Windows\SERVICE_FAILURE_ACTIONS.cs" />
+    <Compile Include="UltiDev\Framework\Windows\SC_ACTION.cs" />
+    <Compile Include="UltiDev\Framework\Windows\NativeMethods.cs" />
+    <Compile Include="UltiDev\Framework\Windows\ServiceControlManager.cs" />
+    <Compile Include="UWS\Framework\SetOperations!1.cs" />
+    <Compile Include="UWS\Framework\SystemUtilites.cs" />
+    <Compile Include="UWS\Configuration\UniqueList!1.cs" />
+    <Compile Include="UWS\Framework\WindowsFirewallHelper.cs" />
+    <Compile Include="HttpConfig\SecurityApi.cs" />
+    <Compile Include="HttpConfig\SslConfigItem.cs" />
+    <Compile Include="UltiDev\WebServer\Core\ApplicationStatus.cs" />
+    <Compile Include="UltiDev\WebServer\Core\ProcessEnvironment.cs" />
+    <Compile Include="UltiDev\WebServer\Core\IAppPoolController.cs" />
+    <Compile Include="UWS\Configuration\Metabase.cs" />
+    <Compile Include="UWS\Configuration\COM\IMetabaseComServer1.cs" />
+    <Compile Include="UWS\Configuration\COM\MetabaseComServer.cs" />
+    <Compile Include="UWS\Configuration\COM\IMetabaseComServer2.cs" />
+    <Compile Include="UWS\Configuration\COM\MetabaseComServer2.cs" />
+    <Compile Include="HttpConfig\ConfigItemAction.cs" />
+    <Compile Include="HttpConfig\UrlAclConfigItem.cs" />
+    <Compile Include="UWS\Configuration\UriMatchType.cs" />
+    <Compile Include="UWS\Configuration\HostInfo.cs" />
+    <Compile Include="UWS\Configuration\VDirHostMap.cs" />
+    <Compile Include="UWS\Configuration\ApplicationType.cs" />
+    <Compile Include="UWS\Configuration\WebAppConfigEntry.cs" />
+    <Compile Include="UWS\Configuration\AuthSchemes.cs" />
+    <Compile Include="UWS\Configuration\COM\IWebAppConfigEntry1.cs" />
+    <Compile Include="UWS\Configuration\COM\WebAppEntryComServer.cs" />
+    <EmbeddedResource Include="UWS.Configuration.Properties.Resources.resources" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UltiDevCassiniServerConfiguration\UltiDevCassiniServerConfiguration.csproj">
+      <Project>{50b8c7d3-fd1a-4f0d-b62c-01ca36621820}</Project>
+      <Name>UltiDevCassiniServerConfiguration</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

@@ -3,10 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Test
@@ -18,7 +20,175 @@ namespace Test
             //CreateDir("D:\\Testttttt\\");
             //Test2();
             //Test3();
-            TestUdp();
+            //TestUdp();
+            EBD195Sim();
+        }
+
+        static Random _random = new Random();
+        static SerialPort _port;
+        static bool _isRunning = false;
+        static int _normalDDF = 135;
+        static int _interTime = 1000;//ms
+        static DateTime _lastSendTime = DateTime.Now;
+        static bool _isPause = false;
+        static int _pauseSpan = 0;
+        static bool _isErr = false;
+
+        private static void EBD195Sim()
+        {
+            Console.WriteLine("EBD195 Sim StartUp……");
+            TestEBD195();
+            string str = Console.ReadLine();
+            while (!string.IsNullOrEmpty(str))
+            {
+                if (str.StartsWith("E"))
+                {
+                    _isErr = true;
+                }
+                else if (str.StartsWith("S"))
+                {
+                    _isErr = false;
+                }
+                else
+                {
+                    int pauseSpan = 0;
+                    if (int.TryParse(str, out pauseSpan))
+                    {
+                        _pauseSpan = pauseSpan;
+                        _isPause = true;
+                        Console.WriteLine("Pause:" + _pauseSpan + "ms");
+                    }
+                }
+                str = Console.ReadLine();
+            }
+            _port.Close();
+            _port.Dispose();
+        }
+
+        private static void TestEBD195()
+        {
+            _port = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.One);
+            _port.Open();
+            _port.DataReceived += _port_DataReceived;
+            _port.PinChanged += _port_PinChanged;
+            //_serialPort.ReceivedBytesThreshold = 1;
+
+            Task.Factory.StartNew(() =>
+            {
+                DateTime aliveTime = DateTime.Now;
+                while (true)
+                {
+                    Thread.Sleep(10);
+                    if (!_isRunning)
+                    {
+                        int span = (int)DateTime.Now.Subtract(aliveTime).TotalMilliseconds;
+                        if (span < 1000)
+                            continue;
+                        if (_isPause && span < _pauseSpan)
+                            continue;
+                        string sendStr = "A*,*,*,2\r\n";
+                        byte[] buffer = Encoding.ASCII.GetBytes(sendStr);
+                        _port.Write(buffer, 0, buffer.Length);
+                        aliveTime = DateTime.Now;
+                        continue;
+                    }
+                    {
+                        int span = (int)DateTime.Now.Subtract(_lastSendTime).TotalMilliseconds;
+                        if (span < _interTime)
+                            continue;
+                        _lastSendTime = DateTime.Now;
+                        aliveTime = DateTime.Now;
+
+                        int rd = _random.Next(0, 100);
+                        int ddfMin = 0;
+                        int ddfMax = 360;
+                        int quMin = 0;
+                        int quMax = 100;
+                        if (rd > 5 && rd < 95)
+                        {
+                            ddfMin = _normalDDF - 10;
+                            ddfMax = _normalDDF + 10;
+                            quMin = 30;
+                            quMax = 100;
+                        }
+                        int ddf = _random.Next(ddfMin, ddfMax);
+                        int quality = _random.Next(quMin, quMax);
+                        int time = _interTime;
+                        int level = _random.Next(40, 50);
+                        string sendData = string.Format("A{0},{1},{2},{3}\r\n", ddf, quality, time, level);
+                        if (_isErr)
+                            sendData = string.Format("A*,*,*,{3}\r\n", ddf, quality, time, level);
+                        byte[] buffer = Encoding.ASCII.GetBytes(sendData);
+                        _port.Write(buffer, 0, buffer.Length);
+                    }
+                }
+            });
+        }
+
+        private static void _port_PinChanged(object sender, SerialPinChangedEventArgs e)
+        {
+            bool res = false;
+            switch (e.EventType)
+            {
+                case SerialPinChange.CDChanged:
+                    res = _port.CDHolding;
+                    break;
+                case SerialPinChange.DsrChanged:
+                    res = _port.DsrHolding;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private static void _port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            byte[] buffer = new byte[_port.ReadBufferSize];
+            string data = "";
+            int recvCount = _port.Read(buffer, 0, buffer.Length);
+            data = System.Text.Encoding.ASCII.GetString(buffer, 0, recvCount);
+            Console.WriteLine(string.Format("Time:{0:HH:mm:ss.fff} Data:{1}", DateTime.Now, data));
+            if (data.Contains("D1"))
+            {
+                _isRunning = true;
+                Console.WriteLine("Start……\r\n=============================");
+            }
+            if (data.Contains("D0"))
+            {
+                _isRunning = false;
+                Console.WriteLine("Stop……\r\n=============================");
+            }
+            if (data.Contains("I"))
+            {
+                //积分时间
+                int index = data.IndexOf("I");
+                int num = int.Parse(data.Substring(index + 1, 1));
+                //x=0 100ms;x=1 200ms;x=2 500ms;x=3 1s;x=4 2s;x=5 5s;
+                switch (num)
+                {
+                    case 0:
+                        _interTime = 100;
+                        break;
+                    case 1:
+                        _interTime = 200;
+                        break;
+                    case 2:
+                        _interTime = 500;
+                        break;
+                    case 3:
+                        _interTime = 1000;
+                        break;
+                    case 4:
+                        _interTime = 2000;
+                        break;
+                    case 5:
+                        _interTime = 5000;
+                        break;
+                    default:
+                        _interTime = 100;
+                        break;
+                }
+            }
         }
 
         private static void TestUdp()
