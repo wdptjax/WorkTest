@@ -5,19 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DeviceSimViewApp"
         xmlns:sim="clr-namespace:DeviceSimlib;assembly=DeviceSimlib"
-        xmlns:DockingLibrary="clr-namespace:DockingLibrary;assembly=DockingLibrary" x:Class="DeviceSimViewApp.MainWindow"
-        mc:Ignorable="d"
+        x:Class="DeviceSimViewApp.MainWindow"
+        mc:Ignorable="d" x:Name="window"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
         <ObjectDataProvider x:Key="DeviceInstance" ObjectType="{x:Type sim:DeviceManager}"  MethodName="GetInstance"/>
-        <DataTemplate DataType="{x:Type sim:Device}">
-            <Grid>
+        <DataTemplate DataType="{x:Type sim:DeviceBase}">
+            <Grid Margin="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding Name}"/>
+                <Ellipse x:Name="bd" Grid.Column="2" Width="15" Height="15" Fill="Red" Opacity="1" VerticalAlignment="Center"/>
             </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding DeviceInitialized}" Value="true">
+                    <Setter TargetName="bd" Property="Fill" Value="lime"/>
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard Name="OpacityStoryboard">
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="Opacity"
+                                             BeginTime="00:00:00" Duration="00:00:01" From="1" To="0.2" AutoReverse="True" RepeatBehavior="Forever"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding DeviceInitialized}" Value="false">
+                    <DataTrigger.EnterActions>
+                        <StopStoryboard BeginStoryboardName="OpacityStoryboard"/>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+            </DataTemplate.Triggers>
         </DataTemplate>
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="{x:Static ApplicationCommands.New}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static sim:Commands.Add}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static sim:Commands.Delete}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static sim:Commands.Start}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static sim:Commands.Pause}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static sim:Commands.Stop}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -26,7 +54,8 @@
         </Grid.RowDefinitions>
         <ToolBarTray>
             <ToolBar>
-                <Button Content="添加" Command="{x:Static ApplicationCommands.New}"/>
+                <Button Content="添加" Command="{x:Static sim:Commands.Add}"/>
+                <Button Content="删除" Command="{x:Static sim:Commands.Delete}"/>
             </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1">
@@ -34,8 +63,12 @@
                 <ColumnDefinition Width="auto" MinWidth="120"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ListBox Margin="0,0,5,0" ItemsSource="{Binding Source={StaticResource DeviceInstance},Path=Devices}"/>
+            <ListBox Margin="0,0,5,0" ItemsSource="{Binding Source={StaticResource DeviceInstance},Path=Devices}" SelectedItem="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice}" HorizontalContentAlignment="Stretch"/>
             <GridSplitter Width="5" HorizontalAlignment="Right" VerticalContentAlignment="Stretch"/>
+            <Border Grid.Column="1" BorderThickness="1" BorderBrush="#FF2576B9" Padding="3">
+                <ContentControl Content="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice.Control}"/>
+            </Border>
+            <!--<dockLib:DockManager x:Name="dockManager" Grid.Column="1"/>-->
         </Grid>
     </Grid>
 </Window>

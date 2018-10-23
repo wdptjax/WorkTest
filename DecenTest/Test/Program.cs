@@ -21,8 +21,83 @@ namespace Test
             //Test2();
             //Test3();
             //TestUdp();
-            EBD195Sim();
+            //string str = "I6\r\n";
+            //byte[] buffer = Encoding.ASCII.GetBytes(str);
+            //string hex = BitConverter.ToString(buffer).Replace("-", " ");
+            TestComport();
+
+            //EBD195Sim();
         }
+
+        #region 测试先关闭线程再关闭串口的报错(System.ObjectDisposedException 已关闭 Safe handle)
+
+        static SerialPort com = new SerialPort("COM4", 19200, Parity.Space, 8, StopBits.One);
+        static void TestComport()
+        {
+            int count = 0;
+            com.Open();
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    object _lock = new object();
+                    bool iserr = false;
+                    Thread.Sleep(1);
+                    try
+                    {
+                        Thread thd = new Thread(() =>
+                          {
+                              try
+                              {
+                                  Console.WriteLine("write aaaa=====");
+                                  while (com.IsOpen)
+                                  {
+                                      lock (_lock)
+                                          com.Write("aaaaaaaaaaaaaaaaaaaaaa");
+                                  }
+                                  Console.WriteLine("write complete-----");
+                              }
+                              catch (Exception ex)
+                              {
+                                  if (ex is ObjectDisposedException)
+                                  {
+                                      Console.WriteLine(ex.Message + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                                      iserr = true;
+                                  }
+                              }
+                          });
+                        thd.IsBackground = true;
+                        thd.Start();
+                        Thread.Sleep(10);
+                        Console.WriteLine("Close");
+                        lock (_lock)
+                            com.Close();
+                        thd.Abort();
+                        Thread.Sleep(1);
+                        Console.WriteLine("Open");
+                        com.Open();
+                        if (iserr)
+                            Console.ReadLine();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is ObjectDisposedException)
+                        {
+                            Console.WriteLine(ex.Message + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            Console.Read();
+                        }
+                    }
+                }
+            });
+            while (!Console.ReadLine().Contains("Exit"))
+            {
+
+            }
+        }
+
+        #endregion 测试先关闭线程再关闭串口的报错(System.ObjectDisposedException 已关闭 Safe handle)
+
+        #region EBD195模拟
 
         static Random _random = new Random();
         static SerialPort _port;
@@ -33,6 +108,8 @@ namespace Test
         static bool _isPause = false;
         static int _pauseSpan = 0;
         static bool _isErr = false;
+        static bool _isReadCompass = false;
+        static int _compassPosition = 0;
 
         private static void EBD195Sim()
         {
@@ -90,8 +167,8 @@ namespace Test
                         byte[] buffer = Encoding.ASCII.GetBytes(sendStr);
                         _port.Write(buffer, 0, buffer.Length);
                         aliveTime = DateTime.Now;
-                        continue;
                     }
+                    else
                     {
                         int span = (int)DateTime.Now.Subtract(_lastSendTime).TotalMilliseconds;
                         if (span < _interTime)
@@ -118,6 +195,17 @@ namespace Test
                         string sendData = string.Format("A{0},{1},{2},{3}\r\n", ddf, quality, time, level);
                         if (_isErr)
                             sendData = string.Format("A*,*,*,{3}\r\n", ddf, quality, time, level);
+                        byte[] buffer = Encoding.ASCII.GetBytes(sendData);
+                        _port.Write(buffer, 0, buffer.Length);
+                    }
+                    if (_isReadCompass)
+                    {
+                        _isReadCompass = false;
+                        _compassPosition += 5;
+                        if (_compassPosition == 360)
+                            _compassPosition = 0;
+                        string sendData = string.Format("C{0}\r\n", _compassPosition);
+                        Console.WriteLine("Send:" + sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
                         _port.Write(buffer, 0, buffer.Length);
                     }
@@ -189,7 +277,15 @@ namespace Test
                         break;
                 }
             }
+            if (data.Contains("C?"))
+            {
+                // 查询电子罗盘
+                _isReadCompass = true;
+                Console.WriteLine("Read Compass......");
+            }
         }
+
+        #endregion EBD195模拟
 
         private static void TestUdp()
         {

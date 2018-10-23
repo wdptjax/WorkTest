@@ -149,6 +149,9 @@
             return true;
         }
 
+        /// <summary>
+        /// 终止与客户端的连接。
+        /// </summary>
         public override void CloseConnection()
         {
             base.CloseConnection();

@@ -19,7 +19,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace DeviceSimlib
 {
@@ -27,23 +31,33 @@ namespace DeviceSimlib
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ObservableCollection<Device> Devices
+        public ObservableCollection<DeviceBase> Devices
         {
             get { return _devices; }
             set { _devices = value; PropertyChanged.Notify(() => Devices); }
         }
+        public DeviceBase SelectDevice
+        {
+            get { return _selectDevice; }
+            set { _selectDevice = value; PropertyChanged.Notify(() => SelectDevice); }
+        }
 
         #region 局部变量
 
-        private ObservableCollection<Device> _devices = new ObservableCollection<Device>();
+        private ObservableCollection<DeviceBase> _devices = new ObservableCollection<DeviceBase>();
         private static DeviceManager _default = null;
         private static object _lockInstance = new object();
+        private DeviceBase _selectDevice = null;
 
         #endregion 局部变量
 
         private DeviceManager()
         {
-
+            //PluginsManager.TypeCollection.ForEach(type =>
+            //{
+            //    var device = (DeviceBase)Activator.CreateInstance(type);
+            //    Devices.Add(device);
+            //});
         }
 
         public static DeviceManager GetInstance()
@@ -59,9 +73,8 @@ namespace DeviceSimlib
             return _default;
         }
 
-        public void AddNew()
+        public void AddNew(DeviceBase device)
         {
-            Device device = new Device();
             Devices.Add(device);
         }
 

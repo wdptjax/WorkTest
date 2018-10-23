@@ -25,6 +25,12 @@ namespace DockingLibrary
         public override void Show()
         {
             DockManager.AddDocument(this);
+            ViewIsOnShow();
+        }
+
+        protected virtual void ViewIsOnShow()
+        {
+
         }
     }
 }
