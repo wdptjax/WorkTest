@@ -19,8 +19,13 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace DeviceSimlib
+namespace System.Collections.Generic
 {
+    /// <summary>
+    /// 扩展的支持序列化与反序列化的字典
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     [Serializable]
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
     {

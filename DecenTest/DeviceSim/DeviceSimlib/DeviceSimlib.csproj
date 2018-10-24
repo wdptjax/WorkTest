@@ -51,7 +51,7 @@
     <Compile Include="PluginsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\SerializableDictionary.cs" />
-    <Compile Include="XmlUtil.cs" />
+    <Compile Include="XmlSerializer\XmlUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

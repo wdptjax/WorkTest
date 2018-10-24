@@ -46,15 +46,15 @@ namespace DeviceSimlib
         protected bool _isPause = false;
         protected Dispatcher _dispatcher = null;
 
-        private bool _isShown = false;
-
         #region 界面展示
 
         [XmlIgnore]
         private ObservableCollection<MessageInfo> _recvStringList = new ObservableCollection<MessageInfo>();
         [XmlIgnore]
         private ObservableCollection<MessageInfo> _sendStringList = new ObservableCollection<MessageInfo>();
+        [XmlIgnore]
         protected bool _deviceInitialized = false;
+        [XmlIgnore]
         protected bool _isRunning = false;
         protected int _interTime = 1000;//ms
         protected int _pauseSpan = 10;
@@ -87,6 +87,7 @@ namespace DeviceSimlib
             }
         }
 
+        [XmlIgnore]
         public bool DeviceInitialized
         {
             get { return _deviceInitialized; }
@@ -100,6 +101,7 @@ namespace DeviceSimlib
             }
         }
 
+        [XmlIgnore]
         public bool IsRunning
         {
             get { return _isRunning; }
@@ -160,12 +162,6 @@ namespace DeviceSimlib
         }
 
         #endregion 界面展示
-
-        public bool IsShown
-        {
-            get { return _isShown; }
-            set { _isShown = value; }
-        }
 
         private Stream _deviceStream
         {

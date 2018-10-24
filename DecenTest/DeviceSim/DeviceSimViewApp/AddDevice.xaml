@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DeviceSimViewApp"
         xmlns:sim="clr-namespace:DeviceSimlib;assembly=DeviceSimlib"
         mc:Ignorable="d" x:Name="window"
-        Title="添加模拟设备" Height="300" Width="400" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" WindowStyle="ToolWindow">
+        Title="添加模拟设备" Height="150" Width="200" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" WindowStyle="ToolWindow">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static sim:Commands.OK}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
         <CommandBinding Command="{x:Static sim:Commands.Cancel}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
@@ -29,8 +29,8 @@
             <TextBox Grid.Column="1" Text="{Binding NewDevice.Name,ElementName=window,Mode=TwoWay}"/>
         </Grid>
         <Grid Grid.Row="3">
-            <Button Content="确定" Width="100" HorizontalAlignment="Left" Margin="5" Command="{x:Static sim:Commands.OK}"/>
-            <Button Content="取消" Width="100" HorizontalAlignment="Right" Margin="5" Command="{x:Static sim:Commands.Cancel}"/>
+            <Button Content="确定" Width="80" HorizontalAlignment="Left" Margin="5" Command="{x:Static sim:Commands.OK}"/>
+            <Button Content="取消" Width="80" HorizontalAlignment="Right" Margin="5" Command="{x:Static sim:Commands.Cancel}"/>
         </Grid>
     </Grid>
 </Window>

@@ -7,7 +7,7 @@
         xmlns:sim="clr-namespace:DeviceSimlib;assembly=DeviceSimlib"
         x:Class="DeviceSimViewApp.MainWindow"
         mc:Ignorable="d" x:Name="window"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" Icon="tubiao.png">
     <Window.Resources>
         <ObjectDataProvider x:Key="DeviceInstance" ObjectType="{x:Type sim:DeviceManager}"  MethodName="GetInstance"/>
         <DataTemplate DataType="{x:Type sim:DeviceBase}">
