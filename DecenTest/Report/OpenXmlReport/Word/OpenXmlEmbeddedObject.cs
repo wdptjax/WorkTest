@@ -1,9 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using System.Xml;
+﻿using System.Xml;
 using System.Diagnostics;
 using System.IO;
 using System.Drawing;
-using Microsoft.Office.Interop.Word;
 using System;
 using Microsoft.Win32;
 

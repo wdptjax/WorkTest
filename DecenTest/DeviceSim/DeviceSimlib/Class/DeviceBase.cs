@@ -193,6 +193,8 @@ namespace DeviceSimlib
         {
             if (_deviceStream == null)
                 return;
+            if (data == null || data.Length == 0)
+                return;
             _deviceStream.Write(data, 0, data.Length);
             _deviceStream.Flush();
         }

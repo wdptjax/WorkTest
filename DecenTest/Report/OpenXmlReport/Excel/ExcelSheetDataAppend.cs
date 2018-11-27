@@ -20,6 +20,8 @@
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
@@ -636,5 +638,147 @@ namespace OpenXmlReport.Excel
             return str + str2;
         }
 
+        public static void InsertChartInSpreadsheet(string docName, string worksheetName, string title)
+        {
+            // Open the document for editing.
+            using (SpreadsheetDocument document = SpreadsheetDocument.Open(docName, true))
+            {
+                #region 1
+                IEnumerable<Sheet> sheets = document.WorkbookPart.Workbook.Descendants<Sheet>().Where(s => s.Name == worksheetName);
+                if (sheets.Count() == 0)
+                {
+                    // The specified worksheet does not exist.
+                    return;
+                }
+                WorksheetPart worksheetPart = (WorksheetPart)document.WorkbookPart.GetPartById(sheets.First().Id);
+
+                // Add a new drawing to the worksheet.
+                DrawingsPart drawingsPart = worksheetPart.AddNewPart<DrawingsPart>();
+                worksheetPart.Worksheet.Append(new DocumentFormat.OpenXml.Spreadsheet.Drawing() { Id = worksheetPart.GetIdOfPart(drawingsPart) });
+                worksheetPart.Worksheet.Save();
+
+                // Add a new chart and set the chart language to English-US.
+                ChartPart chartPart = drawingsPart.AddNewPart<ChartPart>();
+                chartPart.ChartSpace = new ChartSpace();
+                chartPart.ChartSpace.Append(new EditingLanguage() { Val = new StringValue("en-US") });
+                DocumentFormat.OpenXml.Drawing.Charts.Chart chart = chartPart.ChartSpace.AppendChild<DocumentFormat.OpenXml.Drawing.Charts.Chart>(
+                    new DocumentFormat.OpenXml.Drawing.Charts.Chart());
+
+                // Create a new clustered column chart.
+                PlotArea plotArea = chart.AppendChild<PlotArea>(new PlotArea());
+                Layout layout = plotArea.AppendChild<Layout>(new Layout());
+                //------------------------------------------------------图表类型根据自己的需求定义
+                //柱状图
+                //BarChart barChart = plotArea.AppendChild<BarChart>(new BarChart(new BarDirection() { Val = new EnumValue<BarDirectionValues>(BarDirectionValues.Column) },
+                //    new BarGrouping() { Val = new EnumValue<BarGroupingValues>(BarGroupingValues.Clustered) }));
+                //折线图
+                LineChart barChart = plotArea.AppendChild<LineChart>(new LineChart(
+                    new Grouping() { Val = new EnumValue<GroupingValues>(GroupingValues.Standard) }
+                    ));
+                //--------------------------------------------------------------------------------------
+                #endregion
+                uint i = 0;
+                //生成x轴
+                CategoryAxisData cad = new CategoryAxisData();
+                //  mySheet!$D$2:$D$11 就是一个数据区间，根据这个区间生成图表的X轴
+                cad.StringReference = new StringReference() { Formula = new DocumentFormat.OpenXml.Drawing.Charts.Formula("mySheet!$D$2:$D$11") };
+                //本列子是生成两根折线
+                for (int col = 1; col < 3; col++)
+                {
+                    //数据源
+                    string formulaString = string.Format("{0}!${1}$2:${1}$11", worksheetName, GetColumnName(col));
+                    DocumentFormat.OpenXml.Drawing.Charts.Values v = new DocumentFormat.OpenXml.Drawing.Charts.Values();
+                    v.NumberReference = new NumberReference() { Formula = new DocumentFormat.OpenXml.Drawing.Charts.Formula(formulaString) };
+                    //Y轴
+                    formulaString = string.Format("{0}!${1}$1", worksheetName, GetColumnName(col));
+                    SeriesText st = new SeriesText();
+                    st.StringReference = new StringReference() { Formula = new DocumentFormat.OpenXml.Drawing.Charts.Formula(formulaString) };
+                    // 生成一个实例---柱状图
+                    //BarChartSeries barChartSeries = barChart.AppendChild<BarChartSeries>(new BarChartSeries(new Index() { Val = new UInt32Value(i) },
+                    //       new Order() { Val = new UInt32Value(i) }, st, v));
+                    //生成一个实例---折线图
+                    LineChartSeries lineChartSeries = barChart.AppendChild<LineChartSeries>(new LineChartSeries(new Index() { Val = new UInt32Value(i) },
+                           new Order() { Val = new UInt32Value(i) }, st, v));
+                    //插入水平轴
+                    //if (i == 0)
+                    //    lineChartSeries.AppendChild(cad);
+                    i += 1;
+                }
+                //-------------------------------------------------------------以下代码没有做任何改动，跟sdk中的源码一致
+                #region 2
+                barChart.Append(new AxisId() { Val = new UInt32Value(48650112u) });
+                barChart.Append(new AxisId() { Val = new UInt32Value(48672768u) });
+                // Add the Category Axis.
+                CategoryAxis catAx = plotArea.AppendChild<CategoryAxis>(new CategoryAxis(new AxisId() { Val = new UInt32Value(48650112u) },
+                    new Scaling(new Orientation()
+                    {
+                        Val = new EnumValue<DocumentFormat.OpenXml.Drawing.Charts.OrientationValues>(
+                            DocumentFormat.OpenXml.Drawing.Charts.OrientationValues.MinMax)
+                    }),
+                    new AxisPosition() { Val = new EnumValue<AxisPositionValues>(AxisPositionValues.Bottom) },
+                    new TickLabelPosition() { Val = new EnumValue<TickLabelPositionValues>(TickLabelPositionValues.NextTo) },
+                    new CrossingAxis() { Val = new UInt32Value(48672768U) },
+                    new Crosses() { Val = new EnumValue<CrossesValues>(CrossesValues.AutoZero) },
+                    new AutoLabeled() { Val = new BooleanValue(true) },
+                    new LabelAlignment() { Val = new EnumValue<LabelAlignmentValues>(LabelAlignmentValues.Center) },
+                    new LabelOffset() { Val = new UInt16Value((ushort)100) }));
+
+                // Add the Value Axis.
+                ValueAxis valAx = plotArea.AppendChild<ValueAxis>(new ValueAxis(new AxisId() { Val = new UInt32Value(48672768u) },
+                    new Scaling(new Orientation()
+                    {
+                        Val = new EnumValue<DocumentFormat.OpenXml.Drawing.Charts.OrientationValues>(
+                            DocumentFormat.OpenXml.Drawing.Charts.OrientationValues.MinMax)
+                    }),
+                    new AxisPosition() { Val = new EnumValue<AxisPositionValues>(AxisPositionValues.Left) },
+                    new MajorGridlines(),
+                    new DocumentFormat.OpenXml.Drawing.Charts.NumberingFormat() { FormatCode = new StringValue("General"), SourceLinked = new BooleanValue(true) },
+                    new TickLabelPosition() { Val = new EnumValue<TickLabelPositionValues>(TickLabelPositionValues.NextTo) },
+                    new CrossingAxis() { Val = new UInt32Value(48650112U) },
+                    new Crosses() { Val = new EnumValue<CrossesValues>(CrossesValues.AutoZero) },
+                    new CrossBetween() { Val = new EnumValue<CrossBetweenValues>(CrossBetweenValues.Between) }));
+
+                // Add the chart Legend.
+                Legend legend = chart.AppendChild<Legend>(new Legend(new LegendPosition() { Val = new EnumValue<LegendPositionValues>(LegendPositionValues.Right) },
+                    new Layout()));
+
+                chart.Append(new PlotVisibleOnly() { Val = new BooleanValue(true) });
+
+                // Save the chart part.
+                chartPart.ChartSpace.Save();
+
+                // Position the chart on the worksheet using a TwoCellAnchor object.
+                drawingsPart.WorksheetDrawing = new WorksheetDrawing();
+                TwoCellAnchor twoCellAnchor = drawingsPart.WorksheetDrawing.AppendChild<TwoCellAnchor>(new TwoCellAnchor());
+                twoCellAnchor.Append(new DocumentFormat.OpenXml.Drawing.Spreadsheet.FromMarker(new ColumnId("5"),
+                    new ColumnOffset("581025"),
+                    new RowId("4"),
+                    new RowOffset("114300")));
+                twoCellAnchor.Append(new DocumentFormat.OpenXml.Drawing.Spreadsheet.ToMarker(new ColumnId("13"),
+                    new ColumnOffset("276225"),
+                    new RowId("19"),
+                    new RowOffset("0")));
+
+                // Append a GraphicFrame to the TwoCellAnchor object.
+                DocumentFormat.OpenXml.Drawing.Spreadsheet.GraphicFrame graphicFrame =
+                    twoCellAnchor.AppendChild<DocumentFormat.OpenXml.Drawing.Spreadsheet.GraphicFrame>(
+                    new DocumentFormat.OpenXml.Drawing.Spreadsheet.GraphicFrame());
+                graphicFrame.Macro = "";
+
+                graphicFrame.Append(new DocumentFormat.OpenXml.Drawing.Spreadsheet.NonVisualGraphicFrameProperties(
+                    new DocumentFormat.OpenXml.Drawing.Spreadsheet.NonVisualDrawingProperties() { Id = new UInt32Value(2u), Name = "Chart 1" },
+                    new DocumentFormat.OpenXml.Drawing.Spreadsheet.NonVisualGraphicFrameDrawingProperties()));
+
+                graphicFrame.Append(new Transform(new Offset() { X = 0L, Y = 0L },
+                                                                        new Extents() { Cx = 0L, Cy = 0L }));
+
+                graphicFrame.Append(new Graphic(new GraphicData(new ChartReference() { Id = drawingsPart.GetIdOfPart(chartPart) }) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/chart" }));
+
+                twoCellAnchor.Append(new ClientData());
+                #endregion
+                // Save the WorksheetDrawing object.
+                drawingsPart.WorksheetDrawing.Save();
+            }
+        }
     }
 }
