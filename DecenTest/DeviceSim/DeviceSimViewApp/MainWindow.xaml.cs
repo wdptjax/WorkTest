@@ -1,5 +1,4 @@
-﻿using DeviceSimlib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -16,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+
+using DeviceSimlib;
 
 namespace DeviceSimViewApp
 {
@@ -48,8 +49,12 @@ namespace DeviceSimViewApp
             {
                 e.CanExecute = DeviceManager.GetInstance().SelectDevice != null;
             }
-            else
+            else if (e.Command == Commands.Add)
+            {
                 e.CanExecute = true;
+            }
+            else
+                e.CanExecute = false;
         }
 
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -71,6 +76,7 @@ namespace DeviceSimViewApp
             else if (e.Command == Commands.Add)
             {
                 AddDevice add = new AddDevice();
+                add.Owner = this;
                 if (add.ShowDialog() == true)
                 {
                     var device = add.NewDevice;

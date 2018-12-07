@@ -21,16 +21,6 @@
                         <TextBlock Text="端口号:" VerticalAlignment="Center"/>
                         <ComboBox x:Name="cboShowComport" Width="60" IsEnabled="{Binding DeviceInitialized,Converter={StaticResource dataConverter}}"
                            ItemsSource="{Binding ComportList}" SelectedItem="{Binding ComPort, Mode=TwoWay}"/>
-                        <RadioButton x:Name="chkStart" Command="{x:Static sim:Commands.Start}" ToolTip="启动设备">
-                            <RadioButton.Content>
-                                <Path Data="M0,0 L0,10 L10,5Z" Fill="{Binding Foreground, ElementName=chkStart}"/>
-                            </RadioButton.Content>
-                        </RadioButton>
-                        <RadioButton x:Name="chkStop" Command="{x:Static sim:Commands.Stop}" ToolTip="停止设备">
-                            <RadioButton.Content>
-                                <Path Data="M0,0 L0,10 L10,10 L10,0Z" Fill="{Binding Foreground, ElementName=chkStop}"/>
-                            </RadioButton.Content>
-                        </RadioButton>
                         <CheckBox x:Name="chkPause" Command="{x:Static sim:Commands.Pause}" CommandParameter="{Binding ElementName=chkPause}" ToolTip="暂停发送数据">
                             <CheckBox.Content>
                                 <Path StrokeThickness="4" Data="M2,0 L2,10 M8,0 8,10" Stroke="{Binding Foreground, ElementName=chkPause}"/>

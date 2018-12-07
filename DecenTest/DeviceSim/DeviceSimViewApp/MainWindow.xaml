@@ -4,13 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DeviceSimViewApp"
-        xmlns:sim="clr-namespace:DeviceSimlib;assembly=DeviceSimlib"
         x:Class="DeviceSimViewApp.MainWindow"
+        xmlns:sim="clr-namespace:DeviceSimlib;assembly=DeviceSimlib"
         mc:Ignorable="d" x:Name="window"
         Title="MainWindow" Height="450" Width="800" Icon="tubiao.png">
     <Window.Resources>
         <ObjectDataProvider x:Key="DeviceInstance" ObjectType="{x:Type sim:DeviceManager}"  MethodName="GetInstance"/>
-        <DataTemplate DataType="{x:Type sim:DeviceBase}">
+        <DataTemplate x:Key="DeviceTemplete" DataType="{x:Type sim:DeviceBase}">
             <Grid Margin="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -57,13 +57,25 @@
                 <Button Content="添加" Command="{x:Static sim:Commands.Add}"/>
                 <Button Content="删除" Command="{x:Static sim:Commands.Delete}"/>
             </ToolBar>
+            <ToolBar>
+                <RadioButton x:Name="chkStart" IsChecked="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice.DeviceInitialized,Mode=OneWay}" Command="{x:Static sim:Commands.Start}" ToolTip="启动设备">
+                    <RadioButton.Content>
+                        <Path Data="M0,0 L0,10 L10,5Z" Fill="{Binding Foreground, ElementName=chkStart}"/>
+                    </RadioButton.Content>
+                </RadioButton>
+                <RadioButton x:Name="chkStop" Command="{x:Static sim:Commands.Stop}" ToolTip="停止设备">
+                    <RadioButton.Content>
+                        <Path Data="M0,0 L0,10 L10,10 L10,0Z" Fill="{Binding Foreground, ElementName=chkStop}"/>
+                    </RadioButton.Content>
+                </RadioButton>
+            </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" MinWidth="120"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ListBox Margin="0,0,5,0" ItemsSource="{Binding Source={StaticResource DeviceInstance},Path=Devices}" SelectedItem="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice}" HorizontalContentAlignment="Stretch"/>
+            <ListBox Margin="0,0,5,0" ItemsSource="{Binding Source={StaticResource DeviceInstance},Path=Devices}" ItemTemplate="{StaticResource DeviceTemplete}" SelectedItem="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice}" HorizontalContentAlignment="Stretch"/>
             <GridSplitter Width="5" HorizontalAlignment="Right" VerticalContentAlignment="Stretch"/>
             <Border Grid.Column="1" BorderThickness="1" BorderBrush="#FF2576B9" Padding="3">
                 <ContentControl Content="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice.Control}"/>

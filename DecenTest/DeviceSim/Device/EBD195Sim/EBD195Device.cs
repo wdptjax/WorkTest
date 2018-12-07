@@ -50,6 +50,20 @@ namespace DeviceSim.Device
         private bool _isHasCompass = true;
         [XmlIgnore]
         private EBD195View _control = null;
+        private int _interTime = 1000;//ms
+
+        public int IntegrationTime
+        {
+            get { return _interTime; }
+            set
+            {
+                if (_interTime != value)
+                {
+                    _interTime = value;
+                    OnPropertyChanged(() => this.IntegrationTime);
+                }
+            }
+        }
 
         /// <summary>
         /// 设定示相角度
@@ -195,7 +209,14 @@ namespace DeviceSim.Device
             }
         }
 
-        protected override Stream GetStream()
+        protected override Stream GetStreamSendData()
+        {
+            if (_serialPort == null || !_serialPort.IsOpen)
+                return null;
+            return _serialPort.BaseStream;
+        }
+
+        protected override Stream GetStreamRecvData()
         {
             if (_serialPort == null || !_serialPort.IsOpen)
                 return null;
@@ -215,7 +236,7 @@ namespace DeviceSim.Device
         {
             byte[] buffer = new byte[_serialPort.ReadBufferSize];
             string data = "";
-            int recvCount = ReadData(buffer, 0, buffer.Length);
+            int recvCount = ReadRecvData(buffer, 0, buffer.Length);
             data = System.Text.Encoding.ASCII.GetString(buffer, 0, recvCount);
             RecvStrShow(data);
             Console.WriteLine(string.Format("Time:{0:HH:mm:ss.fff} Data:{1}", DateTime.Now, data));
@@ -292,7 +313,7 @@ namespace DeviceSim.Device
                         string sendStr = "A*,*,*,2\r\n";
                         SendStrShow(sendStr);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendStr);
-                        WriteData(buffer);
+                        WriteSendData(buffer);
                         _aliveTime = DateTime.Now;
                     }
                     else
@@ -324,7 +345,7 @@ namespace DeviceSim.Device
                             sendData = string.Format("A*,*,*,{3}\r\n", ddf, quality, time, level);
                         SendStrShow(sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
-                        WriteData(buffer);
+                        WriteSendData(buffer);
                     }
                     if (_isReadCompass)
                     {
@@ -340,7 +361,7 @@ namespace DeviceSim.Device
                         Console.WriteLine("Send:" + sendData);
                         SendStrShow(sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
-                        WriteData(buffer);
+                        WriteSendData(buffer);
                     }
                 }
                 catch

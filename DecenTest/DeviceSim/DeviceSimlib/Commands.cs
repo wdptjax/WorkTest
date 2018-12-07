@@ -37,7 +37,7 @@ namespace DeviceSimlib
         public static RoutedUICommand Pause { get { return _pause; } }
         private static RoutedUICommand _pause = new RoutedUICommand("暂停", "暂停", typeof(Commands));
         public static RoutedUICommand Add { get { return _add; } }
-        private static RoutedUICommand _add = new RoutedUICommand("增加", "增加", typeof(Commands));
+        private static RoutedUICommand _add = new RoutedUICommand("增加", "Add", typeof(Commands));
         public static RoutedUICommand Delete { get { return _delete; } }
         private static RoutedUICommand _delete = new RoutedUICommand("删除", "删除", typeof(Commands));
 

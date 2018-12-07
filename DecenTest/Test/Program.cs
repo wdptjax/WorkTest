@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -75,14 +76,18 @@ namespace Test
     class ClientInfo
     {
         public IPEndPoint Address;
+
         public bool IsSendAudio = false;
-        public int IndexAudio = 0;
         public bool IsSendIQ = false;
-        public int IndexIQ = 0;
         public bool IsSendITU = false;
-        public int IndexITU = 0;
         public bool IsSendSpectrum = false;
+        public bool IsSendDF = false;
+
+        public int IndexAudio = 0;
+        public int IndexIQ = 0;
+        public int IndexITU = 0;
         public int IndexSpectrum = 0;
+        public int IndexDF = 0;
     }
 
     class Program
@@ -110,12 +115,106 @@ namespace Test
             //TestComport();
 
             //EBD195Sim();
-
-            //TestDDF550();
-            DDF550SendAsyn();
+            //TestIDRAC();
+            TestDDF550();
+            //DDF550SendAsyn();
+            //TestReverse();
             Console.ReadLine();
+
         }
 
+        #region 测试戴尔
+
+        static void TestIDRAC()
+        {
+            Process cmd = new Process();//创建进程对象 
+
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = @"E:\Program Files\Dell\SysMgt\rac5\racadm.exe";//设定需要执行的命令  
+            startInfo.Arguments = "";//“/C”表示执行完命令后马上退出  
+            startInfo.UseShellExecute = false;//不使用系统外壳程序启动  
+            startInfo.RedirectStandardInput = true;//不重定向输入  
+            startInfo.RedirectStandardOutput = true; //重定向输出  
+            startInfo.CreateNoWindow = true;//不创建窗口  
+            cmd.StartInfo = startInfo;
+            cmd.Start();
+            cmd.WaitForExit();
+            string str = cmd.StandardOutput.ReadToEnd();
+        }
+
+
+        #endregion 测试戴尔
+
+        #region 测试效率
+
+        static void TestList()
+        {
+            int[] source = new int[100000];
+            Random rd = new Random();
+            for (int i = 0; i < 100000; i++)
+                source[i] = rd.Next();
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            List<byte> list = new List<byte>();
+            for (int i = 0; i < 100000; i++)
+            {
+                list.AddRange(BitConverter.GetBytes(source[i]));
+            }
+            byte[] arr = list.ToArray();
+            sw.Stop();
+            Console.WriteLine("List " + sw.ElapsedMilliseconds + " 毫秒");//11ms
+            Stopwatch sw1 = new Stopwatch();
+            sw1.Start();
+            byte[] buffer = new byte[100000 * 4];
+            for (int i = 0; i < 100000; i++)
+            {
+                byte[] data = BitConverter.GetBytes(source[i]);
+                Buffer.BlockCopy(data, 0, buffer, i * 4, data.Length);
+            }
+            sw1.Stop();
+            Console.WriteLine("Array " + sw1.ElapsedMilliseconds + " 毫秒");//2ms
+
+            Console.ReadLine();
+        }
+        static void TestReverse()
+        {
+            while (true)
+            {
+                int[] source = new int[100000];
+                Random rd = new Random();
+                for (int i = 0; i < 100000; i++)
+                    source[i] = rd.Next();
+
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                byte[] buffer1 = new byte[100000 * 4];
+                for (int i = 0; i < 100000; i++)
+                {
+                    byte[] data = BitConverter.GetBytes(source[i]).Reverse().ToArray();
+                    Buffer.BlockCopy(data, 0, buffer1, i * 4, data.Length);
+                }
+                sw.Stop();
+                Console.WriteLine("ReverseToArray " + sw.ElapsedMilliseconds + " 毫秒");//效率低
+                Stopwatch sw1 = new Stopwatch();
+                sw1.Start();
+                byte[] buffer2 = new byte[100000 * 4];
+                for (int i = 0; i < 100000; i++)
+                {
+                    byte[] data = BitConverter.GetBytes(source[i]);
+                    Array.Reverse(data);
+                    Buffer.BlockCopy(data, 0, buffer2, i * 4, data.Length);
+                }
+                sw1.Stop();
+                Console.WriteLine("ArrayReverse " + sw1.ElapsedMilliseconds + " 毫秒");//效率高
+
+                string str = Console.ReadLine();
+                if (!string.IsNullOrEmpty(str))
+                    break;
+            }
+        }
+
+        #endregion 测试效率
 
         #region DDF550发送模拟数据
 
@@ -123,6 +222,7 @@ namespace Test
         static List<byte[]> _iqData = new List<byte[]>();
         static List<byte[]> _spectrumData = new List<byte[]>();
         static List<byte[]> _ituData = new List<byte[]>();
+        static List<byte[]> _dfData = new List<byte[]>();
         static List<ClientInfo> _clientList = new List<ClientInfo>();
         static object _lockClient = new object();
         static Thread thd1 = null;
@@ -136,6 +236,14 @@ namespace Test
         {
             string path = @"D:\文件\工作\DDF550\出差收集到的数据\抓包数据\EB200data\2018-11-22-data_Audio.txt";
             _audioData = GetData(path);
+            path = @"D:\文件\工作\DDF550\出差收集到的数据\抓包数据\EB200data\2018-11-22-data_IF.txt";
+            _iqData = GetData(path);
+            path = @"D:\文件\工作\DDF550\出差收集到的数据\抓包数据\EB200data\2018-11-22-data_IFPan.txt";
+            _spectrumData = GetData(path);
+            path = @"D:\文件\工作\DDF550\出差收集到的数据\抓包数据\EB200data\2018-11-22-data_CW.txt";
+            _ituData = GetData(path);
+            path = @"D:\文件\工作\DDF550\出差收集到的数据\抓包数据\EB200data\2018-11-23-data_DFPScan.txt";
+            _dfData = GetData(path);
 
             IPEndPoint iPEndPoint1 = new IPEndPoint(IPAddress.Any, 5563);
             IPEndPoint iPEndPoint2 = new IPEndPoint(IPAddress.Any, 5565);
@@ -154,99 +262,200 @@ namespace Test
 
         static void ScanXmlCmd()
         {
-            Socket socket = _tcpListener1.AcceptSocket();
             while (true)
             {
-                try
+                Socket socket = _tcpListener1.AcceptSocket();
+                IPEndPoint iPEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                Console.WriteLine("XML服务接收到连接:" + iPEndPoint.ToString());
+                while (true)
                 {
-                    byte[] buffer = new byte[1024 * 1024];
-                    int count = socket.Receive(buffer, SocketFlags.None);
-                    if (count == 0)
-                        continue;
-
-                    int index = buffer.IndexesOf(_xmlHeader, 0);
-                    int offset = index;
-                    while (offset < count)
+                    try
                     {
-                        if (BitConverter.IsLittleEndian)
-                            Array.Reverse(buffer, index + 4, 4);
-                        int datalen = BitConverter.ToInt32(buffer, index + 4);
+                        byte[] buffer = new byte[1024 * 1024];
+                        int count = socket.Receive(buffer, SocketFlags.None);
+                        if (count == 0)
+                            break;
 
-                        byte[] xmlData = new byte[datalen - 1];
-                        Buffer.BlockCopy(buffer, index + 4 + 4, xmlData, 0, datalen - 1);
-                        string strXml = Encoding.ASCII.GetString(xmlData).TrimEnd('0');
-
-                        Reply xml = (Reply)XmlWrapper.DeserializeObject<Reply>(xmlData);
-                        if (xml.Command.Name == "TraceEnable")
+                        int index = buffer.IndexesOf(_xmlHeader, 0);
+                        int offset = index;
+                        while (offset < count)
                         {
-                            List<Param> paras = xml.Command.Params;
-                            bool isSendAudio = false;
-                            string ip = "";
-                            int port = 0;
-                            paras.ForEach(p =>
+                            if (BitConverter.IsLittleEndian)
+                                Array.Reverse(buffer, index + 4, 4);
+                            int datalen = BitConverter.ToInt32(buffer, index + 4);
+
+                            byte[] xmlData = new byte[datalen - 1];
+                            Buffer.BlockCopy(buffer, index + 4 + 4, xmlData, 0, datalen - 1);
+                            string strXml = Encoding.ASCII.GetString(xmlData).TrimEnd('0');
+
+                            Request xml = (Request)XmlWrapper.DeserializeObject<Request>(xmlData);
+                            if (xml.Command.Name == "TraceEnable" || xml.Command.Name == "TraceDisable")
                             {
-                                if (p.Name == "eTraceTag" && p.Value == "TRACETAG_AUDIO")
+                                lock (_lockClient)
                                 {
-                                    isSendAudio = true;
-                                }
-                                else if (p.Name == "zIP")
-                                {
-                                    ip = p.Value;
-                                }
-                                else if (p.Name == "iPort")
-                                {
-                                    int.TryParse(p.Value, out port);
-                                }
-                            });
-                            lock (_lockClient)
-                            {
-                                ClientInfo info = _clientList.FirstOrDefault(i => i.Address.Address.ToString() == ip && i.Address.Port == port);
-                                if (info != null)
-                                {
-                                    info.IsSendAudio = isSendAudio;
+                                    string ip = "";
+                                    int port = 0;
+                                    bool enabled = xml.Command.Name == "TraceEnable";
+                                    List<Param> paras = xml.Command.Params;
+                                    paras.ForEach(p =>
+                                    {
+                                        if (p.Name == "zIP")
+                                        {
+                                            ip = p.Value;
+                                        }
+                                        else if (p.Name == "iPort")
+                                        {
+                                            int.TryParse(p.Value, out port);
+                                        }
+                                    });
+                                    ClientInfo info = _clientList.FirstOrDefault(i => i.Address.Address.ToString() == ip && i.Address.Port == port);
+                                    if (info != null)
+                                    {
+                                        bool isSendAudio = info.IsSendAudio;
+                                        bool isSendSpectrum = info.IsSendSpectrum;
+                                        bool isSendIQ = info.IsSendIQ;
+                                        bool isSendITU = info.IsSendITU;
+                                        bool isSendDF = info.IsSendDF;
+
+                                        paras.ForEach(p =>
+                                        {
+                                            if (p.Name == "eTraceTag")
+                                            {
+                                                switch (p.Value)
+                                                {
+                                                    case "TRACETAG_AUDIO":
+                                                        isSendAudio = enabled;
+                                                        Console.WriteLine("连接:" + info.Address.ToString() + ",音频开关状态" + enabled.ToString());
+                                                        break;
+                                                    case "TRACETAG_IFPAN":
+                                                        isSendSpectrum = enabled;
+                                                        Console.WriteLine("连接:" + info.Address.ToString() + ",频谱开关状态" + enabled.ToString());
+                                                        break;
+                                                    case "TRACETAG_IF":
+                                                        isSendIQ = enabled;
+                                                        Console.WriteLine("连接:" + info.Address.ToString() + ",IQ开关状态" + enabled.ToString());
+                                                        break;
+                                                    case "TRACETAG_CWAVE":
+                                                        isSendITU = enabled;
+                                                        Console.WriteLine("连接:" + info.Address.ToString() + ",ITU开关状态" + enabled.ToString());
+                                                        break;
+                                                    case "TRACETAG_DF":
+                                                        isSendDF = enabled;
+                                                        Console.WriteLine("连接:" + info.Address.ToString() + ",测向开关状态" + enabled.ToString());
+                                                        break;
+                                                }
+                                            }
+                                        });
+
+                                        info.IsSendAudio = isSendAudio;
+                                        info.IsSendIQ = isSendIQ;
+                                        info.IsSendITU = isSendITU;
+                                        info.IsSendSpectrum = isSendSpectrum;
+                                        info.IsSendDF = isSendDF;
+                                    }
                                 }
                             }
-                        }
 
-                        offset += 4 + 4 + datalen + 4;
+                            Reply reply = new Reply();
+                            reply.Command = xml.Command;
+                            reply.Id = xml.Id;
+                            reply.Type = xml.Type;
+                            byte[] rep = XmlWrapper.SerializeObject(reply);
+                            byte[] sendData = PackedXMLCommand(rep);
+                            socket.Send(sendData);
+
+                            offset += 4 + 4 + datalen + 4;
+                        }
                     }
-                }
-                catch (Exception)
-                {
+                    catch (Exception)
+                    {
+                        break;
+                    }
                 }
             }
         }
 
         static void ScanDataSendEB200()
         {
-            Socket socket = _tcpListener2.AcceptSocket();
-            IPEndPoint iPEndPoint = socket.RemoteEndPoint as IPEndPoint;
-            ClientInfo info = new ClientInfo();
-            info.Address = iPEndPoint;
-            lock (_lockClient)
-            {
-                _clientList.Add(info);
-            }
             while (true)
             {
-                try
+                Socket socket = _tcpListener2.AcceptSocket();
+                IPEndPoint iPEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                ClientInfo info = new ClientInfo();
+                info.Address = iPEndPoint;
+                Console.WriteLine("数据服务接收到连接:" + iPEndPoint.ToString());
+                lock (_lockClient)
                 {
-                    Thread.Sleep(30);
-                    if (info.IsSendAudio)
-                    {
-                        byte[] data = _audioData[info.IndexAudio];
-                        info.IndexAudio++;
-                        socket.Send(data);
-                    }
-                    else
-                        continue;
+                    _clientList.Add(info);
                 }
-                catch (Exception)
+                while (true)
                 {
+                    try
+                    {
+                        Thread.Sleep(30);
+                        if (info.IsSendAudio)
+                        {
+                            byte[] data = _audioData[info.IndexAudio];
+                            info.IndexAudio++;
+                            if (info.IndexAudio >= _audioData.Count)
+                                info.IndexAudio = 0;
+                            socket.Send(data);
+                        }
+                        if (info.IsSendIQ)
+                        {
+                            byte[] data = _iqData[info.IndexIQ];
+                            info.IndexIQ++;
+                            if (info.IndexIQ >= _iqData.Count)
+                                info.IndexIQ = 0;
+                            socket.Send(data);
+                        }
+                        if (info.IsSendITU)
+                        {
+                            byte[] data = _ituData[info.IndexITU];
+                            info.IndexITU++;
+                            if (info.IndexITU >= _ituData.Count)
+                                info.IndexITU = 0;
+                            socket.Send(data);
+                        }
+                        if (info.IsSendSpectrum)
+                        {
+                            byte[] data = _spectrumData[info.IndexSpectrum];
+                            info.IndexSpectrum++;
+                            if (info.IndexSpectrum >= _spectrumData.Count)
+                                info.IndexSpectrum = 0;
+                            socket.Send(data);
+                        }
+                        if (info.IsSendDF)
+                        {
+                            byte[] data = _dfData[info.IndexDF];
+                            info.IndexDF++;
+                            if (info.IndexDF >= _dfData.Count)
+                                info.IndexDF = 0;
+                            socket.Send(data);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
             }
         }
 
+        //装包
+        static byte[] PackedXMLCommand(byte[] cmd)
+        {
+            List<byte> arr = new List<byte>();
+            arr.AddRange(_xmlHeader);
+            int len = cmd.Length + 1;
+            byte[] lenArr = BitConverter.GetBytes(len);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(lenArr);
+            arr.AddRange(lenArr);
+            arr.AddRange(cmd);
+            arr.Add(0x00);//添加终止符\0
+            arr.AddRange(_xmlEnd);
+            return arr.ToArray();
+        }
 
         static List<byte[]> GetData(string filename)
         {
@@ -289,12 +498,11 @@ namespace Test
 
         #endregion DDF550发送模拟数据
 
-
         #region 测试DDF550
 
         static void TestDDF550()
         {
-            string strData = "00-0E-B2-00-00-64-00-02-03-56-00-00-00-00-0B-96-14-B5-00-00-00-00-0B-6E-00-00-0C-DC-00-00-0C-DC-00-01-00-00-00-00-00-00-00-00-00-C9-00-00-00-00-00-00-00-4C-80-0C-F8-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-C9-00-00-00-00-05-95-BF-A0-00-00-00-00-00-00-C3-50-00-00-00-01-00-98-96-80-46-DD-BA-7F-00-01-86-64-00-5F-FE-D4-00-00-FF-FF-02-20-20-11-00-00-00-00-00-10-38-D5-15-69-9F-BF-C7-4E-43-0E-00-AF-00-00-00-00-00-00-FF-5D-FF-5A-FF-5A-FF-5E-00-36-FF-5E-FF-5C-FF-60-FF-5C-FF-5D-FF-5A-FF-5F-FF-71-00-3E-01-26-00-41-FF-77-FF-5D-FF-67-FF-5D-FF-5D-FF-5F-FF-5F-FF-E2-01-83-FF-C9-FF-5C-FF-5F-FF-5B-FF-5A-FF-5D-FF-5D-FF-5E-FF-5E-FF-5D-FF-5E-FF-61-FF-64-FF-6A-FF-62-FF-63-FF-5F-FF-5F-FF-60-FF-5C-FF-5E-FF-61-00-31-01-64-00-2F-FF-64-FF-62-FF-6C-FF-66-FF-62-FF-60-FF-61-FF-5F-FF-5D-FF-62-00-11-FF-73-00-12-FF-74-FF-65-FF-E7-01-35-FF-F7-FF-8D-FF-5E-FF-5F-FF-62-FF-5D-FF-60-FF-5F-FF-60-FF-62-FF-61-FF-60-FF-60-FF-5F-FF-5E-FF-62-FF-60-FF-66-FF-91-FF-B8-FF-75-FF-66-FF-62-FF-61-FF-60-FF-63-FF-60-FF-5F-FF-71-FF-FF-FF-6B-FF-67-00-42-01-A7-00-69-FF-61-FF-6A-FF-62-FF-69-FF-6C-FF-63-FF-62-FF-91-FF-A8-00-20-01-9C-00-78-FF-A9-FF-78-FF-7B-00-B6-01-D0-00-94-FF-84-FF-71-00-06-FF-6F-FF-64-FF-67-FF-74-FF-68-FF-63-FF-63-FF-72-FF-5F-FF-62-FF-61-FF-63-FF-62-FF-61-FF-60-FF-73-00-62-01-24-00-3F-FF-6B-FF-64-FF-61-FF-5F-FF-5F-FF-5D-FF-60-FF-5E-FF-60-FF-6D-FF-E9-FF-6E-FF-61-FF-63-FF-63-FF-5D-FF-5D-FF-7D-FF-C1-FF-87-FF-64-FF-61-FF-62-FF-60-FF-62-FF-61-FF-63-FF-62-FF-60-FF-C4-01-64-FF-B4-FF-61-FF-64-FF-62-FF-5F-FF-64-FF-62-FF-63-FF-98-00-11-FF-8E-FF-66-FF-91-01-38-FF-BC-FF-62-FF-66-FF-76-FF-65-FF-63-FF-63-FF-62-FF-62-FF-61-00-2F-01-BD-00-0A-FF-63-02-69-01-F1-07-D2-0B-0D-0B-DB-07-B8-09-93-07-A8-04-50-07-31-09-15-02-4B-03-A0-04-A7-04-7B-04-8E-04-94-09-E4-09-07-03-BD-0D-FE-05-BE-0C-8B-02-32-02-35-02-47-04-00-01-3C-04-BE-09-6F-07-E0-0C-5C-07-48-02-07-02-2B-0B-7D-09-7B-0E-0C-0B-17-0B-4E-00-11-0C-E9-02-CC-03-F1-06-59-02-C7-00-64-02-4A-02-50-02-5B-02-59-07-C7-0A-1F-07-7B-07-E5-03-3A-06-79-04-28-09-71-05-86-01-15-0B-BA-0B-E7-0B-BA-01-FF-02-3F-02-92-02-1E-00-7A-01-E2-00-F1-09-74-05-9A-0A-63-07-04-05-AE-0B-9A-01-2C-0C-BB-06-1D-03-8D-03-21-02-A5-0B-BA-0D-71-0D-28-0C-67-04-80-0C-68-06-62-00-0A-0A-2C-06-06-05-48-0D-9A-04-DC-05-7F-03-49-0D-3B-00-0E-0D-F7-0D-D9-00-69-08-75-00-55-07-D9-0C-F3-0D-6D-0D-FF-0D-9C-0D-73-0D-3D-0B-E7-0C-1E-0C-EE-04-E0-04-DC-04-DB-05-05-04-C0-04-E6-04-CA-0B-96-01-2A-05-2D-06-37-0A-F0-0A-CB-04-A3-04-19-0A-28-03-63-05-5D-07-67-0A-CD-06-29-06-1B-02-30-01-DA-02-1D-02-2F-02-32-02-3C-05-2C-08-66-06-2A-06-F2-04-B6-05-E8-06-1C-04-19-09-BA-09-DE-09-A2-01-E4-06-CF-0D-64-01-96-01-BF-01-56-01-46-00-BF-07-A4-02-B1-08-13-00-0D-0D-85-0B-14-09-49-0B-23-0A-91-06-AE-07-01-07-0F-05-D1-04-60-07-73-07-BC-06-11-00-D3-09-92-0C-7C-0B-DF-0D-17-09-F9-0B-42-0C-45-0D-25-08-FC-01-09-0D-AE-05-2A-01-10-01-1C-05-E5-06-FA-05-62-02-1F-02-37-02-49-09-B4-00-2F-00-AD-00-59-01-78-03-E3-00-73-02-3F-01-16-00-CF-01-74-01-7B-01-5F-02-9D-03-12-03-35-03-14-02-FC-02-08-02-A6-01-57-00-E4-01-0B-01-94-03-CE-03-E5-03-CF-00-80-00-21-00-52-00-A7-02-38-01-7E-02-AF-01-7C-00-A6-01-0C-00-34-03-9D-02-04-03-01-01-45-01-8B-01-CC-01-F2-00-7B-01-DA-02-47-03-E0-03-E0-03-DC-03-C0-00-E8-03-93-00-2A-00-FA-01-48-01-B6-00-53-00-EF-01-01-03-E4-03-C8-03-D2-03-CE-03-04-03-E1-03-D8-03-E3-03-86-01-44-01-D2-01-D2-01-C2-00-B6-00-6E-01-29-01-0C-00-17-01-31-01-D1-00-7E-00-B1-00-B6-01-8C-03-72-03-E1-03-BA-02-E2-00-E9-01-33-01-90-01-9F-01-B9-01-1D-00-83-03-E2-02-46-03-B9-01-D8-03-DF-03-D8-03-C9-03-7D-02-8A-01-12-02-14-03-2A-01-E6-02-55-03-A5-03-D3-03-CF-02-75-03-E2-03-D5-02-90-03-D1-03-DE-03-D6-03-68-03-D5-02-9C-03-D0-02-24-02-69-02-CA-02-FD-00-24-02-D3-01-48-03-6E-01-B5-02-B3-00-79-01-56-00-47-01-70-00-CE-03-DE-03-E3-03-E1-03-D7-03-B9-01-1B-01-A0-00-AF-00-77-01-5D-00-91-00-FE-01-99-03-B5-03-BF-03-B6-01-55-00-FE-01-1F-01-B0-01-EA-03-B1-03-C5-03-C8-00-98-00-92-01-21-00-24-00-BE-00-64-02-6F-02-38-00-0B-03-B8-03-68-03-91-00-48-01-14-01-48-00-46-01-A3-01-11-00-64-03-BC-03-E4-03-C5-01-6E-03-B3-03-AB-03-BF-00-6F-03-2B-02-99-01-FC-01-9D-01-55-02-33-00-23-01-26-03-E1-03-E5-03-E4-01-A9-00-E7-00-E4-00-E4-00-E8-01-C0-00-E8-00-E6-00-E9-00-E5-00-E6-00-E3-00-E8-00-FA-01-C7-02-AF-01-C9-00-FF-00-E5-00-EF-00-E5-00-E5-00-E7-00-E7-01-6A-03-0A-01-50-00-E3-00-E6-00-E2-00-E1-00-E4-00-E4-00-E5-00-E4-00-E3-00-E4-00-E7-00-EA-00-F0-00-E8-00-E9-00-E5-00-E4-00-E5-00-E1-00-E3-00-E6-01-B6-02-E9-01-B4-00-E9-00-E6-00-F0-00-EA-00-E6-00-E4-00-E5-00-E3-00-E1-00-E6-01-94-00-F6-01-95-00-F7-00-E8-01-6A-02-B8-01-7A-01-10-00-E0-00-E1-00-E4-00-DF-00-E2-00-E1-00-E2-00-E4-00-E3-00-E1-00-E1-00-E0-00-DF-00-E3-00-E1-00-E7-01-12-01-39-00-F5-00-E6-00-E2-00-E1-00-E0-00-E3-00-E0-00-DF-00-F0-01-7E-00-EA-00-E6-01-C1-03-26-01-E8-00-E0-00-E9-00-E0-00-E7-00-EA-00-E1-00-E0-01-0F-01-26-01-9E-03-1A-01-F5-01-26-00-F5-00-F8-02-33-03-4D-02-11-01-01-00-EE-01-82-00-EB-00-E0-00-E3-00-F0-00-E4-00-DF-00-DF-00-EE-00-DB-00-DE-00-DD-00-DF-00-DE-00-DD-00-DC-00-EF-01-DD-02-9F-01-BA-00-E6-00-DF-00-DC-00-DA-00-DA-00-D8-00-DB-00-D9-00-DB-00-E8-01-64-00-E9-00-DC-00-DE-00-DE-00-D8-00-D8-00-F8-01-3C-01-02-00-DF-00-DC-00-DC-00-DA-00-DC-00-DB-00-DD-00-DC-00-DA-01-3E-02-DE-01-2E-00-DB-00-DE-00-DC-00-D9-00-DE-00-DC-00-DD-01-12-01-8B-01-08-00-E0-01-0B-02-B2-01-36-00-DC-00-DF-00-EF-00-DE-00-DC-00-DC-00-DB-00-DB-00-DA-01-A8-03-36-01-83-00-DC-FF-5D-FF-5A-FF-5A-FF-5E-00-36-FF-5E-FF-5C-FF-60-FF-5C-FF-5D-FF-5A-FF-5F-FF-71-00-3E-01-26-00-41-FF-77-FF-5D-FF-67-FF-5D-FF-5D-FF-5F-FF-5F-FF-E2-01-83-FF-C9-FF-5C-FF-5F-FF-5B-FF-5A-FF-5D-FF-5D-FF-5E-FF-5E-FF-5D-FF-5E-FF-61-FF-64-FF-6A-FF-62-FF-63-FF-5F-FF-5F-FF-60-FF-5C-FF-5E-FF-61-00-31-01-64-00-2F-FF-64-FF-62-FF-6C-FF-66-FF-62-FF-60-FF-61-FF-5F-FF-5D-FF-62-00-11-FF-73-00-12-FF-74-FF-65-FF-E7-01-35-FF-F7-FF-8D-FF-5E-FF-5F-FF-62-FF-5D-FF-60-FF-5F-FF-60-FF-62-FF-61-FF-60-FF-60-FF-5F-FF-5E-FF-62-FF-60-FF-66-FF-91-FF-B8-FF-75-FF-66-FF-62-FF-61-FF-60-FF-63-FF-60-FF-5F-FF-71-FF-FF-FF-6B-FF-67-00-42-01-A7-00-69-FF-61-FF-6A-FF-62-FF-69-FF-6C-FF-63-FF-62-FF-91-FF-A8-00-20-01-9C-00-78-FF-A9-FF-78-FF-7B-00-B6-01-D0-00-94-FF-84-FF-71-00-06-FF-6F-FF-64-FF-67-FF-74-FF-68-FF-63-FF-63-FF-72-FF-5F-FF-62-FF-61-FF-63-FF-62-FF-61-FF-60-FF-73-00-62-01-24-00-3F-FF-6B-FF-64-FF-61-FF-5F-FF-5F-FF-5D-FF-60-FF-5E-FF-60-FF-6D-FF-E9-FF-6E-FF-61-FF-63-FF-63-FF-5D-FF-5D-FF-7D-FF-C1-FF-87-FF-64-FF-61-FF-62-FF-60-FF-62-FF-61-FF-63-FF-62-FF-60-FF-C4-01-64-FF-B4-FF-61-FF-64-FF-62-FF-5F-FF-64-FF-62-FF-63-FF-98-00-11-FF-8E-FF-66-FF-91-01-38-FF-BC-FF-62-FF-66-FF-76-FF-65-FF-63-FF-63-FF-62-FF-62-FF-61-00-2F-01-BD-00-0A-FF-63-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-02-DF-00-00-00-00-00-00-00-00-01-F9-01-E0-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-0E-01-9A-00-00-00-00-00-F0-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-05-00-00-01-B8-00-00-00-00-00-00-03-16-00-00-00-00-01-59-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-8B-01-18-00-00-02-49-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-05-00-A5-01-F9-00-00-00-00-00-00-00-00-00-00-02-2B-00-00-00-D7-00-00-00-00-00-00-00-00-00-00-00-00-02-1C-01-72-00-00-02-80-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-05-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-D7-00-5A-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-B8-00-AA-00-3C-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-02-08-01-45-01-F4-00-00-00-00-00-00-00-00-02-3F-01-CC-00-82-00-00-00-00-02-C6-00-00-00-00-00-F5-00-64-00-00-00-00-01-9F-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-9E-01-9E-01-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E";
+            string strData = "00-0E-B2-00-00-64-00-02-02-F9-00-00-00-00-0B-96-14-B5-00-00-00-00-0B-6E-3C-3F-78-6D-6C-20-76-65-72-73-69-6F-6E-3D-22-31-00-00-00-C9-00-00-00-00-00-00-00-4C-80-0C-F8-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-C9-00-00-00-00-05-95-BF-A0-00-00-00-00-00-00-C3-50-00-00-00-01-00-98-96-80-46-DD-BA-7F-00-01-86-64-00-5F-FE-D4-00-00-FF-FF-02-20-20-11-00-00-00-00-00-10-38-D5-15-69-9F-BE-FC-30-AE-17-00-91-00-00-00-00-00-00-FF-5D-FF-5C-FF-5C-FF-5E-00-2D-FF-5E-FF-5A-FF-5B-FF-5C-FF-5D-FF-5F-FF-5A-FF-95-00-A9-01-33-00-B3-FF-A8-FF-5E-FF-6A-FF-59-FF-5F-FF-5A-FF-5A-FF-F0-01-6F-FF-E5-FF-5C-FF-5C-FF-5E-FF-5F-FF-59-FF-5D-FF-5B-FF-5C-FF-59-FF-5C-FF-5A-FF-63-FF-68-FF-63-FF-61-FF-5D-FF-5D-FF-60-FF-5D-FF-5D-FF-5D-00-1F-01-84-00-22-FF-5F-FF-65-FF-68-FF-65-FF-64-FF-62-FF-5D-FF-5D-FF-5F-FF-79-FF-D0-FF-87-00-06-FF-79-FF-60-FF-E7-01-30-FF-F5-FF-8E-FF-5F-FF-61-FF-60-FF-63-FF-61-FF-5F-FF-61-FF-5E-FF-5C-FF-60-FF-62-FF-60-FF-61-FF-60-FF-5F-FF-63-FF-92-FF-A9-FF-7F-FF-63-FF-62-FF-60-FF-60-FF-63-FF-60-FF-60-FF-66-00-12-FF-6A-FF-7F-00-8D-01-96-00-9F-FF-83-FF-61-FF-65-FF-65-FF-6D-FF-65-FF-68-FF-95-FF-A6-00-26-01-96-00-79-FF-A7-FF-79-FF-92-00-D5-01-BC-00-AC-FF-A9-FF-7E-FF-EC-FF-79-FF-6A-FF-68-FF-74-FF-64-FF-64-FF-68-FF-74-FF-65-FF-62-FF-61-FF-63-FF-63-FF-61-FF-63-FF-72-00-55-01-16-00-4E-FF-64-FF-61-FF-62-FF-63-FF-5F-FF-62-FF-65-FF-61-FF-61-FF-73-FF-D2-FF-75-FF-5E-FF-61-FF-61-FF-62-FF-62-FF-7B-FF-C1-FF-84-FF-61-FF-64-FF-65-FF-65-FF-61-FF-61-FF-63-FF-61-FF-61-FF-CF-01-5A-FF-BC-FF-5F-FF-61-FF-61-FF-64-FF-61-FF-60-FF-6C-FF-A1-FF-F1-FF-A6-FF-6B-FF-CE-00-CF-FF-E7-FF-65-FF-67-FF-79-FF-63-FF-61-FF-61-FF-5F-FF-64-FF-67-00-56-01-6A-00-37-FF-67-06-5F-07-A2-05-41-0A-A2-0B-DF-09-55-03-FA-08-68-0B-79-01-14-0D-A6-01-63-03-58-04-AC-04-7E-04-95-04-96-09-AF-09-5B-02-8F-07-45-07-15-01-5B-02-39-02-1F-02-5B-06-8B-07-0B-01-31-00-13-07-16-07-7F-04-FC-0A-B7-0A-C9-03-E7-04-2B-0B-D9-0B-C5-05-E0-04-5D-0A-86-08-0A-02-68-0A-E7-08-5A-08-34-02-52-02-51-02-65-04-14-05-1F-0A-5E-09-8A-0E-07-02-E3-06-CB-00-74-0D-3E-01-10-01-24-0C-98-0B-D8-0B-AB-02-4A-02-4B-02-92-02-24-00-58-0C-F1-03-26-04-5F-00-0A-05-36-00-BF-08-D6-0B-80-02-0B-08-B9-01-D0-05-6B-0B-C0-02-F5-04-9C-09-DD-0D-4D-0C-87-0B-92-04-2F-03-99-05-67-0A-BF-06-56-06-81-0B-E5-04-94-05-AD-01-CA-0D-D2-00-16-0D-F8-0E-05-00-4B-07-ED-0C-6F-0C-4C-0D-9A-02-C7-04-5F-0D-A8-0D-5B-0D-4E-0B-E4-0C-2F-0C-F7-03-79-04-74-05-3C-05-0F-04-AC-04-FE-0B-7B-0B-93-0B-B4-06-20-04-0D-0A-B5-05-CA-09-3F-05-12-0A-27-03-5C-0C-20-06-B9-09-EE-0D-88-05-44-06-E2-01-DB-02-12-02-32-02-41-01-50-0A-58-01-A6-0A-13-0A-E1-00-CD-0C-7C-01-C9-00-EF-09-9C-09-E9-09-A5-00-52-0D-A0-0A-0B-03-37-0B-CA-01-55-01-0E-00-C2-08-88-05-D2-0C-CE-07-18-04-35-05-6A-09-D1-03-16-0B-D4-06-AA-06-F2-06-FC-00-7B-06-7A-0A-B6-06-AD-08-2E-0B-7B-0C-4F-0C-DD-0B-F7-0D-5C-01-15-0A-E7-0C-26-0D-4D-0B-8C-02-AF-03-0F-05-CF-09-20-06-4D-00-B4-04-3F-02-0B-02-1D-02-2B-02-1A-02-5D-01-22-01-E1-01-46-03-9A-03-E3-00-95-01-49-02-2C-01-CA-00-80-02-47-01-03-02-8C-03-1A-03-2A-03-0C-02-ED-01-67-02-71-01-52-00-16-02-12-00-11-03-CA-03-E6-03-D7-00-09-00-7F-00-F9-00-4B-01-26-01-06-00-6A-02-92-01-20-00-15-02-2F-03-05-02-B0-02-1E-01-1B-01-A8-00-A3-01-0D-00-3F-00-6C-00-87-03-E2-03-E1-03-DE-00-46-01-D4-03-5D-02-31-00-D2-00-E4-01-01-00-95-00-E9-03-E2-03-DF-03-C8-03-D1-03-D1-00-92-03-E3-03-D9-03-E3-03-97-00-66-00-61-01-5E-02-23-01-BA-01-88-00-AA-01-D4-02-4D-00-51-00-A1-01-81-00-8A-01-42-00-07-01-5F-03-E2-03-C1-03-01-01-7A-02-5E-00-6A-00-37-00-20-00-71-00-6B-03-AE-02-87-03-D5-03-B1-03-E1-03-DA-03-C0-03-CE-00-B7-01-E8-01-34-03-24-01-68-01-A9-03-A0-03-C2-03-CA-02-7E-03-DD-03-B8-02-6F-03-BB-03-DD-03-D8-03-92-03-C9-03-86-03-CC-03-B2-02-41-02-A2-03-1E-01-17-02-12-00-E2-03-A0-01-00-01-B8-00-7D-00-F5-00-0E-02-29-02-0A-03-D9-03-E3-03-E1-03-D7-00-FB-01-70-01-76-00-BA-01-B8-01-A9-00-D6-02-7F-01-04-03-3F-03-B8-03-9A-01-AD-01-0E-01-B4-01-B4-00-D8-03-B7-03-C4-03-D3-01-29-00-0B-01-6A-00-BB-01-CB-01-DB-00-90-01-54-01-BB-03-A3-03-58-03-B4-02-17-01-83-00-26-01-2B-01-68-00-CD-02-64-03-D5-03-E5-03-D3-01-CB-03-C8-03-AF-03-83-02-8B-00-DA-02-B8-01-26-01-76-01-AC-01-09-01-08-03-9C-03-DD-03-E6-03-DF-03-B1-00-E7-00-E6-00-E6-00-E8-01-B7-00-E8-00-E4-00-E4-00-E5-00-E6-00-E8-00-E3-01-1E-02-32-02-BC-02-3B-01-30-00-E6-00-F2-00-E1-00-E7-00-E2-00-E2-01-78-02-F6-01-6C-00-E3-00-E3-00-E5-00-E6-00-E0-00-E4-00-E2-00-E2-00-DF-00-E2-00-E0-00-E9-00-EE-00-E9-00-E7-00-E3-00-E2-00-E5-00-E2-00-E2-00-E2-01-A4-03-09-01-A7-00-E4-00-E9-00-EC-00-E9-00-E8-00-E6-00-E1-00-E1-00-E3-00-FD-01-53-01-0A-01-89-00-FC-00-E3-01-6A-02-B3-01-78-01-11-00-E1-00-E3-00-E2-00-E5-00-E3-00-E1-00-E3-00-E0-00-DE-00-E1-00-E3-00-E1-00-E2-00-E1-00-E0-00-E4-01-13-01-2A-00-FF-00-E3-00-E2-00-E0-00-E0-00-E3-00-E0-00-E0-00-E5-01-91-00-E9-00-FE-02-0C-03-15-02-1E-01-02-00-E0-00-E3-00-E3-00-EB-00-E3-00-E6-01-13-01-24-01-A4-03-14-01-F6-01-24-00-F6-01-0F-02-52-03-39-02-29-01-26-00-FB-01-68-00-F5-00-E6-00-E4-00-F0-00-E0-00-E0-00-E4-00-F0-00-E1-00-DE-00-DD-00-DF-00-DF-00-DD-00-DF-00-EE-01-D0-02-91-01-C9-00-DF-00-DC-00-DD-00-DE-00-DA-00-DD-00-E0-00-DC-00-DC-00-EE-01-4D-00-F0-00-D9-00-DC-00-DC-00-DD-00-DD-00-F6-01-3C-00-FF-00-DC-00-DF-00-DF-00-DF-00-DB-00-DB-00-DD-00-DB-00-DB-01-49-02-D4-01-36-00-D9-00-DB-00-DB-00-DE-00-DB-00-DA-00-E6-01-1B-01-6B-01-20-00-E5-01-48-02-49-01-61-00-DF-00-E0-00-F2-00-DC-00-DA-00-DA-00-D8-00-DD-00-E0-01-CF-02-E3-01-B0-00-E0-FF-5D-FF-5C-FF-5C-FF-5E-00-2D-FF-5E-FF-5A-FF-5B-FF-5C-FF-5D-FF-5F-FF-5A-FF-95-00-A9-01-33-00-B3-FF-A8-FF-5E-FF-6A-FF-59-FF-5F-FF-5A-FF-5A-FF-F0-01-6F-FF-E5-FF-5C-FF-5C-FF-5E-FF-5F-FF-59-FF-5D-FF-5B-FF-5C-FF-59-FF-5C-FF-5A-FF-63-FF-68-FF-63-FF-61-FF-5D-FF-5D-FF-60-FF-5D-FF-5D-FF-5D-00-1F-01-84-00-22-FF-5F-FF-65-FF-68-FF-65-FF-64-FF-62-FF-5D-FF-5D-FF-5F-FF-79-FF-D0-FF-87-00-06-FF-79-FF-60-FF-E7-01-30-FF-F5-FF-8E-FF-5F-FF-61-FF-60-FF-63-FF-61-FF-5F-FF-61-FF-5E-FF-5C-FF-60-FF-62-FF-60-FF-61-FF-60-FF-5F-FF-63-FF-92-FF-A9-FF-7F-FF-63-FF-62-FF-60-FF-60-FF-63-FF-60-FF-60-FF-66-00-12-FF-6A-FF-7F-00-8D-01-96-00-9F-FF-83-FF-61-FF-65-FF-65-FF-6D-FF-65-FF-68-FF-95-FF-A6-00-26-01-96-00-79-FF-A7-FF-79-FF-92-00-D5-01-BC-00-AC-FF-A9-FF-7E-FF-EC-FF-79-FF-6A-FF-68-FF-74-FF-64-FF-64-FF-68-FF-74-FF-65-FF-62-FF-61-FF-63-FF-63-FF-61-FF-63-FF-72-00-55-01-16-00-4E-FF-64-FF-61-FF-62-FF-63-FF-5F-FF-62-FF-65-FF-61-FF-61-FF-73-FF-D2-FF-75-FF-5E-FF-61-FF-61-FF-62-FF-62-FF-7B-FF-C1-FF-84-FF-61-FF-64-FF-65-FF-65-FF-61-FF-61-FF-63-FF-61-FF-61-FF-CF-01-5A-FF-BC-FF-5F-FF-61-FF-61-FF-64-FF-61-FF-60-FF-6C-FF-A1-FF-F1-FF-A6-FF-6B-FF-CE-00-CF-FF-E7-FF-65-FF-67-FF-79-FF-63-FF-61-FF-61-FF-5F-FF-64-FF-67-00-56-01-6A-00-37-FF-67-00-00-00-00-00-00-02-5D-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-02-FD-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-E6-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-02-49-00-05-00-05-00-00-00-00-00-00-01-EF-00-00-00-05-01-31-00-CD-00-00-00-00-00-00-00-00-00-00-01-4A-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-05-00-00-01-D1-00-00-00-00-01-BD-00-00-00-00-00-00-00-00-01-18-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-C7-01-31-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-F9-01-6D-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-7C-00-05-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-13-00-9B-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-4A-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-01-C2-00-E6-01-1D-00-00-00-00-00-00-00-0A-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-1E-00-00-01-F9-01-36-00-00-00-00-00-00-00-00-00-00-00-00-03-2A-00-00-02-3F-00-00-00-00-00-00-00-00-00-C3-00-AA-00-00-00-00-01-9F-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E-9E-01-9E-01-01-9E-01-9E-01-9E-01-9E-01-9E-01-9E";
             string[] strArr = strData.Split('-');
             byte[] data = new byte[strArr.Length];
             for (int i = 0; i < strArr.Length; i++)
@@ -311,9 +519,10 @@ namespace Test
                 {
                     List<object> sendDatas = new List<object>();
 
-                    int offset = Marshal.SizeOf(typeof(EB200Header));
+                    int offset = 0;
                     while (offset < data.Length)
                     {
+                        offset += Marshal.SizeOf(typeof(EB200Header));
                         IGenericAttribute ga = new GenericAttributeConventional(data, offset);
                         if (ga.TraceTag > 5000)
                         {
@@ -327,15 +536,22 @@ namespace Test
                         switch (ga.TraceTag)
                         {
                             case (ushort)TAGS.AUDIO:
+                                obj = ToAudio(data, offset);
                                 break;
                             case (ushort)TAGS.IFPAN:
+                                obj = ToSpectrum(data, offset);
                                 break;
                             case (ushort)TAGS.IF:
+                                obj = ToIQ(data, offset);
                                 break;
                             case (ushort)TAGS.CW:
+                                obj = ToCW(data, offset);
                                 break;
                             case (ushort)TAGS.DFPScan:
                                 obj = ToDFPScan(data, offset);
+                                break;
+                            case (ushort)TAGS.GPSCompass:
+                                obj = ToGPSCompass(data, offset);
                                 break;
                             case (ushort)TAGS.FSCAN:
                             //    obj = ToFScan(data, offset);
@@ -370,6 +586,191 @@ namespace Test
                 }
             }
         }
+        static object ToGPSCompass(byte[] buffer, int offset)
+        {
+            try
+            {
+                TraceAttributeConventional trace = new TraceAttributeConventional(buffer, offset);
+                offset += Marshal.SizeOf(typeof(TraceAttributeConventional));
+                OptionalHeaderGPSCompass header = new OptionalHeaderGPSCompass(buffer, offset);
+                offset += trace.OptionalHeaderLength;
+
+                GPSCompassData gpsData = new GPSCompassData(buffer, offset);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        static object ToAudio(byte[] buffer, int offset)
+        {
+            try
+            {
+                {
+                    TraceAttributeConventional trace = new TraceAttributeConventional(buffer, offset);
+                    offset += Marshal.SizeOf(typeof(TraceAttributeConventional));
+                    OptionalHeaderAudio header = new OptionalHeaderAudio(buffer, offset);
+                    offset += trace.OptionalHeaderLength;
+
+                    //校验数据有效性
+                    if (header.FrequencyHigh != 0)
+                    {
+                        return null;
+                    }
+
+                    byte[] audio = new byte[trace.NumberOfTraceItems * 2];
+                    Buffer.BlockCopy(buffer, offset, audio, 0, audio.Length);
+                    //960
+                    return null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        static object ToIQ(byte[] buffer, int offset)
+        {
+            try
+            {
+                List<object> datas = new List<object>();
+                TraceAttributeConventional trace = new TraceAttributeConventional(buffer, offset);
+                offset += Marshal.SizeOf(typeof(TraceAttributeConventional));
+                OptionalHeaderIF header = new OptionalHeaderIF(buffer, offset);
+                offset += trace.OptionalHeaderLength;
+
+                //校验数据有效性
+                if (header.FrequencyHigh != 0)
+                {
+                    return null;
+                }
+
+                short[] iq = new short[trace.NumberOfTraceItems * 2];
+                //Buffer.BlockCopy(buffer, offset, iq, 0, trace.NumberOfTraceItems * 4);
+                for (int i = 0; i < trace.NumberOfTraceItems; i++)
+                {
+                    byte[] data = new byte[2];
+                    Buffer.BlockCopy(buffer, offset, data, 0, 2);
+                    Array.Reverse(data);
+                    iq[i * 2] = BitConverter.ToInt16(data, 0);
+                    offset += 2;
+                    Buffer.BlockCopy(buffer, offset, data, 0, 2);
+                    Array.Reverse(data);
+                    iq[i * 2 + 1] = BitConverter.ToInt16(data, 0);
+                    offset += 2;
+                }
+
+                //if (_iqSwitch)
+                //{
+                //    SDataIQ dataIQ = new SDataIQ();
+                //    dataIQ.Frequency = ((header.FrequencyHigh == 0 ? 0 : (((Int64)header.FrequencyHigh) << 32)) + header.FrequencyLow) / 1000000d;
+                //    //dataIQ.Frequency = header.FrequencyLow / 1000000d;
+                //    dataIQ.IFBandWidth = header.Bandwidth / 1000d;
+                //    dataIQ.SampleRate = header.Samplerate / 1000000d;
+                //    dataIQ.Attenuation = header.RxAtt;
+                //    dataIQ.Datas = iq;
+                //    datas.Add(dataIQ);
+                //}
+
+                return datas;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        static object ToCW(byte[] buffer, int offset)
+        {
+            try
+            {
+                List<object> datas = new List<object>();
+                TraceAttributeConventional trace = new TraceAttributeConventional(buffer, offset);
+                if (trace.NumberOfTraceItems <= 0)
+                {
+                    return null;
+                }
+
+                offset += Marshal.SizeOf(typeof(TraceAttributeConventional));
+                OptionalHeaderCW optionalHeaderCW = new OptionalHeaderCW(buffer, offset);
+                offset += trace.OptionalHeaderLength;
+                CWData cWData = new CWData(trace.NumberOfTraceItems, buffer, offset, trace.SelectorFlags);
+
+                //if (ITUSwitch)
+                //{
+                //    SDataITU sDataITU = new SDataITU();
+                //    sDataITU.AMDepth = cWData.AMDepth[0] < 0 || cWData.AMDepth[0] > 100 ? double.MinValue : cWData.AMDepth[0] / 10f;
+                //    sDataITU.DemMode = DemoduMode.CW;
+                //    sDataITU.FMDev = cWData.FMDev[0] < -1000000000f ? double.MinValue : cWData.FMDev[0] / 1000f;
+                //    sDataITU.FMDevPos = cWData.FMDevPos[0] < -1000000000f ? double.MinValue : cWData.FMDevPos[0] / 1000f;
+                //    sDataITU.FMDevNeg = cWData.FMDevNeg[0] < -1000000000f ? double.MinValue : cWData.FMDevNeg[0] / 1000f;
+                //    if (cWData.FreqOffset[0] < -1000000000f)
+                //        sDataITU.Frequency = _frequency;
+                //    else
+                //        sDataITU.Frequency = _frequency + cWData.FMDev[0] / 1000000f;
+                //    sDataITU.PMDepth = cWData.PMDepth[0] < -1000000000f ? double.MinValue : cWData.PMDepth[0] / 100f;
+
+                //    if (_bandMeasureMode == "XDB")
+                //    {
+                //        sDataITU.XdBBW = cWData.BandWidth[0] < -1000000000f ? double.MinValue : cWData.BandWidth[0] / 1000f;
+                //        sDataITU.BetaBW = double.MinValue;
+                //    }
+                //    else
+                //    {
+                //        sDataITU.BetaBW = cWData.BandWidth[0] < -1000000000f ? double.MinValue : cWData.BandWidth[0] / 1000f;
+                //        sDataITU.XdBBW = double.MinValue;
+                //    }
+
+                //    datas.Add(sDataITU);
+                //}
+
+                // 计算电平值
+                //SDataLevel sDataLevel = new SDataLevel();
+                //sDataLevel.Frequency = _frequency;
+                //sDataLevel.IFBandWidth = _ifBandWidth;
+                //sDataLevel.Data = cWData.Level[0] / 10;
+                //datas.Add(sDataLevel);
+                return datas;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        static object ToSpectrum(byte[] buffer, int offset)
+        {
+            try
+            {
+                TraceAttributeConventional trace = new TraceAttributeConventional(buffer, offset);
+                offset += Marshal.SizeOf(typeof(TraceAttributeConventional));
+                OptionalHeaderIFPan header = new OptionalHeaderIFPan(buffer, offset);
+                offset += trace.OptionalHeaderLength;
+                DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                DateTime dt1 = dt.AddMilliseconds((double)header.OutputTimestamp / 1000 / 1000);
+                //校验数据有效性
+                if (header.FrequencyHigh != 0)
+                {
+                    return null;
+                }
+
+                float[] spectrum = new float[trace.NumberOfTraceItems];
+                for (int i = 0; i < spectrum.Length; ++i)
+                {
+                    Array.Reverse(buffer, offset, 2);
+                    spectrum[i] = BitConverter.ToInt16(buffer, offset) / 10f;
+                    offset += 2;
+                }
+
+                List<object> datas = new List<object>();
+                return datas;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         static object ToDFPScan(byte[] buffer, int offset)
         {
             try
@@ -382,54 +783,678 @@ namespace Test
                 float[] pLevel = new float[pCommon.NumberOfTraceItems];
                 float[] pAzimuth = new float[pCommon.NumberOfTraceItems];
                 float[] pQuality = new float[pCommon.NumberOfTraceItems];
-
-                if ((selectorFlags & (uint)FLAGS.DF_LEVEL) > 0)
-                {
-                    for (int i = 0; i < pLevel.Length; i++)
-                    {
-                        Array.Reverse(buffer, offset, 2);
-                        pLevel[i] = BitConverter.ToInt16(buffer, offset) / 10f;
-                        offset += 2;
-                    }
-                }
-                if ((selectorFlags & (uint)FLAGS.AZIMUTH) > 0)
-                {
-                    for (int i = 0; i < pAzimuth.Length; i++)
-                    {
-                        Array.Reverse(buffer, offset, 2);
-                        pAzimuth[i] = BitConverter.ToInt16(buffer, offset) / 10f;
-                        if (pAzimuth[i] >= 3276.6)
-                        {
-                            pAzimuth[i] = 0f;
-                        }
-                        offset += 2;
-                    }
-                }
-                if ((selectorFlags & (uint)FLAGS.DF_QUALITY) > 0)
-                {
-                    for (int i = 0; i < pQuality.Length; i++)
-                    {
-                        Array.Reverse(buffer, offset, 2);
-                        pQuality[i] = BitConverter.ToInt16(buffer, offset) / 10f;
-                        if (pQuality[i] >= 3276.6)
-                        {
-                            pQuality[i] = 0f;
-                        }
-                        offset += 2;
-                    }
-                }
+                DFPScanData dFPScanData = new DFPScanData(pCommon.NumberOfTraceItems, buffer, offset, selectorFlags);
 
                 long freq = (long)opt.Frequency;
-                int freqIndex = opt.LogChannel;
-                double frequency = freq / 1000000.0;
+                int freqIndex = (int)((98.7 * 1000000 - freq) / (opt.FrequencyStepNumerator / opt.FrequencyStepDenominator));
                 double bandwidth = opt.Bandwidth / 1000.0;
-
+                if (freqIndex > pCommon.NumberOfTraceItems) freqIndex = 0;
+                float level = pLevel[freqIndex];
+                float azimuth = pAzimuth[freqIndex];
+                float quality = pQuality[freqIndex];
 
                 return null;
             }
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        public struct OptionalHeaderGPSCompass
+        {
+            [MarshalAs(UnmanagedType.U8)]
+            public UInt64 OutputTimestamp;
+
+            public OptionalHeaderGPSCompass(byte[] value, int startIndex)
+            {
+                Array.Reverse(value, startIndex, 8);
+                OutputTimestamp = BitConverter.ToUInt64(value, startIndex);
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        internal struct GPSCompassData
+        {
+            public ushort CompassHeading;
+            public short CompassHeadingType;
+            public short GPSValid;
+            public short NoOfSatInView;
+            public string LatRef;
+            public short LatDeg;
+            public float LatMin;
+            public string LonRef;
+            public short LonDeg;
+            public float LonMin;
+            public float Dilution;
+            public short AntValid;
+            public short AntTiltOver;
+            public short AntElevation;
+            public short AntRoll;
+            public short SignalSource;
+            public short AngularRatesValid;
+            public short HeadingAngularRate;
+            public short ElevationAngularRate;
+            public short RollAngularRate;
+            public short GeoidalSeparationValid;
+            public int GeoidalSeparation;
+            public int Altitude;
+            public short SpeedOverGround;
+            public short TrackMadeGood;
+            public float PDOP;
+            public float VDOP;
+            public ulong GPSTimestamp;
+            public int Reserved;
+            public ulong CompassTimestamp;
+            public short MagneticDeclinationSource;
+            public short MagneticDeclination;
+            public short AntRollExact;
+            public short AntElevationExact;
+
+
+            public GPSCompassData(byte[] buffer, int startIndex)
+            {
+                int offset = startIndex;
+                Array.Reverse(buffer, offset, 2);
+                CompassHeading = BitConverter.ToUInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                CompassHeadingType = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                GPSValid = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                NoOfSatInView = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                //Array.Reverse(buffer, offset, 2);
+                LatRef = Encoding.ASCII.GetString(buffer, offset, 2).Trim('\0');//BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                LatDeg = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 4);
+                LatMin = BitConverter.ToSingle(buffer, offset);
+                offset += 4;
+                //Array.Reverse(buffer, offset, 2);
+                LonRef = Encoding.ASCII.GetString(buffer, offset, 2).Trim('\0'); //BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                LonDeg = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 4);
+                LonMin = BitConverter.ToSingle(buffer, offset);
+                offset += 4;
+                Array.Reverse(buffer, offset, 4);
+                Dilution = BitConverter.ToSingle(buffer, offset);
+                offset += 4;
+                Array.Reverse(buffer, offset, 2);
+                AntValid = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                AntTiltOver = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                AntElevation = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                AntRoll = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                SignalSource = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                AngularRatesValid = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                HeadingAngularRate = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                ElevationAngularRate = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                RollAngularRate = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                GeoidalSeparationValid = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 4);
+                GeoidalSeparation = BitConverter.ToInt32(buffer, offset);
+                offset += 4;
+                Array.Reverse(buffer, offset, 4);
+                Altitude = BitConverter.ToInt32(buffer, offset);
+                offset += 4;
+                Array.Reverse(buffer, offset, 2);
+                SpeedOverGround = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                TrackMadeGood = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 4);
+                PDOP = BitConverter.ToSingle(buffer, offset);
+                offset += 4;
+                Array.Reverse(buffer, offset, 4);
+                VDOP = BitConverter.ToSingle(buffer, offset);
+                offset += 4;
+                Array.Reverse(buffer, offset, 8);
+                GPSTimestamp = BitConverter.ToUInt64(buffer, offset);
+                offset += 8;
+                Array.Reverse(buffer, offset, 4);
+                Reserved = BitConverter.ToInt32(buffer, offset);
+                offset += 4;
+                Array.Reverse(buffer, offset, 8);
+                CompassTimestamp = BitConverter.ToUInt64(buffer, offset);
+                offset += 8;
+                Array.Reverse(buffer, offset, 2);
+                MagneticDeclinationSource = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                MagneticDeclination = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                AntRollExact = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+                Array.Reverse(buffer, offset, 2);
+                AntElevationExact = BitConverter.ToInt16(buffer, offset);
+                offset += 2;
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        public struct OptionalHeaderAudio
+        {
+            [MarshalAs(UnmanagedType.I2)]
+            public short AudioMode;
+            [MarshalAs(UnmanagedType.I2)]
+            public short FrameLen;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint FrequencyLow;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint Bandwidth;
+            [MarshalAs(UnmanagedType.U2)]
+            public ushort Demodulation;//FM:0, AM:1, PULS:2, PM:3, IQ:4, ISB:5, CW:6, USB:7, LSB:8, TV:9
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
+            public string sDemodulation;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint FrequencyHigh;
+            [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U1, SizeConst = 6)]
+            public byte[] reserved;
+            [MarshalAs(UnmanagedType.U8)]
+            public ulong OutputTimestamp;
+            [MarshalAs(UnmanagedType.I2)]
+            public short SignalSource;
+
+            public OptionalHeaderAudio(byte[] value, int startIndex)
+            {
+                if (BitConverter.IsLittleEndian)
+                {
+                    byte[] data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex, data, 0, 2);
+                    Array.Reverse(data);
+                    AudioMode = BitConverter.ToInt16(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 2, data, 0, 2);
+                    Array.Reverse(data);
+                    FrameLen = BitConverter.ToInt16(data, 0);
+                    data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex + 4, data, 0, 4);
+                    Array.Reverse(data);
+                    FrequencyLow = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 8, data, 0, 4);
+                    Array.Reverse(data);
+                    Bandwidth = BitConverter.ToUInt32(data, 0);
+                    data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex + 12, data, 0, 2);
+                    Array.Reverse(data);
+                    Demodulation = BitConverter.ToUInt16(data, 0);
+
+                    sDemodulation = BitConverter.ToString(value, startIndex + 14, 8);
+                    data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex + 22, data, 0, 4);
+                    Array.Reverse(data);
+                    FrequencyHigh = BitConverter.ToUInt32(data, 0);
+                    reserved = new byte[6];
+                    data = new byte[8];
+                    Buffer.BlockCopy(value, startIndex + 32, data, 0, 8);
+                    Array.Reverse(data);
+                    OutputTimestamp = BitConverter.ToUInt64(data, 0);
+                    data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex + 40, data, 0, 2);
+                    Array.Reverse(data);
+                    SignalSource = BitConverter.ToInt16(data, 0);
+                }
+                else
+                {
+                    AudioMode = BitConverter.ToInt16(value, startIndex);
+                    FrameLen = BitConverter.ToInt16(value, startIndex + 2);
+                    FrequencyLow = BitConverter.ToUInt32(value, startIndex + 4);
+                    Bandwidth = BitConverter.ToUInt32(value, startIndex + 8);
+                    Demodulation = BitConverter.ToUInt16(value, startIndex + 12);
+                    sDemodulation = BitConverter.ToString(value, startIndex + 14, 8);
+                    FrequencyHigh = BitConverter.ToUInt32(value, startIndex + 22);
+                    reserved = new byte[6];
+                    OutputTimestamp = BitConverter.ToUInt64(value, startIndex + 32);
+                    SignalSource = BitConverter.ToInt16(value, startIndex + 40);
+                }
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        public struct OptionalHeaderIF
+        {
+            //SYSTem:IF:REMote:MODE OFF|SHORT|LONG
+            [MarshalAs(UnmanagedType.I2)]
+            public short Mode;
+            [MarshalAs(UnmanagedType.I2)]
+            public short FrameLen;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint Samplerate;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint FrequencyLow;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint Bandwidth;//IF bandwidth
+            [MarshalAs(UnmanagedType.U2)]
+            public ushort Demodulation;
+            [MarshalAs(UnmanagedType.I2)]
+            public short RxAtt;
+            [MarshalAs(UnmanagedType.U2)]
+            public ushort Flags;
+            [MarshalAs(UnmanagedType.I2)]
+            public short KFactor;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
+            public string sDemodulation;
+            [MarshalAs(UnmanagedType.U8)]
+            public ulong SampleCount;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint FrequencyHigh;
+            [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U1, SizeConst = 4)]
+            public byte[] reserved;
+            [MarshalAs(UnmanagedType.U8)]
+            public ulong StartTimestamp;
+            [MarshalAs(UnmanagedType.I2)]
+            public short SignalSource;
+
+            public OptionalHeaderIF(byte[] value, int startIndex)
+            {
+                if (BitConverter.IsLittleEndian)
+                {
+                    byte[] data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex, data, 0, 2);
+                    Array.Reverse(data);
+                    Mode = BitConverter.ToInt16(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 2, data, 0, 2);
+                    Array.Reverse(data);
+                    FrameLen = BitConverter.ToInt16(data, 0);
+                    data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex + 4, data, 0, 4);
+                    Array.Reverse(data);
+                    Samplerate = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 8, data, 0, 4);
+                    Array.Reverse(data);
+                    FrequencyLow = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 12, data, 0, 4);
+                    Array.Reverse(data);
+                    Bandwidth = BitConverter.ToUInt32(data, 0);
+                    data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex + 16, data, 0, 2);
+                    Array.Reverse(data);
+                    Demodulation = BitConverter.ToUInt16(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 18, data, 0, 2);
+                    Array.Reverse(data);
+                    RxAtt = BitConverter.ToInt16(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 20, data, 0, 2);
+                    Array.Reverse(data);
+                    Flags = BitConverter.ToUInt16(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 22, data, 0, 2);
+                    Array.Reverse(data);
+                    KFactor = BitConverter.ToInt16(data, 0);
+                    sDemodulation = BitConverter.ToString(value, startIndex + 24, 8);
+                    data = new byte[8];
+                    Buffer.BlockCopy(value, startIndex + 32, data, 0, 8);
+                    Array.Reverse(data);
+                    SampleCount = BitConverter.ToUInt64(data, 0);
+                    data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex + 40, data, 0, 4);
+                    Array.Reverse(data);
+                    FrequencyHigh = BitConverter.ToUInt32(data, 0);
+                    reserved = new byte[4];
+                    data = new byte[8];
+                    Buffer.BlockCopy(value, startIndex + 48, data, 0, 8);
+                    Array.Reverse(data);
+                    StartTimestamp = BitConverter.ToUInt64(data, 0);
+                    data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex + 56, data, 0, 2);
+                    Array.Reverse(data);
+                    SignalSource = BitConverter.ToInt16(data, 0);
+                }
+                else
+                {
+                    Mode = BitConverter.ToInt16(value, startIndex);
+                    FrameLen = BitConverter.ToInt16(value, startIndex + 2);
+                    Samplerate = BitConverter.ToUInt32(value, startIndex + 4);
+                    FrequencyLow = BitConverter.ToUInt32(value, startIndex + 8);
+                    Bandwidth = BitConverter.ToUInt32(value, startIndex + 12);
+                    Demodulation = BitConverter.ToUInt16(value, startIndex + 16);
+                    RxAtt = BitConverter.ToInt16(value, startIndex + 18);
+                    Flags = BitConverter.ToUInt16(value, startIndex + 20);
+                    KFactor = BitConverter.ToInt16(value, startIndex + 22);
+                    sDemodulation = BitConverter.ToString(value, startIndex + 24, 8);
+                    SampleCount = BitConverter.ToUInt64(value, startIndex + 32);
+                    FrequencyHigh = BitConverter.ToUInt32(value, startIndex + 40);
+                    reserved = new byte[4];
+                    StartTimestamp = BitConverter.ToUInt64(value, startIndex + 48);
+                    SignalSource = BitConverter.ToInt16(value, startIndex + 56);
+                }
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        internal struct OptionalHeaderCW
+        {
+            //SYSTem:IF:REMote:MODE OFF|SHORT|LONG
+            [MarshalAs(UnmanagedType.U4)]
+            public UInt32 Freq_Low;
+            [MarshalAs(UnmanagedType.U4)]
+            public UInt32 Freq_High;
+            [MarshalAs(UnmanagedType.U8)]
+            public UInt64 OutputTimestamp;
+            [MarshalAs(UnmanagedType.I2)]
+            public Int16 SignalSource;
+
+            public OptionalHeaderCW(byte[] value, int startIndex)
+            {
+                if (BitConverter.IsLittleEndian)
+                {
+                    byte[] data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex, data, 0, 4);
+                    Array.Reverse(data);
+                    Freq_Low = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 4, data, 0, 4);
+                    Array.Reverse(data);
+                    Freq_High = BitConverter.ToUInt32(data, 0);
+                    data = new byte[8];
+                    Buffer.BlockCopy(value, startIndex + 8, data, 0, 8);
+                    Array.Reverse(data);
+                    OutputTimestamp = BitConverter.ToUInt64(data, 0);
+                    data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex + 16, data, 0, 2);
+                    Array.Reverse(data);
+                    SignalSource = BitConverter.ToInt16(data, 0);
+                }
+                else
+                {
+                    Freq_Low = BitConverter.ToUInt32(value, startIndex);
+                    Freq_High = BitConverter.ToUInt32(value, startIndex + 4);
+                    OutputTimestamp = BitConverter.ToUInt64(value, startIndex + 8);
+                    SignalSource = BitConverter.ToInt16(value, startIndex + 16);
+                }
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        internal struct CWData
+        {
+            public short[] Level;
+            public int[] FreqOffset;
+            public short[] FStrength;
+            public short[] AMDepth;
+            public short[] AMDepthPos;
+            public short[] AMDepthNeg;
+            public int[] FMDev;
+            public int[] FMDevPos;
+            public int[] FMDevNeg;
+            public short[] PMDepth;
+            public int[] BandWidth;
+
+            public CWData(int dataCnt, byte[] buffer, int startIndex, uint selectorFlags)
+            {
+                Level = new short[dataCnt];
+                FreqOffset = new int[dataCnt];
+                FStrength = new short[dataCnt];
+                AMDepth = new short[dataCnt];
+                AMDepthPos = new short[dataCnt];
+                AMDepthNeg = new short[dataCnt];
+                FMDev = new int[dataCnt];
+                FMDevPos = new int[dataCnt];
+                FMDevNeg = new int[dataCnt];
+                PMDepth = new short[dataCnt];
+                BandWidth = new int[dataCnt];
+                int offset = startIndex;
+                for (int i = 0; i < dataCnt; i++)
+                {
+                    Array.Reverse(buffer, offset, 2);
+                    Level[i] = BitConverter.ToInt16(buffer, offset);
+                    if (Level[i] == 2000)
+                        Level[i] = short.MinValue;
+                    offset += 2;
+                }
+                for (int i = 0; i < dataCnt; i++)
+                {
+                    Array.Reverse(buffer, offset, 4);
+                    FreqOffset[i] = BitConverter.ToInt32(buffer, offset);
+                    if (FreqOffset[i] == 10000000)
+                        FreqOffset[i] = int.MinValue;
+                    offset += 4;
+                }
+
+                if ((selectorFlags & (uint)FLAGS.FSTRENGTH) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        FStrength[i] = BitConverter.ToInt16(buffer, offset);
+                        if (FStrength[i] == 0x7FFF)
+                            FStrength[i] = short.MinValue;
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.AM) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        AMDepth[i] = BitConverter.ToInt16(buffer, offset);
+                        if (AMDepth[i] == 0x7FFF)
+                            AMDepth[i] = short.MinValue;
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.AM_POS) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        AMDepthPos[i] = BitConverter.ToInt16(buffer, offset);
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.AM_NEG) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        AMDepthNeg[i] = BitConverter.ToInt16(buffer, offset);
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.FM) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 4);
+                        FMDev[i] = BitConverter.ToInt32(buffer, offset);
+                        if (FMDev[i] == 0x7FFFFFFF)
+                            FMDev[i] = int.MinValue;
+                        offset += 4;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.FM_POS) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 4);
+                        FMDevPos[i] = BitConverter.ToInt32(buffer, offset);
+                        offset += 4;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.FM_NEG) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 4);
+                        FMDevNeg[i] = BitConverter.ToInt32(buffer, offset);
+                        offset += 4;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.PM) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        PMDepth[i] = BitConverter.ToInt16(buffer, offset);
+                        if (PMDepth[i] == 0x7FFF)
+                            PMDepth[i] = short.MinValue;
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.BANDWIDTH) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 4);
+                        BandWidth[i] = BitConverter.ToInt32(buffer, offset);
+                        if (BandWidth[i] == 0x7FFFFFFF)
+                            BandWidth[i] = int.MinValue;
+                        offset += 4;
+                    }
+                }
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        internal struct DFPScanData
+        {
+            public uint DataCnt;
+            public short[] DfLevel;
+            public short[] Azimuth;
+            public short[] DfQuality;
+            public short[] DfFstrength;
+            public short[] DfLevelCont;
+            public short[] Elevation;
+            public short[] DfChannelStatus;
+            public short[] DfOmniphase;
+
+            public float[] LevelF;
+            public float[] AzimuthF;
+            public float[] QualityF;
+
+            public DFPScanData(uint dataCnt, byte[] buffer, int startIndex, ulong selectorFlags)
+            {
+                DataCnt = dataCnt;
+                DfLevel = new short[dataCnt];
+                Azimuth = new short[dataCnt];
+                DfQuality = new short[dataCnt];
+                DfFstrength = new short[dataCnt];
+                DfLevelCont = new short[dataCnt];
+                Elevation = new short[dataCnt];
+                DfChannelStatus = new short[dataCnt];
+                DfOmniphase = new short[dataCnt];
+
+                LevelF = new float[dataCnt];
+                AzimuthF = new float[dataCnt];
+                QualityF = new float[dataCnt];
+                int offset = startIndex;
+                if ((selectorFlags & (uint)FLAGS.DF_LEVEL) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        DfLevel[i] = BitConverter.ToInt16(buffer, offset);
+                        LevelF[i] = ((float)DfLevel[i]) / 10;
+                        if (DfLevel[i] == 2000 || DfLevel[i] == 1999)
+                        {
+                            DfLevel[i] = short.MinValue;
+                            LevelF[i] = float.MinValue;
+                        }
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.AZIMUTH) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        Azimuth[i] = BitConverter.ToInt16(buffer, offset);
+                        AzimuthF[i] = ((float)Azimuth[i]) / 10;
+                        if (Azimuth[i] == 0x7FFF || Azimuth[i] == 0x7FFE)
+                        {
+                            Azimuth[i] = short.MinValue;
+                            AzimuthF[i] = 0;
+                        }
+                        offset += 2;
+                    }
+                }
+
+                if ((selectorFlags & (uint)FLAGS.DF_QUALITY) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        DfQuality[i] = BitConverter.ToInt16(buffer, offset);
+                        QualityF[i] = ((float)DfQuality[i]) / 10;
+                        if (DfQuality[i] == 0x7FFF || DfQuality[i] == 0x7FFE)
+                        {
+                            DfQuality[i] = short.MinValue;
+                            QualityF[i] = 0;
+                        }
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.DF_FSTRENGTH) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        DfFstrength[i] = BitConverter.ToInt16(buffer, offset);
+                        if (DfFstrength[i] == 0x7FFF || DfFstrength[i] == 0x7FFE)
+                            DfFstrength[i] = short.MinValue;
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.DF_LEVEL_CONT) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        DfLevelCont[i] = BitConverter.ToInt16(buffer, offset);
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.ELEVATION) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        Elevation[i] = BitConverter.ToInt16(buffer, offset);
+                        if (Elevation[i] == 0x7FFF || Elevation[i] == 0x7FFE)
+                            Elevation[i] = short.MinValue;
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.DF_CHANNEL_STATUS) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        DfChannelStatus[i] = BitConverter.ToInt16(buffer, offset);
+                        offset += 2;
+                    }
+                }
+                if ((selectorFlags & (uint)FLAGS.DF_OMNIPHASE) > 0)
+                {
+                    for (int i = 0; i < dataCnt; i++)
+                    {
+                        Array.Reverse(buffer, offset, 2);
+                        DfOmniphase[i] = BitConverter.ToInt16(buffer, offset);
+                        if (DfOmniphase[i] == 0x7FFF || DfOmniphase[i] == 0x7FFE)
+                            DfOmniphase[i] = short.MinValue;
+                        offset += 2;
+                    }
+                }
             }
         }
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -547,6 +1572,29 @@ namespace Test
                     NumberOfEigenvalues = value[startIndex + 73];
                     Reserved = BitConverter.ToInt16(value, startIndex + 74);
                 }
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        public struct TraceAttributeConventional
+        {
+            [MarshalAs(UnmanagedType.I2)]
+            public short NumberOfTraceItems;
+            [MarshalAs(UnmanagedType.U1)]
+            public byte ChannelNumber;
+            [MarshalAs(UnmanagedType.U1)]
+            public byte OptionalHeaderLength;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint SelectorFlags;
+
+            public TraceAttributeConventional(byte[] value, int startIndex)
+            {
+                Array.Reverse(value, startIndex, 2);
+                NumberOfTraceItems = BitConverter.ToInt16(value, startIndex);
+                ChannelNumber = value[startIndex + 2];
+                OptionalHeaderLength = value[startIndex + 3];
+                Array.Reverse(value, startIndex + 4, 4);
+                SelectorFlags = BitConverter.ToUInt32(value, startIndex + 4);
             }
         }
         /// <summary>
@@ -808,6 +1856,126 @@ namespace Test
             HRPAN = 5601,
             LAST_TAG
         };
+
+        /// <summary>
+        /// OptionalHeaderIFPan
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+        public struct OptionalHeaderIFPan
+        {
+            [MarshalAs(UnmanagedType.U4)]
+            public uint FrequencyLow;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint SpanFrequency;
+            [MarshalAs(UnmanagedType.I2)]
+            public short AverageTime;//Not used and always set to 0
+            [MarshalAs(UnmanagedType.I2)]
+            public short AverageType;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint MeasureTime;//us
+            [MarshalAs(UnmanagedType.U4)]
+            public uint FrequencyHigh;
+            [MarshalAs(UnmanagedType.I4)]
+            public int DemodFreqChannel;
+            //[MarshalAs(UnmanagedType.U4)]
+            //public uint DemodFreqLow;
+            //[MarshalAs(UnmanagedType.U4)]
+            //public uint DemodFreqHigh;
+            [MarshalAs(UnmanagedType.U8)]
+            public ulong DemodFreq;
+            [MarshalAs(UnmanagedType.U8)]
+            public ulong OutputTimestamp;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint StepFrequencyNumerator;
+            [MarshalAs(UnmanagedType.U4)]
+            public uint StepFrequencyDenominator;
+            [MarshalAs(UnmanagedType.I2)]
+            public short SignalSource;
+            [MarshalAs(UnmanagedType.I2)]
+            public short MeasureMode;
+            [MarshalAs(UnmanagedType.U8)]
+            public ulong MeasureTimestamp;
+
+            public OptionalHeaderIFPan(byte[] value, int startIndex)
+            {
+                if (BitConverter.IsLittleEndian)
+                {
+                    byte[] data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex, data, 0, 4);
+                    Array.Reverse(data);
+                    FrequencyLow = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 4, data, 0, 4);
+                    Array.Reverse(data);
+                    SpanFrequency = BitConverter.ToUInt32(data, 0);
+                    data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex + 8, data, 0, 2);
+                    Array.Reverse(data);
+                    AverageTime = BitConverter.ToInt16(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 10, data, 0, 2);
+                    Array.Reverse(data);
+                    AverageType = BitConverter.ToInt16(data, 0);
+                    data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex + 12, data, 0, 4);
+                    Array.Reverse(data);
+                    MeasureTime = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 16, data, 0, 4);
+                    Array.Reverse(data);
+                    FrequencyHigh = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 20, data, 0, 4);
+                    Array.Reverse(data);
+                    DemodFreqChannel = BitConverter.ToInt32(data, 0);
+
+                    Buffer.BlockCopy(value, startIndex + 24, data, 0, 4);
+                    Array.Reverse(data);
+                    uint low = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 28, data, 0, 4);
+                    Array.Reverse(data);
+                    uint high = BitConverter.ToUInt32(data, 0);
+                    DemodFreq = (high << 32) + low;
+
+                    data = new byte[8];
+                    Buffer.BlockCopy(value, startIndex + 32, data, 0, 8);
+                    Array.Reverse(data);
+                    OutputTimestamp = BitConverter.ToUInt64(data, 0);
+                    data = new byte[4];
+                    Buffer.BlockCopy(value, startIndex + 40, data, 0, 4);
+                    Array.Reverse(data);
+                    StepFrequencyNumerator = BitConverter.ToUInt32(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 44, data, 0, 4);
+                    Array.Reverse(data);
+                    StepFrequencyDenominator = BitConverter.ToUInt32(data, 0);
+                    data = new byte[2];
+                    Buffer.BlockCopy(value, startIndex + 48, data, 0, 2);
+                    Array.Reverse(data);
+                    SignalSource = BitConverter.ToInt16(data, 0);
+                    Buffer.BlockCopy(value, startIndex + 50, data, 0, 2);
+                    Array.Reverse(data);
+                    MeasureMode = BitConverter.ToInt16(data, 0);
+                    data = new byte[8];
+                    Buffer.BlockCopy(value, startIndex + 52, data, 0, 8);
+                    Array.Reverse(data);
+                    MeasureTimestamp = BitConverter.ToUInt64(data, 0);
+                }
+                else
+                {
+                    FrequencyLow = BitConverter.ToUInt32(value, startIndex);
+                    SpanFrequency = BitConverter.ToUInt32(value, startIndex + 4);
+                    AverageTime = BitConverter.ToInt16(value, startIndex + 8);
+                    AverageType = BitConverter.ToInt16(value, startIndex + 10);
+                    MeasureTime = BitConverter.ToUInt32(value, startIndex + 12);
+                    FrequencyHigh = BitConverter.ToUInt32(value, startIndex + 16);
+                    DemodFreqChannel = BitConverter.ToInt32(value, startIndex + 20);
+                    DemodFreq = BitConverter.ToUInt64(value, startIndex + 24);
+                    OutputTimestamp = BitConverter.ToUInt64(value, startIndex + 32);
+                    StepFrequencyNumerator = BitConverter.ToUInt32(value, startIndex + 40);
+                    StepFrequencyDenominator = BitConverter.ToUInt32(value, startIndex + 44);
+                    SignalSource = BitConverter.ToInt16(value, startIndex + 48);
+                    MeasureMode = BitConverter.ToInt16(value, startIndex + 50);
+                    MeasureTimestamp = BitConverter.ToUInt64(value, startIndex + 52);
+                }
+
+            }
+        }
         #endregion 测试DDF550
 
         #region 测试查找字节数组

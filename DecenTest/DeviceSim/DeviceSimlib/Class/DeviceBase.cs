@@ -56,10 +56,11 @@ namespace DeviceSimlib
         protected bool _deviceInitialized = false;
         [XmlIgnore]
         protected bool _isRunning = false;
-        protected int _interTime = 1000;//ms
         protected int _pauseSpan = 10;
         protected bool _isErr = false;
         private string _name;
+        private bool _connected = false;
+
 
         public string Name
         {
@@ -74,19 +75,9 @@ namespace DeviceSimlib
             }
         }
 
-        public int IntegrationTime
-        {
-            get { return _interTime; }
-            set
-            {
-                if (_interTime != value)
-                {
-                    _interTime = value;
-                    PropertyChanged.Notify(() => this.IntegrationTime);
-                }
-            }
-        }
-
+        /// <summary>
+        /// 设备初始化状态
+        /// </summary>
         [XmlIgnore]
         public bool DeviceInitialized
         {
@@ -101,6 +92,9 @@ namespace DeviceSimlib
             }
         }
 
+        /// <summary>
+        /// 任务运行状态
+        /// </summary>
         [XmlIgnore]
         public bool IsRunning
         {
@@ -111,6 +105,23 @@ namespace DeviceSimlib
                 {
                     _isRunning = value;
                     PropertyChanged.Notify(() => this.IsRunning);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 与设备连接状态
+        /// </summary>
+        [XmlIgnore]
+        public bool Connected
+        {
+            get { return _connected; }
+            set
+            {
+                if (_connected != value)
+                {
+                    _connected = value;
+                    PropertyChanged.Notify(() => this.Connected);
                 }
             }
         }
@@ -163,9 +174,14 @@ namespace DeviceSimlib
 
         #endregion 界面展示
 
-        private Stream _deviceStream
+        private Stream _deviceStreamSend
         {
-            get { return GetStream(); }
+            get { return GetStreamSendData(); }
+        }
+
+        private Stream _deviceStreamRecv
+        {
+            get { return GetStreamRecvData(); }
         }
 
         #endregion 变量/属性
@@ -182,28 +198,77 @@ namespace DeviceSimlib
 
         public abstract void TaskPause(bool pause);
 
+        /// <summary>
+        /// 设备是否可以初始化
+        /// </summary>
         public abstract bool CanDeviceIni
         { get; }
 
-        protected abstract Stream GetStream();
+        /// <summary>
+        /// 获取下发参数的流
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Stream GetStreamSendData();
+
+        /// <summary>
+        /// 获取接收数据的流
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Stream GetStreamRecvData();
 
         protected abstract UserControl GetControl();
 
-        protected virtual void WriteData(byte[] data)
+        /// <summary>
+        /// 通过发送数据通道写数据
+        /// </summary>
+        /// <param name="data"></param>
+        protected virtual void WriteSendData(byte[] data)
         {
-            if (_deviceStream == null)
+            if (_deviceStreamSend == null)
                 return;
             if (data == null || data.Length == 0)
                 return;
-            _deviceStream.Write(data, 0, data.Length);
-            _deviceStream.Flush();
+            _deviceStreamSend.Write(data, 0, data.Length);
+            _deviceStreamSend.Flush();
         }
-
-        protected virtual int ReadData(byte[] buffer, int offset, int count)
+        /// <summary>
+        /// 通过接收数据通道写数据
+        /// </summary>
+        /// <param name="data"></param>
+        protected virtual void WriteRecvData(byte[] data)
         {
-            if (_deviceStream == null)
+            if (_deviceStreamRecv == null)
+                return;
+            if (data == null || data.Length == 0)
+                return;
+            _deviceStreamRecv.Write(data, 0, data.Length);
+            _deviceStreamRecv.Flush();
+        }
+        /// <summary>
+        /// 通过发送数据通道读数据
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="offset"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        protected virtual int ReadSendData(byte[] buffer, int offset, int count)
+        {
+            if (_deviceStreamSend == null)
                 return 0;
-            return _deviceStream.Read(buffer, offset, count);
+            return _deviceStreamSend.Read(buffer, offset, count);
+        }
+        /// <summary>
+        /// 通过接收数据通道读数据
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="offset"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        protected virtual int ReadRecvData(byte[] buffer, int offset, int count)
+        {
+            if (_deviceStreamRecv == null)
+                return 0;
+            return _deviceStreamRecv.Read(buffer, offset, count);
         }
 
         protected virtual void SendStrShow(string msg)

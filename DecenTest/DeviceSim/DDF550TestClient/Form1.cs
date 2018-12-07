@@ -48,6 +48,31 @@ namespace DDF550TestClient
             SendCmd(cmd);
         }
 
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string str = txtSendStr.Text;
+            byte[] buffer = Encoding.ASCII.GetBytes(str);
+            byte[] cmd = PackedXMLCommand(buffer);
+
+            txtSendHex.Text = BitConverter.ToString(cmd).Replace("-", "");
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string str = txtSendHex.Text;
+            string[] strArr = str.Split(' ');
+            List<byte> list = new List<byte>();
+            foreach (string hex in strArr)
+            {
+                byte val = Convert.ToByte(hex, 16);
+                list.Add(val);
+            }
+            List<byte> list2 = new List<byte>();
+            UnPackedXMLCommand(list.ToArray(), ref list2);
+            int len = list2.Count;
+            byte[] data = list2.Skip(8).Take(len - 13).ToArray();
+            txtSendStr.Text = Encoding.ASCII.GetString(data);
+        }
         private void cboCmd_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cboCmd.Text == "None")
@@ -82,8 +107,7 @@ namespace DDF550TestClient
                 string result = string.Empty;
                 lock (this)
                 {
-                    byte[] sendBuffer = PackedXMLCommand(cmd);
-                    _cmdSocket.Send(sendBuffer, 0, sendBuffer.Length, SocketFlags.None);
+                    _cmdSocket.Send(cmd, 0, cmd.Length, SocketFlags.None);
                     //Thread.Sleep(100);
                     List<byte> cacheCmd = new List<byte>();
                     try
@@ -113,9 +137,9 @@ namespace DDF550TestClient
                                 int len = cacheCmd.Count;
 
                                 byte[] data = cacheCmd.Skip(8).Take(len - 13).ToArray();
-                                result = Encoding.ASCII.GetString(data);
+                                result = Encoding.ASCII.GetString(data).TrimEnd('\0');
                                 txtRecvStr.Invoke(new MethodInvoker(() => txtRecvStr.Text += result + "\r\n"));
-                                if (result.Substring(result.Length - 8, 8) == "</Reply>")
+                                if (result.Substring(result.Length - 8, 8) != "</Reply>")
                                 {
                                     MessageBox.Show(this, "!Error Recv2");
                                 }

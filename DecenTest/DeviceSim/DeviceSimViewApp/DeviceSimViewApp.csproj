@@ -95,23 +95,22 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DeviceSimlib\DeviceSimlib.csproj">
-      <Project>{1859493c-2728-4872-8913-ae6e6069fca1}</Project>
-      <Name>DeviceSimlib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\bitbug_favicon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="tubiao.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DeviceSimlib\DeviceSimlib.csproj">
+      <Project>{1859493c-2728-4872-8913-ae6e6069fca1}</Project>
+      <Name>DeviceSimlib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
