@@ -418,6 +418,7 @@ namespace DeviceSim.Device
                 OnPropertyChanged(() => this.Gain);
             }
         }
+
         #endregion DemodulationSettings
 
         #region Scan
@@ -645,5 +646,6 @@ namespace DeviceSim.Device
         }
 
         #endregion 心跳检测
+
     }
 }

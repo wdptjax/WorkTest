@@ -53,6 +53,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDF550TestClient", "DeviceS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPFControls", "WPFControls", "{EE813CA8-7CD7-4C76-80CA-844AE10808A2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DellRemotingSwitch", "DellRemotingSwitch", "{6F100289-B0E2-47C4-9609-7727AA3622C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DellRemotingSwitch", "DellRemotingSwitch\DellRemotingSwitch\DellRemotingSwitch.csproj", "{81584621-60C1-4670-9DD3-9AA3F8E6977D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -213,6 +217,14 @@ Global
 		{B2BCBF47-56A5-43A3-BC7B-AF8DB74C5098}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B2BCBF47-56A5-43A3-BC7B-AF8DB74C5098}.Release|x86.ActiveCfg = Release|Any CPU
 		{B2BCBF47-56A5-43A3-BC7B-AF8DB74C5098}.Release|x86.Build.0 = Release|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Debug|x86.Build.0 = Debug|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Release|x86.ActiveCfg = Release|Any CPU
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -235,6 +247,7 @@ Global
 		{91D2360A-8C0F-4745-84B1-98CAF56319B0} = {46903DEA-E551-4FD0-A6A8-D97B5DBD00E3}
 		{C91E92CA-0186-4C83-906F-B516D0BE05FB} = {46903DEA-E551-4FD0-A6A8-D97B5DBD00E3}
 		{B2BCBF47-56A5-43A3-BC7B-AF8DB74C5098} = {7B94119E-1B2D-4B0F-803F-75105A17BEE3}
+		{81584621-60C1-4670-9DD3-9AA3F8E6977D} = {6F100289-B0E2-47C4-9609-7727AA3622C9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A504C0A2-3FD5-4647-980B-352F8FDBE736}

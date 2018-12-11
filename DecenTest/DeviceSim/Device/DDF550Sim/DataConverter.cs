@@ -28,6 +28,18 @@ namespace DeviceSim.Device
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value != null && value is EDfMode)
+            {
+                return ((EDfMode)value).ToString().Substring(7);
+            }
+            if (value != null && value is ELevel_Indicatir)
+            {
+                return ((ELevel_Indicatir)value).ToString().Substring(16);
+            }
+            if (value != null && value is EDemodulation)
+            {
+                return ((EDemodulation)value).ToString().Substring(4);
+            }
             if (targetType == typeof(Brush))
             {
                 if (value is bool)
@@ -42,7 +54,7 @@ namespace DeviceSim.Device
             }
             if (targetType == typeof(Brush))
             {
-                if (value is bool)
+                if (value is bool && parameter is null || parameter.ToString() == "")
                 {
                     return (bool)value ? Brushes.Lime : Brushes.Red;
                 }
@@ -58,12 +70,12 @@ namespace DeviceSim.Device
                         return Visibility.Collapsed;
                 }
             }
-            if (parameter.ToString() == "ShowPScan")
+            if (parameter.ToString() == "ShowScan")
             {
                 if (value is EDfMode)
                 {
                     EDfMode mode = (EDfMode)value;
-                    if (mode == EDfMode.DFMODE_RXPSCAN)
+                    if (mode == EDfMode.DFMODE_RXPSCAN || mode == EDfMode.DFMODE_SCAN || mode == EDfMode.DFMODE_SEARCH)
                         return Visibility.Visible;
                     else
                         return Visibility.Collapsed;

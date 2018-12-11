@@ -334,7 +334,7 @@ namespace DeviceSim.Device
                     isLast = true;
                 }
                 freqIndex = freqIndex - (int)_hopIndexScanDF;
-                byte[] data = GetDFData(sendLen, _hopIndexScanDF, freqIndex, selectorFlags, startFreq, numerator, denominator, span, isLast);
+                byte[] data = GetDFData(dataLen, sendLen, _hopIndexScanDF, freqIndex, selectorFlags, startFreq, numerator, denominator, span, isLast);
                 _lastSendCnt = sendLen;
                 if (isLast)
                 {
@@ -359,24 +359,24 @@ namespace DeviceSim.Device
                 uint dataLen = (uint)(span / step + 1);
                 ulong startFreq = freq - (ulong)span / 2;
                 int freqIndex = (int)dataLen / 2;
-                return GetDFData(dataLen, 0, freqIndex, selectorFlags, startFreq, numerator, denominator, span, true);
+                return GetDFData(dataLen, dataLen, 0, freqIndex, selectorFlags, startFreq, numerator, denominator, span, true);
             }
         }
 
-        private byte[] GetDFData(uint dataLen, uint logChannel, int freqIndex, ulong selectorFlags, ulong startFreq, int numerator, int denominator, int span, bool isLastHop)
+        private byte[] GetDFData(uint totalLen, uint dataLen, uint logChannel, int freqIndex, ulong selectorFlags, ulong startFreq, int numerator, int denominator, int span, bool isLastHop)
         {
             DFPScanData dFPScanData = new DFPScanData(dataLen);
             for (int i = 0; i < dataLen; i++)
             {
                 short level = (short)_random.Next(_noiseMin * 10, _noiseMax * 10);
-                short azimuth = (short)_random.Next(0, 3600);
+                short azimuth = (short)_random.Next(0, 3599);
                 short quality = (short)_random.Next(0, 500);
                 short fstrength = level;
                 short dfLevelCont = level;
                 short elevation = azimuth;
                 short dfChannelStatus = 414;
                 short dfOmniphase = 0;
-                if (i == freqIndex)
+                if (Math.Abs(i - freqIndex) < 10)
                 {
                     level = (short)_random.Next(_levelMin * 10, _levelMax * 10);
                     azimuth = (short)_random.Next(_azimuthMin * 10, _azimuthMax * 10);
@@ -398,7 +398,7 @@ namespace DeviceSim.Device
 
             OptionalHeaderDFPScan header = new OptionalHeaderDFPScan();
             header.ScanRangeID = 0;
-            header.ChannelsInScanRange = (int)dataLen;
+            header.ChannelsInScanRange = (int)totalLen;
             header.Frequency = startFreq;
             header.LogChannel = (int)logChannel;
             header.FrequencyStepNumerator = numerator;
@@ -410,7 +410,7 @@ namespace DeviceSim.Device
             header.Threshold = (short)_levelThreshold;
             header.CompassHeading = 0;
             header.CompassHeadingType = -1;
-            header.DFStatus = GetDFStatus(true);
+            header.DFStatus = GetDFStatus(isLastHop);
             header.SweepTime = 4129543557;
             header.MeasureTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
             header.JobID = _jobId;

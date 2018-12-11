@@ -54,5 +54,8 @@
     <Compile Include="Extensions\SerializableDictionary.cs" />
     <Compile Include="XmlSerializer\XmlUtil.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="UserControl\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

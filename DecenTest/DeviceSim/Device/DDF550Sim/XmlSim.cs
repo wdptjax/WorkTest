@@ -154,7 +154,7 @@ namespace DeviceSim.Device
                         AnalysisCmdScanRangeDelete(request, ref reply);
                         break;
                     case CMD_SCANRANGEDELETEALL:
-                        ScanRangeList.Clear();
+                        _dispatcher.BeginInvoke(new Action(() => ScanRangeList.Clear()));
                         RunningScanRange = null;
                         break;
                     case CMD_SCANRANGENEXT:
@@ -582,6 +582,7 @@ namespace DeviceSim.Device
                 IsRunning = true;
             }
         }
+
         private void AnalysisCmdSetTraceDisable(Request request, ref Reply reply)
         {
             string ip = "";
@@ -628,6 +629,9 @@ namespace DeviceSim.Device
                     break;
                 case ETraceTag.TRACETAG_DF:
                     Client.IsSendDF = false;
+                    _lastSendCnt = 0;
+                    _hopIndexScanDF = 0;
+                    _scanRangeCnt = 0;
                     break;
                 case ETraceTag.TRACETAG_IF:
                     Client.IsSendIQ = false;
@@ -649,6 +653,7 @@ namespace DeviceSim.Device
             //    IsRunning = false;
             //}
         }
+
         private void AnalysisCmdScanRangeDelete(Request request, ref Reply reply)
         {
             foreach (var para in request.Command.Params)
@@ -670,7 +675,7 @@ namespace DeviceSim.Device
                             UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
                             return;
                         }
-                        ScanRangeList.Remove(info);
+                        _dispatcher.BeginInvoke(new Action(() => ScanRangeList.Remove(info)));
                         if (info.ID == RunningScanRange.ID)
                             RunningScanRange = null;
                         break;
@@ -679,6 +684,7 @@ namespace DeviceSim.Device
                 }
             }
         }
+
         private void AnalysisCmdScanRangeAdd(Request request, ref Reply reply)
         {
             ulong start = 0;
@@ -748,7 +754,7 @@ namespace DeviceSim.Device
             info.Span = span;
             info.Step = step;
             info.NumHops = GetNumHops(info.StartFrequency, info.StopFrequency, info.Step);
-            ScanRangeList.Add(info);
+            _dispatcher.Invoke(new Action(() => ScanRangeList.Add(info)));
 
             Param param1 = new Param();
             param1.Name = "iFreqBegin";
@@ -777,6 +783,7 @@ namespace DeviceSim.Device
             reply.Command.Params.Add(param5);
             reply.Command.Params.Add(param6);
         }
+
         private void AnalysisCmdScanRange(Request request, ref Reply reply)
         {
             ulong start = 0;
