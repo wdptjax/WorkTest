@@ -37,6 +37,10 @@ namespace DeviceSim.Device
         ushort _jobId = 3649;
         float _angle = 0;
 
+        DateTime _lastDfTime = DateTime.Now;
+
+        private bool _canSendAudio = true;
+
         //ScanDF使用
         //每包数据的最大长度
         const uint SCANDF_MAXCNT = 199;
@@ -92,6 +96,7 @@ namespace DeviceSim.Device
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine("DataSendSync报错:" + ex.ToString());
                 }
 
             }
@@ -99,6 +104,8 @@ namespace DeviceSim.Device
 
         private byte[] GetAudioData()
         {
+            if (!_canSendAudio)
+                return null;
             int dataCnt = 960;
             byte[] data = new byte[dataCnt * 2];
             if (_indexAudio + dataCnt * 2 <= _fsAudio.Length)
@@ -115,13 +122,13 @@ namespace DeviceSim.Device
             ulong freq = (ulong)(_frequency * 1000000);
 
             OptionalHeaderAudio audioHeader = new OptionalHeaderAudio();
-            audioHeader.AudioMode = 2;
+            audioHeader.AudioMode = (short)AudioMode;
             audioHeader.FrequencyLow = (uint)(freq & 0x00000000FFFFFFFF);
             audioHeader.Bandwidth = (uint)(_demBandWidth * 1000);
             audioHeader.Demodulation = (ushort)_demMode;
-            audioHeader.sDemodulation = "FM";
+            audioHeader.sDemodulation = _demMode.ToString().Replace("MOD_", "");
             audioHeader.FrequencyHigh = (uint)((freq & 0xFFFFFFFF00000000) >> 32);
-            audioHeader.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            audioHeader.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks * 100;
             audioHeader.SignalSource = 0;
 
             TraceAttributeConventional traceAttribute = new TraceAttributeConventional();
@@ -181,7 +188,7 @@ namespace DeviceSim.Device
             ifHeader.SampleCount = _sampleCount;
             _sampleCount++;
             ifHeader.FrequencyHigh = (uint)((freq & 0xFFFFFFFF00000000) >> 32);
-            ifHeader.StartTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            ifHeader.StartTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks * 100;
             ifHeader.SignalSource = 0;
 
             TraceAttributeConventional traceAttribute = new TraceAttributeConventional();
@@ -207,6 +214,13 @@ namespace DeviceSim.Device
             ulong freq = (ulong)(_frequency * 1000000);
             CWData cwData = new CWData(dataCnt);
             short level = (short)_random.Next(_levelMin * 10, _levelMax * 10);
+            if (!_isUseSquelch)
+                _canSendAudio = true;
+            else
+            {
+                if (level < _squelchThreshold)
+                    _canSendAudio = false;
+            }
             cwData.Level[0] = level;
             cwData.FreqOffset[0] = (int)_random.Next(_ituOffsetMin * 10, _ituOffsetMax * 10);
             if (Client.IsSendITU)
@@ -227,7 +241,7 @@ namespace DeviceSim.Device
             cwHeader.Freq_High = (uint)((freq & 0xFFFFFFFF00000000) >> 32);
             cwHeader.Freq_Low = (uint)(freq & 0x00000000FFFFFFFF);
             cwHeader.SignalSource = 0;
-            cwHeader.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            cwHeader.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks * 100;
 
             TraceAttributeConventional traceAttribute = new TraceAttributeConventional();
             traceAttribute.ChannelNumber = 0;
@@ -267,8 +281,8 @@ namespace DeviceSim.Device
             ifPanHeader.SpanFrequency = span;
             ifPanHeader.StepFrequencyDenominator = (uint)denominator;
             ifPanHeader.StepFrequencyNumerator = (uint)numerator;
-            ifPanHeader.MeasureTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
-            ifPanHeader.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            ifPanHeader.MeasureTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks * 100;
+            ifPanHeader.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks * 100;
             ifPanHeader.DemodFreqChannel = dataLen / 2;
             ifPanHeader.DemodFreqHigh = (uint)((freq & 0xFFFFFFFF00000000) >> 32);
             ifPanHeader.DemodFreqLow = (uint)(freq & 0x00000000FFFFFFFF);
@@ -277,9 +291,21 @@ namespace DeviceSim.Device
             byte[] level = new byte[dataLen * 2];
             for (int i = 0; i < dataLen; i++)
             {
-                short data = (short)_random.Next(_noiseMin * 10, _noiseMax * 10);
+                int min = _random.Next(_noiseMin * 10 - 20, _noiseMin * 10 + 20);
+                int max = _random.Next(_noiseMax * 10 - 20, _noiseMax * 10 + 20);
+                short data = (short)_random.Next(min, max);
+                if (_rfMode == ERf_Mode.RFMODE_LOW_NOISE)
+                    data -= 50;
                 if (i == ifPanHeader.DemodFreqChannel)
+                {
                     data = (short)_random.Next(_levelMin * 10, _levelMax * 10);
+                    if (_rfMode == ERf_Mode.RFMODE_LOW_DISTORTION)
+                        data -= 50;
+                }
+                if (!_gainAuto)
+                    data += (short)(_gain * 10);
+                if (!_attAuto)
+                    data -= (short)(_attenuation * 10);
                 byte[] arr = BitConverter.GetBytes(data);
                 level[i * 2] = arr[1];
                 level[i * 2 + 1] = arr[0];
@@ -345,6 +371,10 @@ namespace DeviceSim.Device
             }
             else
             {
+                if (DateTime.Now.Subtract(_lastDfTime).TotalMilliseconds < _integralTime)
+                    return null;
+
+                _lastDfTime = DateTime.Now;
                 int span = (int)(_spectrumSpan * 1000);
                 ulong freq = (ulong)(_frequency * 1000000);
                 string strStep = (_dfPanStep * 1000).ToString();
@@ -376,6 +406,8 @@ namespace DeviceSim.Device
                 short elevation = azimuth;
                 short dfChannelStatus = 414;
                 short dfOmniphase = 0;
+                if (_rfMode == ERf_Mode.RFMODE_LOW_NOISE)
+                    level -= 100;
                 if (Math.Abs(i - freqIndex) < 10)
                 {
                     level = (short)_random.Next(_levelMin * 10, _levelMax * 10);
@@ -384,7 +416,19 @@ namespace DeviceSim.Device
                     fstrength = level;
                     dfLevelCont = level;
                     elevation = azimuth;
+                    if (!_isUseSquelch)
+                        _canSendAudio = true;
+                    else
+                    {
+                        if (level < _squelchThreshold)
+                            _canSendAudio = false;
+                    }
+                    if (_rfMode == ERf_Mode.RFMODE_LOW_DISTORTION)
+                        level -= 100;
+                    if (level < _levelThreshold * 10)
+                        return null;
                 }
+
                 dFPScanData.DfLevel[i] = level;
                 dFPScanData.Azimuth[i] = azimuth;
                 dFPScanData.DfQuality[i] = quality;
@@ -412,7 +456,7 @@ namespace DeviceSim.Device
             header.CompassHeadingType = -1;
             header.DFStatus = GetDFStatus(isLastHop);
             header.SweepTime = 4129543557;
-            header.MeasureTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            header.MeasureTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks * 100;
             header.JobID = _jobId;
             header.SRSelectorflags = 0;
             header.SRWaveCount = 0;
@@ -462,7 +506,7 @@ namespace DeviceSim.Device
             header.StartFrequencyHigh = (uint)((startFreq & 0xFFFFFFFF00000000) >> 32);
             header.StopFrequencyHigh = (uint)((stopFreq & 0xFFFFFFFF00000000) >> 32);
             header.reserved = new byte[4];
-            header.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            header.OutputTimestamp = (ulong)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).Ticks * 100;
             header.StepFrequencyNumerator = numerator;
             header.StepFrequencyDenominator = denominator;
             header.FreqOfFirstStep = startFreq;
@@ -535,6 +579,8 @@ namespace DeviceSim.Device
                     data[1] = 0x22;
                     break;
             }
+            if (_isCorrection)
+                data[1] |= 0x10;
             data[2] = 0x20;
             if (isLast)
                 data[3] = 0x11;

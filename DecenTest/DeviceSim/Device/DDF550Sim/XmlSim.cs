@@ -39,23 +39,35 @@ namespace DeviceSim.Device
                 try
                 {
                     byte[] buffer = new byte[4096];
-                    //recBytes = _cmdSocket.Receive(_cmdReply, offset, _cmdReply.Length - offset, SocketFlags.None);
-                    recBytes = _socketXml.Receive(buffer, 0, buffer.Length, SocketFlags.None);
-                    if (recBytes == 0)
-                    {
-                        CloseConnect();
-                        break;
-                    }
+                    // 读取包头
+                    ReceiveData(buffer, 0, 4, _socketXml);
 
-                    if (UnPackedXMLCommand(buffer.Take(recBytes).ToArray(), ref cacheCmd))
+                    if (buffer[0] == Xml_Start[0] && buffer[1] == Xml_Start[1] && buffer[2] == Xml_Start[2] && buffer[3] == Xml_Start[3])
                     {
-                        if (!CheckXMLCommand(cacheCmd.ToArray()))
+                        // 读取头结构
+                        ReceiveData(buffer, 4, 4, _socketXml);
+                        byte[] lenArr = new byte[4];
+                        Buffer.BlockCopy(buffer, 4, lenArr, 0, 4);
+                        Array.Reverse(lenArr);
+                        int len = BitConverter.ToInt32(lenArr, 0);
+                        // 读取剩下的数据
+                        ReceiveData(buffer, 8, len + 4, _socketXml);
+                        byte[] data = new byte[len + 12];
+                        Buffer.BlockCopy(buffer, 0, data, 0, data.Length);
+                        if (!CheckXMLCommand(data))
                             continue;
                         //offset += recBytes;
-                        int len = cacheCmd.Count;
-                        byte[] data = cacheCmd.Skip(8).Take(len - 13).ToArray();
-                        cacheCmd.Clear();
-                        Request request = (Request)XmlWrapper.DeserializeObject<Request>(data.ToArray());
+                        // 从尾部查找0x00,Xml反序列化的时候不能正确识别截止符,因此需要将截止符去掉
+                        for (int i = data.Length - 5; i >= 0; i--)
+                        {
+                            if (data[i] == 0x00)
+                                len--;
+                            else
+                                break;
+                        }
+                        byte[] xmlData = new byte[len];
+                        Buffer.BlockCopy(data, 8, xmlData, 0, len);
+                        Request request = (Request)XmlWrapper.DeserializeObject<Request>(xmlData);
                         ProcessXml(request);
                     }
                 }
@@ -68,6 +80,32 @@ namespace DeviceSim.Device
                     }
                 }
 
+            }
+        }
+
+        /// <summary>
+        /// 读取指定长度的数据到数组
+        /// </summary>
+        /// <param name="recvBuffer">接收数据缓冲区</param>
+        /// <param name="offset">缓冲区的偏移</param>
+        /// <param name="bytesToRead">要读取的字节数</param>
+        /// <param name="socket">要接收数据的套接字</param>
+        private void ReceiveData(byte[] recvBuffer, int offset, int bytesToRead, Socket socket)
+        {
+            //当前已接收到的字节数
+            int totalRecvLen = 0;
+            //循环接收数据，确保接收完指定字节数
+            while (totalRecvLen < bytesToRead)
+            {
+                int recvLen = socket.Receive(recvBuffer, offset + totalRecvLen, bytesToRead - totalRecvLen, SocketFlags.None);
+                if (recvLen <= 0)
+                {
+                    //远程主机使用close或shutdown关闭连接，并且所有数据已被接收的时候此处不会抛异常而是立即返回0，
+                    //为避免出现此情况将导致该函数死循环，此处直接抛SocketException异常
+                    //10054:远程主机强迫关闭了一个现有连接
+                    throw new SocketException(10054);
+                }
+                totalRecvLen += recvLen;
             }
         }
 
@@ -109,12 +147,14 @@ namespace DeviceSim.Device
                         AnalysisCmdSetDemodulationSettings(request, ref reply);
                         break;
                     case CMD_AUDIOMODE:
+                        AnalysisCmdAudioMode(request, ref reply);
                         break;
                     case CMD_ANTENNACONTROL:
                         break;
                     case CMD_REFERENCEMODE:
                         break;
                     case CMD_RFMODE:
+                        AnalysisCmdRfMode(request, ref reply);
                         break;
                     case CMD_IFMODE:
                         break;
@@ -154,7 +194,7 @@ namespace DeviceSim.Device
                         AnalysisCmdScanRangeDelete(request, ref reply);
                         break;
                     case CMD_SCANRANGEDELETEALL:
-                        _dispatcher.BeginInvoke(new Action(() => ScanRangeList.Clear()));
+                        _dispatcher.Invoke(new Action(() => ScanRangeList.Clear()));
                         RunningScanRange = null;
                         break;
                     case CMD_SCANRANGENEXT:
@@ -294,7 +334,12 @@ namespace DeviceSim.Device
                         if (Enum.TryParse(para.Value, out attSelect))
                         {
                             if (attSelect == EAtt_Select.ATT_AUTO)
+                            {
+                                _attAuto = true;
                                 Attenuation = -1;
+                            }
+                            else
+                                _attAuto = false;
                         }
                         else
                         {
@@ -306,8 +351,10 @@ namespace DeviceSim.Device
                         int attVal = -1;
                         if (int.TryParse(para.Value, out attVal))
                         {
-                            if (Attenuation != -1)
+                            if (!_attAuto)
                                 Attenuation = attVal;
+                            else
+                                Attenuation = -1;
                         }
                         else
                         {
@@ -402,7 +449,7 @@ namespace DeviceSim.Device
                         double time = 100000;
                         if (double.TryParse(para.Value, out time))
                         {
-                            MeasureTime = time / 1000000;
+                            MeasureTime = time / 1000000d;
                         }
                         else
                         {
@@ -444,8 +491,20 @@ namespace DeviceSim.Device
                             BetaBandWidth = beta / 10d;
                         break;
                     case "bUseAutoBandwidthLimits":
+                        bool isUse = false;
+                        if (bool.TryParse(para.Value, out isUse))
+                            UseAutoBandwidthLimits = isUse;
+                        break;
                     case "iLowerBandwidthLimit":
+                        int lower = 0;
+                        if (int.TryParse(para.Value, out lower))
+                            LowerBandwidthLimit = lower / 1000d;
+                        break;
                     case "iUpperBandwidthLimit":
+                        int upper = 0;
+                        if (int.TryParse(para.Value, out upper))
+                            UpperBandwidthLimit = upper / 1000d;
+                        break;
                     default:
                         break;
                 }
@@ -493,15 +552,22 @@ namespace DeviceSim.Device
                         if (Enum.TryParse(para.Value, out ctrl))
                         {
                             if (ctrl == EGain_Control.GAIN_AUTO)
+                            {
+                                _gainAuto = true;
                                 Gain = -100;
+                            }
+                            else
+                                _gainAuto = false;
                         }
                         break;
                     case "iGainValue":
                         int gain = 0;
                         if (int.TryParse(para.Value, out gain))
                         {
-                            if (Gain > -100)
+                            if (!_gainAuto)
                                 Gain = gain;
+                            else
+                                Gain = -100;
                         }
                         break;
                     case "eGainTiming":
@@ -675,7 +741,7 @@ namespace DeviceSim.Device
                             UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
                             return;
                         }
-                        _dispatcher.BeginInvoke(new Action(() => ScanRangeList.Remove(info)));
+                        _dispatcher.Invoke(new Action(() => ScanRangeList.Remove(info)));
                         if (info.ID == RunningScanRange.ID)
                             RunningScanRange = null;
                         break;
@@ -880,12 +946,56 @@ namespace DeviceSim.Device
             param6.Name = "iNumHops";
             param6.Value = info.NumHops.ToString();
 
-
             reply.Command.Params.Add(param5);
             reply.Command.Params.Add(param6);
 
             RunningScanRange = info;
         }
+
+        private void AnalysisCmdRfMode(Request request, ref Reply reply)
+        {
+            foreach (var para in request.Command.Params)
+            {
+                switch (para.Name)
+                {
+                    case "eRfMode":
+                        ERf_Mode mode = ERf_Mode.RFMODE_NORMAL;
+                        if (!Enum.TryParse(para.Value, out mode))
+                        {
+                            string msg = string.Format("No eRfMode found with the name \"{0}\"", para.Value);
+                            UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
+                            return;
+                        }
+                        RfMode = mode;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void AnalysisCmdAudioMode(Request request, ref Reply reply)
+        {
+            foreach (var para in request.Command.Params)
+            {
+                switch (para.Name)
+                {
+                    case "eAudioMode":
+                        EAudioMode mode = EAudioMode.AUDIO_MODE_OFF;
+                        if (!Enum.TryParse(para.Value, out mode))
+                        {
+                            string msg = string.Format("No eAudioMode found with the name \"{0}\"", para.Value);
+                            UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
+                            return;
+                        }
+                        AudioMode = mode;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
 
         private void UpdateReply(ref Reply reply, string rtnCode, string rtnMessage, string paramName, string paramValue)
         {
@@ -893,7 +1003,6 @@ namespace DeviceSim.Device
             reply.Command.RtnMessage = rtnMessage;
             reply.Command.Params.Add(new Param() { Name = paramName, Value = paramValue });
         }
-
 
         private EIFPan_Step GetAutoIfBandWidth()
         {

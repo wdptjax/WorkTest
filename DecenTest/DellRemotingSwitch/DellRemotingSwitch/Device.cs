@@ -19,15 +19,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using System.Xml.Serialization;
 
 namespace DellRemotingSwitch
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class Device : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -35,25 +37,36 @@ namespace DellRemotingSwitch
 
         #region 前台显示
 
+        [XmlIgnore]
         private bool? _deviceStatus = null;
         private string _user = "root";
         private string _password = "calvin";
         private string _remoteIP = "192.168.0.120";
+        [XmlIgnore]
         private bool _isRunning = false;
+        [XmlIgnore]
         private ObservableCollection<CmdInfo> _sendCmdList = new ObservableCollection<CmdInfo>();
+        [XmlIgnore]
         private ObservableCollection<CmdInfo> _recvCmdList = new ObservableCollection<CmdInfo>();
+        [XmlIgnore]
         private int _sendCount = 0;
+        [XmlIgnore]
         private int _recvCount = 0;
         private bool _noSafetyWarning = true;
+        [XmlIgnore]
         private bool _pwdCheckOn = false;
 
+        [XmlIgnore]
         private CmdInfo _currentCmd = null;
+        [XmlIgnore]
         private bool _isSendingCmd = false;
+        [XmlIgnore]
         private bool _isWaitingForCmd = false;
 
         /// <summary>
         /// 是否在监听中
         /// </summary>
+        [XmlIgnore]
         public bool IsRunning
         {
             get { return _isRunning; }
@@ -67,6 +80,7 @@ namespace DellRemotingSwitch
         /// <summary>
         /// 设备状态 开机/关机/不确定
         /// </summary>
+        [XmlIgnore]
         public bool? DeviceStatus
         {
             get { return _deviceStatus; }
@@ -76,7 +90,6 @@ namespace DellRemotingSwitch
                 PropertyChanged.Notify(() => this.DeviceStatus);
             }
         }
-
 
         /// <summary>
         /// 用户名
@@ -120,6 +133,7 @@ namespace DellRemotingSwitch
         /// <summary>
         /// 发送队列
         /// </summary>
+        [XmlIgnore]
         public ObservableCollection<CmdInfo> SendCmdList
         {
             get { return _sendCmdList; }
@@ -133,6 +147,7 @@ namespace DellRemotingSwitch
         /// <summary>
         /// 接收队列
         /// </summary>
+        [XmlIgnore]
         public ObservableCollection<CmdInfo> RecvCmdList
         {
             get { return _recvCmdList; }
@@ -146,6 +161,7 @@ namespace DellRemotingSwitch
         /// <summary>
         /// 发送计数
         /// </summary>
+        [XmlIgnore]
         public int SendCount
         {
             get { return _sendCount; }
@@ -159,6 +175,7 @@ namespace DellRemotingSwitch
         /// <summary>
         /// 接收计数
         /// </summary>
+        [XmlIgnore]
         public int RecvCount
         {
             get { return _recvCount; }
@@ -171,6 +188,7 @@ namespace DellRemotingSwitch
         /// <summary>
         /// 当前正在执行的命令
         /// </summary>
+        [XmlIgnore]
         public CmdInfo CurrentCmd
         {
             get { return _currentCmd; }
@@ -180,6 +198,7 @@ namespace DellRemotingSwitch
                 PropertyChanged.Notify(() => this.CurrentCmd);
             }
         }
+        [XmlIgnore]
         public bool IsWaitingForCmd
         {
             get { return _isWaitingForCmd; }
@@ -206,6 +225,7 @@ namespace DellRemotingSwitch
         /// <summary>
         /// 启用密码检查
         /// </summary>
+        [XmlIgnore]
         public bool PasswordCheckOn
         {
             get { return _pwdCheckOn; }
@@ -215,6 +235,11 @@ namespace DellRemotingSwitch
                 PropertyChanged.Notify(() => this.PasswordCheckOn);
             }
         }
+
+        /// <summary>
+        /// 命令发送中(限制一次只能进行一个操作命令)
+        /// </summary>
+        [XmlIgnore]
         public bool IsSendingCmd
         {
             get { return _isSendingCmd; }
@@ -256,9 +281,9 @@ namespace DellRemotingSwitch
 
         #endregion 命令参数
 
+        [XmlIgnore]
         Dispatcher _dispatcher = null;
 
-        private string _cmdPath = @"E:\Program Files\Dell\SysMgt\rac5\racadm.exe";
 
         private object _lockSendList = new object();
         private object _lockRecvList = new object();
@@ -266,11 +291,24 @@ namespace DellRemotingSwitch
 
         #endregion 变量/属性
 
-        public MainViewModel(Dispatcher dispatcher)
+        public Device()
+        {
+
+        }
+
+        public Device(Dispatcher dispatcher)
         {
             _dispatcher = dispatcher;
         }
 
+        public void UpdateDispatcher(Dispatcher dispatcher)
+        {
+            _dispatcher = dispatcher;
+        }
+
+        /// <summary>
+        /// 启动监听
+        /// </summary>
         public void Start()
         {
             if (!IsRunning)
@@ -283,12 +321,18 @@ namespace DellRemotingSwitch
             }
         }
 
+        /// <summary>
+        /// 停止监听
+        /// </summary>
         public void Stop()
         {
             IsRunning = false;
             ClearSendCmd();
         }
 
+        /// <summary>
+        /// 开机
+        /// </summary>
         public void PowerUp()
         {
             string safety = _noSafetyWarning ? SWITCH_WARNING_SAFETY : "";
@@ -296,6 +340,9 @@ namespace DellRemotingSwitch
             AddSendCmd(cmd, ECommandType.PowerUp);
         }
 
+        /// <summary>
+        /// 关机
+        /// </summary>
         public void PowerDown()
         {
             string safety = _noSafetyWarning ? SWITCH_WARNING_SAFETY : "";
@@ -303,6 +350,9 @@ namespace DellRemotingSwitch
             AddSendCmd(cmd, ECommandType.PowerDown);
         }
 
+        /// <summary>
+        /// 重启设备
+        /// </summary>
         public void ReStart()
         {
             string safety = _noSafetyWarning ? SWITCH_WARNING_SAFETY : "";
@@ -310,6 +360,9 @@ namespace DellRemotingSwitch
             AddSendCmd(cmd, ECommandType.Restart);
         }
 
+        /// <summary>
+        /// 查询设备状态
+        /// </summary>
         public void QueryStatus()
         {
             string safety = _noSafetyWarning ? SWITCH_WARNING_SAFETY : "";
@@ -317,6 +370,9 @@ namespace DellRemotingSwitch
             AddSendCmd(cmd, ECommandType.Status);
         }
 
+        /// <summary>
+        /// 启用或禁用默认密码警告
+        /// </summary>
         public void PasswodCheckSwitch()
         {
             string safety = _noSafetyWarning ? SWITCH_WARNING_SAFETY : "";
@@ -327,15 +383,24 @@ namespace DellRemotingSwitch
 
         private void Scan()
         {
+            DateTime lastPowerTime = DateTime.Now;
             while (_isRunning)
             {
                 Thread.Sleep(100);
                 try
                 {
-                    if (DateTime.Now.Subtract(_lastStatusTime).TotalSeconds > 10)
+                    //if (DateTime.Now.Subtract(_lastStatusTime).TotalSeconds > 10)
                     {
-                        QueryStatus();
+                        if (SendCmdList.Count == 0 || SendCmdList.Count(i => i.Type == ECommandType.Status) == 0)
+                            QueryStatus();
                         _lastStatusTime = DateTime.Now;
+                        //if (DateTime.Now.Subtract(lastPowerTime).TotalMinutes > 20)
+                        //{
+                        //    if (DeviceStatus == true)
+                        //        PowerDown();
+                        //    else PowerUp();
+                        //    lastPowerTime = DateTime.Now;
+                        //}
                     }
                     CmdInfo cmd = null;
                     lock (_lockSendList)
@@ -348,16 +413,18 @@ namespace DellRemotingSwitch
 
                     CurrentCmd = cmd;
                     ECommandType type = cmd.Type;
-                    _lastStatusTime = DateTime.Now;
-                    string result = SendCommand(cmd.Message);
-                    AnalysisCmd(result);
+                    string msg = SendCommand(cmd.Message);
+                    string result = "";
+                    AnalysisCmd(msg, type, out result);
                     if (type != ECommandType.Status)
                         IsSendingCmd = false;
-                    AddRecvCmd(result, type);
+                    AddRecvCmd(msg, type, result);
+                    _lastStatusTime = DateTime.Now;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Error");
+                    //MessageBox.Show(ex.Message, "Error");
+                    Console.WriteLine("error" + DateTime.Now.ToString() + ex.Message);
                 }
             }
         }
@@ -380,11 +447,11 @@ namespace DellRemotingSwitch
             }
         }
 
-        private void AddRecvCmd(string msg, ECommandType type)
+        private void AddRecvCmd(string msg, ECommandType type, string result = "")
         {
             lock (_lockRecvList)
             {
-                _dispatcher.BeginInvoke(new Action(() => RecvCmdList.Add(new CmdInfo(msg, type))));
+                _dispatcher.BeginInvoke(new Action(() => RecvCmdList.Add(new CmdInfo(msg, type) { Result = result })));
             }
         }
 
@@ -394,7 +461,7 @@ namespace DellRemotingSwitch
             Process process = new Process();//创建进程对象 
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = _cmdPath;//设定需要执行的命令  
+            startInfo.FileName = DeviceManager.GetInstance().RacadmPath;//设定需要执行的命令  
             startInfo.Arguments = cmd;//“/C”表示执行完命令后马上退出  
             startInfo.UseShellExecute = false;//不使用系统外壳程序启动  
             startInfo.RedirectStandardInput = true;//不重定向输入  
@@ -402,15 +469,22 @@ namespace DellRemotingSwitch
             startInfo.CreateNoWindow = true;//不创建窗口  
             process.StartInfo = startInfo;
             process.Start();
-            process.WaitForExit();
+            process.WaitForExit(1000);
+
             string str = process.StandardOutput.ReadToEnd().Trim();
             IsWaitingForCmd = false;
             return str;
         }
 
-        private void AnalysisCmd(string cmd)
+        private void AnalysisCmd(string cmd, ECommandType type, out string result)
         {
+            result = "";
             string str = cmd.Trim();
+            if (string.IsNullOrEmpty(str))
+            {
+                DeviceStatus = null;
+                return;
+            }
             int index = str.IndexOf("Server power status:");
             if (index >= 0)
             {
@@ -421,6 +495,7 @@ namespace DellRemotingSwitch
                     DeviceStatus = false;
                 else DeviceStatus = null;
             }
+
             index = str.IndexOf("SEC0701: Warning: Default username and password are currently in use.");
             if (index >= 0)
                 PasswordCheckOn = true;
@@ -436,6 +511,17 @@ namespace DellRemotingSwitch
                     PasswordCheckOn = false;
                 else
                     PasswordCheckOn = true;
+            }
+
+            if (type == ECommandType.PowerUp || type == ECommandType.PowerDown || type == ECommandType.Restart)
+            {
+                index = str.IndexOf("Server power operation successful");
+                if (index >= 0)
+                {
+                    result = "操作成功";
+                }
+                else
+                    result = "操作失败";
             }
         }
     }
@@ -504,7 +590,7 @@ namespace DellRemotingSwitch
 
         public CmdInfo()
         {
-
+            Time = DateTime.Now;
         }
 
         public CmdInfo(string msg, ECommandType type)

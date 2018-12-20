@@ -7,26 +7,30 @@
         mc:Ignorable="d" x:Name="window"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
+        <ObjectDataProvider x:Key="DeviceInstance" ObjectType="{x:Type local:DeviceManager}"  MethodName="GetInstance"/>
         <local:DataConverter x:Key="DataConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <DataTemplate x:Key="MainVMTemplete" DataType="{x:Type local:MainViewModel}">
+        <DataTemplate x:Key="MainVMTemplete" DataType="{x:Type local:Device}">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <ToolBarTray>
                     <ToolBar>
-                        <Button Content="启动监听" Command="{x:Static ApplicationCommands.New}"/>
-                        <Button Content="停止监听" Command="{x:Static ApplicationCommands.Stop}"/>
-                        <Button Content="开机" Command="{x:Static ApplicationCommands.Open}"/>
-                        <Button Content="关机" Command="{x:Static ApplicationCommands.Close}"/>
-                        <Button Content="重启" Command="{x:Static ApplicationCommands.Redo}"/>
-                        <Button Content="手动查询" Command="{x:Static ApplicationCommands.SelectAll}"/>
+                        <Button Content="启动监听" Command="{x:Static local:Commands.Start}"/>
+                        <Button Content="停止监听" Command="{x:Static local:Commands.Stop}"/>
+                    </ToolBar>
+                    <ToolBar>
+                        <Button Content="开机" Command="{x:Static local:Commands.PowerUp}"/>
+                        <Button Content="关机" Command="{x:Static local:Commands.PowerDown}"/>
+                        <Button Content="重启" Command="{x:Static local:Commands.PowerCycle}"/>
+                        <!--<Button Content="手动查询" Command="{x:Static local:Commands.Query}"/>-->
                         <CheckBox Content="忽略安全警告" IsChecked="{Binding NoSafetyWarning,Mode=TwoWay}"/>
                         <CheckBox x:Name="chkPwdCheckOn" Content="启用密码检查" IsChecked="{Binding PasswordCheckOn,Mode=OneWay}" 
-                                  Command="{x:Static ApplicationCommands.Undo}"/>
+                                  Command="{x:Static local:Commands.PasswordChecking}"/>
                     </ToolBar>
                     <ToolBar>
                         <TextBlock Text="设备状态:" VerticalAlignment="Center" Margin="3"/>
@@ -41,7 +45,8 @@
                         <TextBox Text="{Binding Password}" MinWidth="100"/>
                     </ToolBar>
                 </ToolBarTray>
-                <Border Grid.Row="1" Visibility="{Binding IsWaitingForCmd,Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <Border Grid.Row="2" Visibility="{Binding IsWaitingForCmd,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel Margin="10,3" Orientation="Horizontal">
                         <TextBlock Margin="1" Text="正在发送命令:"/>
                         <TextBlock Margin="1" Text="{Binding CurrentCmd.Message}"/>
@@ -49,13 +54,31 @@
                         <TextBlock Margin="1" Text="{Binding CurrentCmd.Time}"/>
                     </StackPanel>
                 </Border>
-                <Grid Grid.Row="2" Margin="5">
+                <Grid Grid.Row="3" Margin="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Margin="3" ItemsSource="{Binding SendCmdList}" CanUserDeleteRows="False" CanUserAddRows="False" ColumnWidth="*"/>
-                    <DataGrid Margin="3" Grid.Column="1" ItemsSource="{Binding RecvCmdList}" CanUserDeleteRows="False" CanUserAddRows="False" ColumnWidth="*"/>
+                    <GroupBox Margin="3" Header="发送信息">
+                        <DataGrid ItemsSource="{Binding SendCmdList}" IsReadOnly="true" CanUserDeleteRows="False" CanUserAddRows="False" ColumnWidth="*" AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="时间" Binding="{Binding Time, StringFormat=\{0:yyyy/MM/dd HH:mm:ss\}}" Width="auto" MaxWidth="200"/>
+                                <DataGridTextColumn Header="类别" Binding="{Binding Type}" Width="auto"/>
+                                <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/>
+                                <DataGridTextColumn Header="结果" Binding="{Binding Result}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                    <GroupBox Header="接收信息" Margin="3" Grid.Column="1">
+                        <DataGrid ItemsSource="{Binding RecvCmdList}" IsReadOnly="true" CanUserDeleteRows="False" CanUserAddRows="False" ColumnWidth="*" AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="时间" Binding="{Binding Time, StringFormat=\{0:yyyy/MM/dd HH:mm:ss\}}" Width="auto" MaxWidth="200"/>
+                                <DataGridTextColumn Header="类别" Binding="{Binding Type}" Width="auto"/>
+                                <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/>
+                                <DataGridTextColumn Header="结果" Binding="{Binding Result}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
                 </Grid>
             </Grid>
             <DataTemplate.Triggers>
@@ -64,17 +87,72 @@
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
+        <DataTemplate x:Key="DeviceShowTemplete" DataType="{x:Type local:Device}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding RemoteIP}"/>
+                <Border Grid.Column="1" x:Name="bdRunning" CornerRadius="5" Background="Red" Width="{Binding Height,ElementName=bd}"/>
+                <Border Grid.Column="1" x:Name="bdStatus" CornerRadius="5" Background="Yellow" Width="{Binding Height,ElementName=bd}"/>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding DeviceStatus}" Value="true">
+                    <Setter Property="Background" TargetName="bdStatus" Value="Lime"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding DeviceStatus}" Value="false">
+                    <Setter Property="Background" TargetName="bdStatus" Value="Red"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsRunning}" Value="false">
+                    <Setter Property="Background" TargetName="bdRunning" Value="Lime"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="{x:Static ApplicationCommands.New}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
-        <CommandBinding Command="{x:Static ApplicationCommands.Stop}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
-        <CommandBinding Command="{x:Static ApplicationCommands.Open}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
-        <CommandBinding Command="{x:Static ApplicationCommands.Close}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
-        <CommandBinding Command="{x:Static ApplicationCommands.Redo}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
-        <CommandBinding Command="{x:Static ApplicationCommands.SelectAll}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
-        <CommandBinding Command="{x:Static ApplicationCommands.Undo}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.Add}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.Delete}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.PowerUp}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.PowerDown}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.PowerCycle}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.Start}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.Stop}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.Query}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.PasswordChecking}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.PathSelect}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.StartAll}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:Commands.Settings}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
     <Grid>
-        <ContentControl Content="{Binding MainVM,ElementName=window}" ContentTemplate="{StaticResource MainVMTemplete}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ToolBarTray>
+            <ToolBar>
+                <Button Content="添加设备" Command="{x:Static local:Commands.Add}"/>
+                <Button Content="删除设备" Command="{x:Static local:Commands.Delete}"/>
+                <Button Content="全部开启" Command="{x:Static local:Commands.StartAll}"/>
+                <Button Content="修改设置" Command="{x:Static local:Commands.Settings}"/>
+            </ToolBar>
+            <ToolBar>
+                <TextBlock Margin="1" Text="可执行程序路径:" VerticalAlignment="Center"/>
+                <TextBlock Margin="1" Text="{Binding Source={StaticResource DeviceInstance},Path=RacadmPath}" VerticalAlignment="Center"/>
+                <Button Command="{x:Static local:Commands.PathSelect}" Content="...">
+                    <Button.ToolTip>点击修改可执行文件路径</Button.ToolTip>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ListBox MinWidth="120" Margin="0,0,5,0" ItemsSource="{Binding Source={StaticResource DeviceInstance},Path=Devices}" ItemTemplate="{StaticResource DeviceShowTemplete}" SelectedItem="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice}"/>
+            <GridSplitter Width="5"/>
+            <ContentControl Grid.Column="1" Content="{Binding Source={StaticResource DeviceInstance},Path=SelectDevice}" ContentTemplate="{StaticResource MainVMTemplete}"/>
+        </Grid>
     </Grid>
 </Window>

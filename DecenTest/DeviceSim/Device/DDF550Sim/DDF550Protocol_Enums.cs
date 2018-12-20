@@ -323,12 +323,12 @@ namespace DeviceSim.Device
     /// 3.8 Enum: eAUDIO_MODE 音频格式
     /// All available Audio modes (data formats of issued audio data).
     /// </summary>
-    public enum EAudioMode
+    public enum EAudioMode : short
     {
         /// <summary>
         /// Audio mode 0: no useful data available (signal level below threshold).
         /// </summary>
-        AUDIO_MODE_OFF,
+        AUDIO_MODE_OFF = 0,
         /// <summary>
         /// Mode 1: sampling rate 32 kHz, length of samples 16 bit, 2 channels.
         /// </summary>

@@ -47,7 +47,8 @@
                         <TextBox Text="{Binding Port, Mode=TwoWay}" IsEnabled="{Binding DeviceInitialized,Converter={StaticResource dataConverter}}" MinWidth="40" VerticalAlignment="Center"/>
                     </ToolBar>
                     <ToolBar>
-                        <TextBlock Text="{Binding DfMode,Converter={StaticResource dataConverter}, StringFormat=当前工作模式:\{0\},FallbackValue=当前工作模式:Null}" VerticalAlignment="Center"/>
+                        <TextBlock Text="当前工作模式:" VerticalAlignment="Center"/>
+                        <TextBlock MinWidth="50" Text="{Binding DfMode,Converter={StaticResource dataConverter}}" VerticalAlignment="Center"/>
                     </ToolBar>
                     <ToolBar>
                         <TextBlock Text="设备状态:" VerticalAlignment="Center"/>
@@ -113,21 +114,44 @@
                         <TabControl Grid.Row="1">
                             <TabItem Header="一般参数">
                                 <UniformGrid Columns="3" Margin="5">
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel x:Name="spFrequency" Orientation="Horizontal">
                                         <TextBlock Text="中心频率(MHz):"/>
                                         <TextBlock Text="{Binding Frequency}"/>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel x:Name="spDfPanStep" Orientation="Horizontal">
                                         <TextBlock Text="测向带宽(KHz):"/>
                                         <TextBlock Text="{Binding DfPanStep}"/>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel x:Name="spDFindMode" Orientation="Horizontal">
+                                        <TextBlock Text="测向模式:"/>
+                                        <TextBlock Text="{Binding DFindMode,Converter={StaticResource dataConverter},ConverterParameter=DFindMode}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="spIfPanStep" Orientation="Horizontal">
                                         <TextBlock Text="中频带宽(KHz):"/>
                                         <TextBlock Text="{Binding IfPanStep}"/>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel x:Name="spSpectrumSpan" Orientation="Horizontal">
                                         <TextBlock Text="频谱带宽(KHz):"/>
                                         <TextBlock Text="{Binding SpectrumSpan}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="spRfMode" Orientation="Horizontal">
+                                        <TextBlock Text="射频模式:"/>
+                                        <TextBlock Text="{Binding RfMode,Converter={StaticResource dataConverter}}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="spAttenuation" Orientation="Horizontal">
+                                        <TextBlock Text="衰减(dBμV):"/>
+                                        <TextBlock Text="{Binding Attenuation,Converter={StaticResource dataConverter},ConverterParameter=Attenuation}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="spMeasureTime" Orientation="Horizontal">
+                                        <TextBlock Text="测量时间(s):"/>
+                                        <TextBlock Text="{Binding MeasureTime,Converter={StaticResource dataConverter},ConverterParameter=MeasureTime}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="spIntegrationTime" Orientation="Horizontal">
+                                        <TextBlock Text="积分时间(ms):"/>
+                                        <TextBlock Text="{Binding IntegrationTime}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox x:Name="ckhCorrection" Content="相对示向度" IsChecked="{Binding IsCorrection,Mode=TwoWay}"/>
                                     </StackPanel>
                                 </UniformGrid>
                             </TabItem>
@@ -150,6 +174,10 @@
                             <TabItem Header="音频解调">
                                 <UniformGrid Columns="3" Margin="5">
                                     <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="音频格式:"/>
+                                        <TextBlock Text="{Binding AudioMode,Converter={StaticResource dataConverter}}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="解调频率(MHz):"/>
                                         <TextBlock Text="{Binding DemFrequency}"/>
                                     </StackPanel>
@@ -169,6 +197,38 @@
                                         <TextBlock Text="检波方式:"/>
                                         <TextBlock Text="{Binding Detector,Converter={StaticResource dataConverter}}"/>
                                     </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="增益(dBμV):"/>
+                                        <TextBlock Text="{Binding Gain,Converter={StaticResource dataConverter},ConverterParameter=Gain}"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                            </TabItem>
+                            <TabItem Header="ITU">
+                                <UniformGrid Columns="3" Margin="5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="带宽测量模式:"/>
+                                        <TextBlock Text="{Binding ItuMeasureMode,Converter={StaticResource dataConverter}}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Xdb带宽(dBμV):"/>
+                                        <TextBlock Text="{Binding XdbBandWidth}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Beta带宽(%):"/>
+                                        <TextBlock Text="{Binding BetaBandWidth}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="自动边界:"/>
+                                        <TextBlock Text="{Binding UseAutoBandwidthLimits}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="上边界(KHz):"/>
+                                        <TextBlock Text="{Binding UpperBandwidthLimit}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="下边界(KHz):"/>
+                                        <TextBlock Text="{Binding LowerBandwidthLimit}"/>
+                                    </StackPanel>
                                 </UniformGrid>
                             </TabItem>
                         </TabControl>
@@ -181,6 +241,11 @@
                     </Grid>
                 </Grid>
             </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsCorrection}" Value="true">
+                    <Setter TargetName="ckhCorrection" Property="Content" Value="绝对示向度"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
         </DataTemplate>
     </UserControl.Resources>
     <Grid>

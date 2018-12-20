@@ -30,15 +30,58 @@ namespace DeviceSim.Device
         {
             if (value != null && value is EDfMode)
             {
-                return ((EDfMode)value).ToString().Substring(7);
+                return ((EDfMode)value).ToString().Replace("DFMODE_", "");
             }
             if (value != null && value is ELevel_Indicatir)
             {
-                return ((ELevel_Indicatir)value).ToString().Substring(16);
+                return ((ELevel_Indicatir)value).ToString().Replace("LEVEL_INDICATOR_", "");
+            }
+            if (value != null && value is EAverage_Mode)
+            {
+                return ((EAverage_Mode)value).ToString().Replace("DFSQU_", "");
             }
             if (value != null && value is EDemodulation)
             {
-                return ((EDemodulation)value).ToString().Substring(4);
+                return ((EDemodulation)value).ToString().Replace("MOD_", "");
+            }
+            if (value != null && value is ERf_Mode)
+            {
+                return ((ERf_Mode)value).ToString().Replace("RFMODE_", "");
+            }
+            if (value != null && value is EMeasureMode)
+            {
+                return ((EMeasureMode)value).ToString().Replace("MEASUREMODE_", "");
+            }
+            if (value != null && value is EAudioMode)
+            {
+                EAudioMode mode = (EAudioMode)value;
+
+                return string.Format("{0}:{1}", (int)mode, mode.ToString().Replace("AUDIO_MODE_", ""));
+            }
+
+            if (value != null && parameter != null && parameter.ToString() == "Gain")
+            {
+                int val = (int)value;
+                if (val <= -100)
+                    return "自动";
+                else
+                    return val;
+            }
+            if (value != null && parameter != null && parameter.ToString() == "Attenuation")
+            {
+                int val = (int)value;
+                if (val <= -1)
+                    return "自动";
+                else
+                    return val;
+            }
+            if (value != null && parameter != null && parameter.ToString() == "MeasureTime")
+            {
+                double val = (double)value;
+                if (val == 0)
+                    return "自动";
+                else
+                    return val;
             }
             if (targetType == typeof(Brush))
             {

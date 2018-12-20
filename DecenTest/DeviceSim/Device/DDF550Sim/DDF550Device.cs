@@ -34,6 +34,8 @@ namespace DeviceSim.Device
 
         #region 其他参数
 
+        #region 运行参数
+
         [XmlIgnore]
         private DDF550View _control = null;
         [XmlIgnore]
@@ -57,7 +59,6 @@ namespace DeviceSim.Device
 
         [XmlIgnore]
         private ClientInfo _client = new ClientInfo();
-        private int _port = 5555;
 
         [XmlIgnore]
         public ClientInfo Client
@@ -69,6 +70,20 @@ namespace DeviceSim.Device
                 OnPropertyChanged(() => this.Client);
             }
         }
+        [XmlIgnore]
+        public override bool CanDeviceIni
+        {
+            get
+            {
+                return _port > 0;
+            }
+        }
+
+        #endregion 运行参数
+
+        #region 安装参数
+
+        private int _port = 5555;
 
         public int Port
         {
@@ -80,15 +95,7 @@ namespace DeviceSim.Device
             }
         }
 
-
-
-        public override bool CanDeviceIni
-        {
-            get
-            {
-                return _port > 0;
-            }
-        }
+        #endregion 安装参数
 
         #endregion 其他参数
 
@@ -119,6 +126,7 @@ namespace DeviceSim.Device
         private EAnt_Pol _antPol = EAnt_Pol.POL_VERTICAL;
         private double _spectrumSpan = 100;
         private int _attenuation = -1;
+        private bool _attAuto = false;
         private double _ifPanStep = 100;
 
         /// <summary>
@@ -292,6 +300,9 @@ namespace DeviceSim.Device
         private EMeasureMode _ituMeasureMode = EMeasureMode.MEASUREMODE_XDB;
         private double _xdbBandWidth = 26;
         private double _betaBandWidth = 1;
+        private bool _useAutoBandwidthLimits = false;
+        private double _lowerBandwidthLimit = 0;
+        private double _upperBandwidthLimit = 0;
 
         public EMeasureMode ItuMeasureMode
         {
@@ -323,6 +334,36 @@ namespace DeviceSim.Device
             }
         }
 
+        public bool UseAutoBandwidthLimits
+        {
+            get { return _useAutoBandwidthLimits; }
+            set
+            {
+                _useAutoBandwidthLimits = value;
+                OnPropertyChanged(() => this.UseAutoBandwidthLimits);
+            }
+        }
+
+        public double LowerBandwidthLimit
+        {
+            get { return _lowerBandwidthLimit; }
+            set
+            {
+                _lowerBandwidthLimit = value;
+                OnPropertyChanged(() => this.LowerBandwidthLimit);
+            }
+        }
+
+        public double UpperBandwidthLimit
+        {
+            get { return _upperBandwidthLimit; }
+            set
+            {
+                _upperBandwidthLimit = value;
+                OnPropertyChanged(() => this.UpperBandwidthLimit);
+            }
+        }
+
         #endregion ITU
 
         #region DemodulationSettings
@@ -334,6 +375,7 @@ namespace DeviceSim.Device
         private bool _isUseSquelch = false;
         private ELevel_Indicatir _detector = ELevel_Indicatir.LEVEL_INDICATOR_FAST;
         private int _gain = -100;
+        private bool _gainAuto = false;
         /// <summary>
         /// 解调模式
         /// </summary>
@@ -455,7 +497,7 @@ namespace DeviceSim.Device
         private double _measureTime = 100;
 
         /// <summary>
-        /// 测量时间
+        /// 测量时间(s)
         /// </summary>
         public double MeasureTime
         {
@@ -464,6 +506,53 @@ namespace DeviceSim.Device
             {
                 _measureTime = value;
                 OnPropertyChanged(() => this.MeasureTime);
+            }
+        }
+
+        private ERf_Mode _rfMode = ERf_Mode.RFMODE_NORMAL;
+
+        /// <summary>
+        /// 射频模式
+        /// </summary>
+        public ERf_Mode RfMode
+        {
+            get { return _rfMode; }
+            set
+            {
+                _rfMode = value;
+                OnPropertyChanged(() => this.RfMode);
+            }
+        }
+
+        private EAudioMode _audioMode = EAudioMode.AUDIO_MODE_OFF;
+
+        /// <summary>
+        /// 音频格式
+        /// </summary>
+        public EAudioMode AudioMode
+        {
+            get { return _audioMode; }
+            set
+            {
+                _audioMode = value;
+                OnPropertyChanged(() => this.AudioMode);
+            }
+        }
+
+        private bool _isCorrection = false;
+
+        /// <summary>
+        /// 相对示向度还是绝对示向度
+        /// true:校正数据,绝对示向度
+        /// false:未校正,相对示向度
+        /// </summary>
+        public bool IsCorrection
+        {
+            get { return _isCorrection; }
+            set
+            {
+                _isCorrection = value;
+                OnPropertyChanged(() => this.IsCorrection);
             }
         }
 
@@ -572,6 +661,7 @@ namespace DeviceSim.Device
             {
                 _socketData = _tcpListenerData.EndAcceptSocket(asyncResult);
                 //_socketXml.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive,);
+                Connected = true;
                 IPEndPoint iPEndPoint = _socketData.RemoteEndPoint as IPEndPoint;
                 Client.AddressData = iPEndPoint.Address.ToString();
                 Client.PortData = iPEndPoint.Port;

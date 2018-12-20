@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -22,74 +24,187 @@ namespace DellRemotingSwitch
         public MainWindow()
         {
             InitializeComponent();
-            MainVM = new MainViewModel(this.Dispatcher);
+            Deserialize();
         }
 
-        private static DependencyProperty _mainVMProperty = DependencyProperty.Register("MainVM", typeof(MainViewModel), typeof(MainWindow), new PropertyMetadata(null));
-        public MainViewModel MainVM { get { return (MainViewModel)GetValue(_mainVMProperty); } set { SetValue(_mainVMProperty, value); } }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            Serializer();
+        }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (e.Command == ApplicationCommands.New)
+            if (e.Command == Commands.Add || e.Command == Commands.Settings)
             {
-                e.CanExecute = !MainVM.IsRunning;
+                e.CanExecute = true;
+                return;
             }
-            else if (e.Command == ApplicationCommands.Stop)
+            if (e.Command == Commands.StartAll)
             {
-                e.CanExecute = MainVM.IsRunning;
+                e.CanExecute = DeviceManager.GetInstance().Devices != null && DeviceManager.GetInstance().Devices.Count != 0;
+                return;
             }
-            else if (e.Command == ApplicationCommands.Open)
+            if (DeviceManager.GetInstance().SelectDevice == null)
             {
-                e.CanExecute = MainVM.IsRunning & MainVM.DeviceStatus != true & !MainVM.IsSendingCmd;
+                e.CanExecute = false;
+                return;
             }
-            else if (e.Command == ApplicationCommands.Close)
+            if (e.Command == Commands.Delete)
             {
-                e.CanExecute = MainVM.IsRunning & MainVM.DeviceStatus == true & !MainVM.IsSendingCmd;
+                e.CanExecute = DeviceManager.GetInstance().SelectDevice != null;
             }
-            else if (e.Command == ApplicationCommands.Redo)
+            else if (e.Command == Commands.Start)
             {
-                e.CanExecute = MainVM.IsRunning & MainVM.DeviceStatus == true & !MainVM.IsSendingCmd;
+                e.CanExecute = !DeviceManager.GetInstance().SelectDevice.IsRunning;
             }
-            else if (e.Command == ApplicationCommands.SelectAll)
+            else if (e.Command == Commands.Stop)
             {
-                e.CanExecute = MainVM.IsRunning;
+                e.CanExecute = DeviceManager.GetInstance().SelectDevice.IsRunning;
             }
-            else if (e.Command == ApplicationCommands.Undo)
+            else if (e.Command == Commands.PowerUp)
             {
-                e.CanExecute = MainVM.IsRunning & !MainVM.IsSendingCmd;
+                e.CanExecute = DeviceManager.GetInstance().SelectDevice.IsRunning
+                    & DeviceManager.GetInstance().SelectDevice.DeviceStatus != true & !DeviceManager.GetInstance().SelectDevice.IsSendingCmd;
+            }
+            else if (e.Command == Commands.PowerDown)
+            {
+                e.CanExecute = DeviceManager.GetInstance().SelectDevice.IsRunning
+                    & DeviceManager.GetInstance().SelectDevice.DeviceStatus == true & !DeviceManager.GetInstance().SelectDevice.IsSendingCmd;
+            }
+            else if (e.Command == Commands.PowerCycle)
+            {
+                e.CanExecute = DeviceManager.GetInstance().SelectDevice.IsRunning
+                    & DeviceManager.GetInstance().SelectDevice.DeviceStatus == true & !DeviceManager.GetInstance().SelectDevice.IsSendingCmd;
+            }
+            else if (e.Command == Commands.Query)
+            {
+                e.CanExecute = DeviceManager.GetInstance().SelectDevice.IsRunning;
+            }
+            else if (e.Command == Commands.PasswordChecking)
+            {
+                e.CanExecute = DeviceManager.GetInstance().SelectDevice.IsRunning
+                    & !DeviceManager.GetInstance().SelectDevice.IsSendingCmd;
+            }
+            else if (e.Command == Commands.PathSelect)
+            {
+                e.CanExecute = !DeviceManager.GetInstance().SelectDevice.IsRunning;
             }
         }
 
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (e.Command == ApplicationCommands.New)
+
+            if (e.Command == Commands.Add)
             {
-                MainVM.Start();
+                DeviceManager.GetInstance().AddNewDevice(this.Dispatcher);
+                return;
             }
-            else if (e.Command == ApplicationCommands.Stop)
+            else if (e.Command == Commands.Settings)
             {
-                MainVM.Stop();
+                DeviceSettings settings = DeviceManager.GetInstance().Settings.GetShowView();
+                settings.Owner = this;
+                settings.ShowDialog();
+                return;
             }
-            else if (e.Command == ApplicationCommands.Open)
+            else if (e.Command == Commands.StartAll)
             {
-                MainVM.PowerUp();
+                if (DeviceManager.GetInstance().Devices == null || DeviceManager.GetInstance().Devices.Count == 0)
+                    return;
+                foreach (var dev in DeviceManager.GetInstance().Devices)
+                    dev.Start();
             }
-            else if (e.Command == ApplicationCommands.Close)
+            else if (e.Command == Commands.PathSelect)
             {
-                MainVM.PowerDown();
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.DefaultExt = ".exe";
+                openFileDialog.Filter = "exe file|*.exe";
+                openFileDialog.FileName = DeviceManager.GetInstance().RacadmPath;
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    string path = openFileDialog.FileName;
+                    DeviceManager.GetInstance().RacadmPath = path;
+                }
+                return;
             }
-            else if (e.Command == ApplicationCommands.Redo)
+
+            if (DeviceManager.GetInstance().SelectDevice == null)
+                return;
+            if (e.Command == Commands.Delete)
             {
-                MainVM.ReStart();
+                DeviceManager.GetInstance().DeleteDevice();
             }
-            else if (e.Command == ApplicationCommands.SelectAll)
+            else if (e.Command == Commands.Start)
             {
-                MainVM.QueryStatus();
+                DeviceManager.GetInstance().SelectDevice.Start();
             }
-            else if (e.Command == ApplicationCommands.Undo)
+            else if (e.Command == Commands.Stop)
             {
-                MainVM.PasswordCheckOn = !MainVM.PasswordCheckOn;
-                MainVM.PasswodCheckSwitch();
+                DeviceManager.GetInstance().SelectDevice.Stop();
+            }
+            else if (e.Command == Commands.PowerUp)
+            {
+                DeviceManager.GetInstance().SelectDevice.PowerUp();
+            }
+            else if (e.Command == Commands.PowerDown)
+            {
+                DeviceManager.GetInstance().SelectDevice.PowerDown();
+            }
+            else if (e.Command == Commands.PowerCycle)
+            {
+                DeviceManager.GetInstance().SelectDevice.ReStart();
+            }
+            else if (e.Command == Commands.Query)
+            {
+                DeviceManager.GetInstance().SelectDevice.QueryStatus();
+            }
+            else if (e.Command == Commands.PasswordChecking)
+            {
+                DeviceManager.GetInstance().SelectDevice.PasswordCheckOn = !DeviceManager.GetInstance().SelectDevice.PasswordCheckOn;
+                DeviceManager.GetInstance().SelectDevice.PasswodCheckSwitch();
+            }
+        }
+
+
+        /// <summary>
+        /// 序列化
+        /// </summary>
+        private void Serializer()
+        {
+            List<string> list = new List<string>();
+            if (DeviceManager.GetInstance().Devices != null && DeviceManager.GetInstance().Devices.Count > 0)
+            {
+                foreach (var dev in DeviceManager.GetInstance().Devices)
+                {
+                    string str = XmlUtil.Serializer(dev.GetType(), dev);
+                    list.Add(str);
+                }
+            }
+            string settings = XmlUtil.Serializer(list.GetType(), list);
+            Properties.Settings.Default.DeviceSettings = settings;
+            Properties.Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// 反序列化
+        /// </summary>
+        private void Deserialize()
+        {
+            var settings = Properties.Settings.Default.DeviceSettings;
+            if (string.IsNullOrEmpty(settings))
+                return;
+            var obj = XmlUtil.Deserialize(typeof(List<string>), settings);
+            if (obj == null)
+                return;
+            List<string> list = (List<string>)obj;
+            foreach (var str in list)
+            {
+                object devObj = XmlUtil.Deserialize(typeof(Device), str);
+                if (devObj == null)
+                    continue;
+                Device dev = (Device)devObj;
+                dev.UpdateDispatcher(this.Dispatcher);
+                DeviceManager.GetInstance().Devices.Add(dev);
             }
         }
     }
