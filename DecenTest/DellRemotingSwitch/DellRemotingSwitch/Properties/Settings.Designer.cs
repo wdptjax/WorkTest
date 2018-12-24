@@ -34,5 +34,17 @@ namespace DellRemotingSwitch.Properties {
                 this["DeviceSettings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RacadmPath {
+            get {
+                return ((string)(this["RacadmPath"]));
+            }
+            set {
+                this["RacadmPath"] = value;
+            }
+        }
     }
 }

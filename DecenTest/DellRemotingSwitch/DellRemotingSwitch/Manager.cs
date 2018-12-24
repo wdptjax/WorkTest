@@ -33,7 +33,8 @@ namespace DellRemotingSwitch
         private ObservableCollection<Device> _devices = new ObservableCollection<Device>();
         private Device _selectDevice = null;
         private Settings _settings = new Settings();
-        private string _cmdPath = @"E:\Program Files\Dell\SysMgt\rac5\racadm.exe";
+        private string _cmdPath = "";
+        private const string RACADM_PATH = @"Racadm\racadm.exe";
 
         /// <summary>
         /// Racadm可执行程序路径
@@ -79,6 +80,12 @@ namespace DellRemotingSwitch
                 }
             }
             return _default;
+        }
+
+        public DeviceManager()
+        {
+            string path = AppDomain.CurrentDomain.BaseDirectory;
+            RacadmPath = path + RACADM_PATH;
         }
 
         public void AddNewDevice(Dispatcher dispatcher)

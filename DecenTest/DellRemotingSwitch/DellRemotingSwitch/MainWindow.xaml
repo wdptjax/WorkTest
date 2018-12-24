@@ -137,13 +137,13 @@
                 <Button Content="全部开启" Command="{x:Static local:Commands.StartAll}"/>
                 <Button Content="修改设置" Command="{x:Static local:Commands.Settings}"/>
             </ToolBar>
-            <ToolBar>
+            <!--<ToolBar>
                 <TextBlock Margin="1" Text="可执行程序路径:" VerticalAlignment="Center"/>
                 <TextBlock Margin="1" Text="{Binding Source={StaticResource DeviceInstance},Path=RacadmPath}" VerticalAlignment="Center"/>
                 <Button Command="{x:Static local:Commands.PathSelect}" Content="...">
                     <Button.ToolTip>点击修改可执行文件路径</Button.ToolTip>
                 </Button>
-            </ToolBar>
+            </ToolBar>-->
         </ToolBarTray>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

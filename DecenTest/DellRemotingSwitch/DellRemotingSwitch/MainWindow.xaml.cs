@@ -25,6 +25,8 @@ namespace DellRemotingSwitch
         {
             InitializeComponent();
             Deserialize();
+            //if (!string.IsNullOrEmpty(Properties.Settings.Default.RacadmPath))
+            //    DeviceManager.GetInstance().RacadmPath = Properties.Settings.Default.RacadmPath;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -124,6 +126,8 @@ namespace DellRemotingSwitch
                 {
                     string path = openFileDialog.FileName;
                     DeviceManager.GetInstance().RacadmPath = path;
+                    //Properties.Settings.Default.RacadmPath = path;
+                    //Properties.Settings.Default.Save();
                 }
                 return;
             }

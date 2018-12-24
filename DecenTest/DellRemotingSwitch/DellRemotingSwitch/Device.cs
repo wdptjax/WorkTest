@@ -311,6 +311,11 @@ namespace DellRemotingSwitch
         /// </summary>
         public void Start()
         {
+            if (!File.Exists(DeviceManager.GetInstance().RacadmPath))
+            {
+                MessageBox.Show("Racadm路径错误!", "Error");
+                return;
+            }
             if (!IsRunning)
             {
                 IsRunning = true;
@@ -394,13 +399,13 @@ namespace DellRemotingSwitch
                         if (SendCmdList.Count == 0 || SendCmdList.Count(i => i.Type == ECommandType.Status) == 0)
                             QueryStatus();
                         _lastStatusTime = DateTime.Now;
-                        //if (DateTime.Now.Subtract(lastPowerTime).TotalMinutes > 20)
-                        //{
-                        //    if (DeviceStatus == true)
-                        //        PowerDown();
-                        //    else PowerUp();
-                        //    lastPowerTime = DateTime.Now;
-                        //}
+                        if (DateTime.Now.Subtract(lastPowerTime).TotalMinutes > 10)
+                        {
+                            if (DeviceStatus == true)
+                                PowerDown();
+                            else PowerUp();
+                            lastPowerTime = DateTime.Now;
+                        }
                     }
                     CmdInfo cmd = null;
                     lock (_lockSendList)
@@ -423,7 +428,6 @@ namespace DellRemotingSwitch
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show(ex.Message, "Error");
                     Console.WriteLine("error" + DateTime.Now.ToString() + ex.Message);
                 }
             }
