@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -32,8 +33,8 @@ namespace DeviceSim.Device
         /// </summary>
         private void DataReceiveXml()
         {
-            int recBytes = 0;
             List<byte> cacheCmd = new List<byte>();
+            IPEndPoint iPEndPoint = _socketXml.RemoteEndPoint as IPEndPoint;
             while (Connected)
             {
                 try
@@ -75,7 +76,7 @@ namespace DeviceSim.Device
                 {
                     if (ex is SocketException || ex is ObjectDisposedException)
                     {
-                        CloseConnect();
+                        CloseConnect(iPEndPoint);
                         break;
                     }
                 }
@@ -167,7 +168,9 @@ namespace DeviceSim.Device
                     case CMD_TRACEDELETE:
                         break;
                     case CMD_TRACEDELETEINACTIVE:
-                        if (!Client.IsSendAudio && !Client.IsSendDF && !Client.IsSendIQ && !Client.IsSendCW && !Client.IsSendSpectrum)
+                        if (ClientList.All(c => !c.IsSendAudio) && ClientList.All(c => !c.IsSendDF)
+                            && ClientList.All(c => !c.IsSendIQ) && ClientList.All(c => !c.IsSendCW)
+                            && ClientList.All(c => !c.IsSendSpectrum))
                         {
                             IsRunning = false;
                         }
@@ -376,15 +379,46 @@ namespace DeviceSim.Device
                             UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
                         }
                         break;
+                    case "eIFPanMode":
+                        EIFPan_Mode mode = EIFPan_Mode.IFPAN_MODE_CLRWRITE;
+                        if (Enum.TryParse(para.Value, out mode))
+                        {
+                            if (mode != _fftMode)
+                            {
+                                lock (_lockfftData)
+                                {
+                                    _fftCount = 0;
+                                    _lastFFTSendTime = DateTime.Now;
+                                    _fftData = null;
+                                    _fftMode = mode;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string msg = string.Format("No eIFPanMode found with the name \"{0}\"", para.Value);
+                            UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
+                        }
+                        break;
+                    case "eAntPreAmp":
+                        EState state = EState.STATE_OFF;
+                        if (Enum.TryParse(para.Value, out state))
+                        {
+                            AntPreAmp = state == EState.STATE_ON;
+                        }
+                        else
+                        {
+                            string msg = string.Format("No eAntPreAmp found with the name \"{0}\"", para.Value);
+                            UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
+                        }
+                        break;
                     case "eBlockAveragingSelect":// 默认永远为测量时间模式
                     case "iBlockAveragingCycles":// 默认永远为测量时间模式
-                    case "eAntPreAmp"://不用处理
                     case "eDfAlt":
                     case "eWindowType":
                     case "eDfPanSelectivity":
                     case "iAttHoldTime"://暂时不处理
                     case "eIFPanSelectivity":
-                    case "eIFPanMode":
                     default:
                         break;
                 }
@@ -473,7 +507,10 @@ namespace DeviceSim.Device
                     case "bEnableMeasurement":
                         bool enabled = false;
                         if (bool.TryParse(para.Value, out enabled))
-                            Client.IsSendITU = enabled;
+                        {
+                            ClientList.Where(i => i.IsSendCW).ToList().ForEach(i => i.IsSendITU = enabled);
+                            CheckSwitch();
+                        }
                         break;
                     case "eBwMeasurementMode":
                         EMeasureMode mode = EMeasureMode.MEASUREMODE_XDB;
@@ -600,7 +637,7 @@ namespace DeviceSim.Device
                         break;
                     case "zIP":
                         ip = para.Value;
-                        if (!Client.AddressData.Equals(ip))
+                        if (ClientList.Where(i => i.Address.Address.ToString().Equals(ip)).Count() == 0)
                         {
                             string msg = string.Format("No zIP found with the name \"{0}\"", para.Value);
                             UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
@@ -609,7 +646,7 @@ namespace DeviceSim.Device
                         break;
                     case "iPort":
                         int.TryParse(para.Value, out port);
-                        if (port != Client.PortData)
+                        if (ClientList.Where(i => i.Address.Port.Equals(port)).Count() == 0)
                         {
                             string msg = string.Format("No iPort found with the name \"{0}\"", para.Value);
                             UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
@@ -619,34 +656,36 @@ namespace DeviceSim.Device
                 }
             }
 
+            var client = _clientList.Where(i => i.Address.Address.ToString().Equals(ip) && i.Address.Port.Equals(port) && !i.IsXml).ToList();
             switch (eTraceTag)
             {
                 case ETraceTag.TRACETAG_AUDIO:
-                    Client.IsSendAudio = true;
+                    client.ForEach(c => c.IsSendAudio = true);
                     break;
                 case ETraceTag.TRACETAG_DF:
-                    Client.IsSendDF = true;
+                    client.ForEach(c => c.IsSendDF = true);
                     break;
                 case ETraceTag.TRACETAG_IF:
-                    Client.IsSendIQ = true;
+                    client.ForEach(c => c.IsSendIQ = true);
                     break;
                 case ETraceTag.TRACETAG_CWAVE:
-                    Client.IsSendCW = true;
+                    client.ForEach(c => c.IsSendCW = true);
                     break;
                 case ETraceTag.TRACETAG_IFPAN:
-                    Client.IsSendSpectrum = true;
+                    client.ForEach(c => c.IsSendSpectrum = true);
                     break;
                 case ETraceTag.TRACETAG_PSCAN:
-                    Client.IsSendPScan = true;
+                    client.ForEach(c => c.IsSendPScan = true);
                     break;
                 default:
                     break;
             }
 
-            if ((DfMode == EDfMode.DFMODE_FFM || DfMode == EDfMode.DFMODE_SCAN || DfMode == EDfMode.DFMODE_SEARCH) && Client.IsSendDF)
+            if ((DfMode == EDfMode.DFMODE_FFM || DfMode == EDfMode.DFMODE_SCAN || DfMode == EDfMode.DFMODE_SEARCH) && client.Count(i => i.IsSendDF) > 0)
             {
                 IsRunning = true;
             }
+            CheckSwitch();
         }
 
         private void AnalysisCmdSetTraceDisable(Request request, ref Reply reply)
@@ -668,7 +707,7 @@ namespace DeviceSim.Device
                         break;
                     case "zIP":
                         ip = para.Value;
-                        if (!Client.AddressData.Equals(ip))
+                        if (ClientList.Count(i => i.Address.Address.ToString().Equals(ip)) == 0)
                         {
                             string msg = string.Format("No zIP found with the name \"{0}\"", para.Value);
                             UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
@@ -677,7 +716,7 @@ namespace DeviceSim.Device
                         break;
                     case "iPort":
                         int.TryParse(para.Value, out port);
-                        if (port != Client.PortData)
+                        if (ClientList.Count(i => i.Address.Port.Equals(port)) == 0)
                         {
                             string msg = string.Format("No iPort found with the name \"{0}\"", para.Value);
                             UpdateReply(ref reply, "10520", msg, para.Name, para.Value);
@@ -688,28 +727,29 @@ namespace DeviceSim.Device
             }
 
 
+            var client = _clientList.Where(i => i.Address.Address.ToString().Equals(ip) && i.Address.Port.Equals(port) && !i.IsXml).ToList();
             switch (eTraceTag)
             {
                 case ETraceTag.TRACETAG_AUDIO:
-                    Client.IsSendAudio = false;
+                    client.ForEach(c => c.IsSendAudio = false);
                     break;
                 case ETraceTag.TRACETAG_DF:
-                    Client.IsSendDF = false;
+                    client.ForEach(c => c.IsSendDF = false);
                     _lastSendCnt = 0;
                     _hopIndexScanDF = 0;
                     _scanRangeCnt = 0;
                     break;
                 case ETraceTag.TRACETAG_IF:
-                    Client.IsSendIQ = false;
+                    client.ForEach(c => c.IsSendIQ = false);
                     break;
                 case ETraceTag.TRACETAG_CWAVE:
-                    Client.IsSendCW = false;
+                    client.ForEach(c => c.IsSendCW = false);
                     break;
                 case ETraceTag.TRACETAG_IFPAN:
-                    Client.IsSendSpectrum = false;
+                    client.ForEach(c => c.IsSendSpectrum = false);
                     break;
                 case ETraceTag.TRACETAG_PSCAN:
-                    Client.IsSendPScan = false;
+                    client.ForEach(c => c.IsSendPScan = false);
                     break;
                 default:
                     break;
@@ -718,6 +758,18 @@ namespace DeviceSim.Device
             //{
             //    IsRunning = false;
             //}
+            CheckSwitch();
+        }
+
+        private void CheckSwitch()
+        {
+            AudioSwitch = ClientList.FirstOrDefault(i => i.IsSendAudio) != null;
+            CWSwitch = ClientList.FirstOrDefault(i => i.IsSendCW) != null;
+            DFSwitch = ClientList.FirstOrDefault(i => i.IsSendDF) != null;
+            IQSwitch = ClientList.FirstOrDefault(i => i.IsSendIQ) != null;
+            ITUSwitch = ClientList.FirstOrDefault(i => i.IsSendITU) != null;
+            ScanSwitch = ClientList.FirstOrDefault(i => i.IsSendPScan) != null;
+            SpectrumSwitch = ClientList.FirstOrDefault(i => i.IsSendSpectrum) != null;
         }
 
         private void AnalysisCmdScanRangeDelete(Request request, ref Reply reply)

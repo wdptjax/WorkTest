@@ -50,55 +50,93 @@ namespace DeviceSim.Device
         uint _scanRangeCnt = 0;
         uint _lastSendCnt = 0;
 
-        Random _random = new Random();
         private FileStream _fsAudio = new FileStream(@"..\bin\Device\audiodata.bin", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         private long _indexAudio = 0;
 
-        private void DataSendSync()
+        #region FFT模式定义变量
+
+        private DateTime _lastFFTSendTime = DateTime.Now;
+        private int[] _fftData;
+        private object _lockfftData = new object();
+        private int _fftCount = 0;
+
+        #endregion FFT模式定义变量
+
+        private void DataSendSync(object obj)
         {
+            DateTime lastTimeSpectrum = DateTime.Now;
+            DateTime lastTimeCW = DateTime.Now;
+            DateTime lastTimeIQ = DateTime.Now;
+            DateTime lastTimeAudio = DateTime.Now;
+            DateTime lastTimeDF = DateTime.Now;
+            DateTime lastTimePScan = DateTime.Now;
+            ClientInfo client = obj as ClientInfo;
             while (Connected)
             {
-                Thread.Sleep(30);
+                Thread.Sleep(1);
                 if (!IsRunning)
                     continue;
                 try
                 {
-                    if (Client.IsSendSpectrum)
+                    if (DateTime.Now.Subtract(lastTimeSpectrum).TotalMilliseconds >= 20)
                     {
-                        byte[] buffer = GetSpectrumData();
-                        WriteSendData(buffer);
+                        lastTimeSpectrum = DateTime.Now;
+                        if (client.IsSendSpectrum)
+                        {
+                            byte[] buffer = GetSpectrumData();
+                            client.SendData(buffer);
+                        }
                     }
-                    if (Client.IsSendCW)
+                    if (DateTime.Now.Subtract(lastTimeCW).TotalMilliseconds >= 30)
                     {
-                        byte[] buffer = GetITUData();
-                        WriteSendData(buffer);
+                        lastTimeCW = DateTime.Now;
+                        if (client.IsSendCW)
+                        {
+                            byte[] buffer = GetITUData(client);
+                            client.SendData(buffer);
+                        }
                     }
-                    if (Client.IsSendIQ)
+                    if (DateTime.Now.Subtract(lastTimeIQ).TotalMilliseconds >= 1)
                     {
-                        byte[] buffer = GetIQData();
-                        WriteSendData(buffer);
+                        lastTimeIQ = DateTime.Now;
+                        if (client.IsSendIQ)
+                        {
+                            byte[] buffer = GetIQData();
+                            client.SendData(buffer);
+                        }
                     }
-                    if (Client.IsSendAudio)
+                    if (DateTime.Now.Subtract(lastTimeAudio).TotalMilliseconds >= 30)
                     {
-                        byte[] buffer = GetAudioData();
-                        WriteSendData(buffer);
+                        lastTimeAudio = DateTime.Now;
+                        if (client.IsSendAudio)
+                        {
+                            byte[] buffer = GetAudioData();
+                            client.SendData(buffer);
+                        }
                     }
-                    if (Client.IsSendDF)
+                    if (DateTime.Now.Subtract(lastTimeDF).TotalMilliseconds >= 20)
                     {
-                        byte[] buffer = GetDFData();
-                        WriteSendData(buffer);
+                        lastTimeDF = DateTime.Now;
+                        if (client.IsSendDF)
+                        {
+                            byte[] buffer = GetDFData();
+                            client.SendData(buffer);
+                        }
                     }
-                    if (Client.IsSendPScan)
+                    if (DateTime.Now.Subtract(lastTimePScan).TotalMilliseconds >= 20)
                     {
-                        byte[] buffer = GetPScanData();
-                        WriteSendData(buffer);
+                        lastTimePScan = DateTime.Now;
+                        if (client.IsSendPScan)
+                        {
+                            byte[] buffer = GetPScanData();
+                            client.SendData(buffer);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("DataSendSync报错:" + ex.ToString());
                 }
-
             }
         }
 
@@ -118,10 +156,17 @@ namespace DeviceSim.Device
                     _fsAudio.Read(data, 0, dataCnt * 2);
                 }
             }
+
             _indexAudio = (_indexAudio + dataCnt * 2 >= _fsAudio.Length) ? 0 : (_indexAudio + dataCnt * 2);
             ulong freq = (ulong)(_frequency * 1000000);
 
+            for (int i = 0; i < dataCnt; i++)
+            {
+                Array.Reverse(data, i * 2, 2);
+            }
+
             OptionalHeaderAudio audioHeader = new OptionalHeaderAudio();
+            audioHeader.FrameLen = 2;
             audioHeader.AudioMode = (short)AudioMode;
             audioHeader.FrequencyLow = (uint)(freq & 0x00000000FFFFFFFF);
             audioHeader.Bandwidth = (uint)(_demBandWidth * 1000);
@@ -150,9 +195,10 @@ namespace DeviceSim.Device
             int dataCnt = 1024;
             byte[] data = new byte[dataCnt * 4];
             int offset = 0;
+            Random random = new Random(Guid.NewGuid().GetHashCode());
             for (int i = 0; i < dataCnt; i++)
             {
-                double level = ((double)_random.Next(_levelMin * 10, _levelMax * 10)) / 10;
+                double level = ((double)random.Next(_levelMin * 10, _levelMax * 10)) / 10;
                 //double radian = (2 * Math.PI) * _random.NextDouble();
                 double radian = Math.PI / 180 * _angle;
                 _angle++;
@@ -205,15 +251,18 @@ namespace DeviceSim.Device
             return buffer;
         }
 
-        private byte[] GetITUData()
+        private byte[] GetITUData(ClientInfo info)
         {
             int dataCnt = 1;
             uint selectorFlags = 0x80000003;
-            if (Client.IsSendITU)
+            if (info.IsSendITU)
                 selectorFlags = 0x800007FF;
             ulong freq = (ulong)(_frequency * 1000000);
+            Random random = new Random(Guid.NewGuid().GetHashCode());
             CWData cwData = new CWData(dataCnt);
-            short level = (short)_random.Next(_levelMin * 10, _levelMax * 10);
+            short level = (short)random.Next(_levelMin * 10, _levelMax * 10);
+            if (AntPreAmp)
+                level += 300;
             if (!_isUseSquelch)
                 _canSendAudio = true;
             else
@@ -222,8 +271,8 @@ namespace DeviceSim.Device
                     _canSendAudio = false;
             }
             cwData.Level[0] = level;
-            cwData.FreqOffset[0] = (int)_random.Next(_ituOffsetMin * 10, _ituOffsetMax * 10);
-            if (Client.IsSendITU)
+            cwData.FreqOffset[0] = (int)random.Next(_ituOffsetMin * 10, _ituOffsetMax * 10);
+            if (info.IsSendITU)
             {
                 cwData.FStrength[0] = 794;
                 cwData.AMDepth[0] = 796;
@@ -288,27 +337,85 @@ namespace DeviceSim.Device
             ifPanHeader.DemodFreqLow = (uint)(freq & 0x00000000FFFFFFFF);
             ifPanHeader.FrequencyHigh = ifPanHeader.DemodFreqHigh;
             ifPanHeader.FrequencyLow = ifPanHeader.DemodFreqLow;
-            byte[] level = new byte[dataLen * 2];
-            for (int i = 0; i < dataLen; i++)
+            Random random = new Random(Guid.NewGuid().GetHashCode());
+            lock (_lockfftData)
             {
-                int min = _random.Next(_noiseMin * 10 - 20, _noiseMin * 10 + 20);
-                int max = _random.Next(_noiseMax * 10 - 20, _noiseMax * 10 + 20);
-                short data = (short)_random.Next(min, max);
-                if (_rfMode == ERf_Mode.RFMODE_LOW_NOISE)
-                    data -= 50;
-                if (i == ifPanHeader.DemodFreqChannel)
+                if (_fftData == null || _fftData.Length != dataLen)
+                    _fftData = Enumerable.Repeat<int>(int.MinValue, dataLen).ToArray();
+
+                for (int i = 0; i < dataLen; i++)
                 {
-                    data = (short)_random.Next(_levelMin * 10, _levelMax * 10);
-                    if (_rfMode == ERf_Mode.RFMODE_LOW_DISTORTION)
-                        data -= 50;
+                    int min = random.Next(_noiseMin * 10 - 20, _noiseMin * 10 + 20);
+                    int max = random.Next(_noiseMax * 10 - 20, _noiseMax * 10 + 20);
+                    short level = (short)random.Next(min, max);
+                    if (_rfMode == ERf_Mode.RFMODE_LOW_NOISE)
+                        level -= 50;
+                    if (i == ifPanHeader.DemodFreqChannel)
+                    {
+                        level = (short)random.Next(_levelMin * 10, _levelMax * 10);
+                        if (_rfMode == ERf_Mode.RFMODE_LOW_DISTORTION)
+                            level -= 50;
+                    }
+                    if (!_gainAuto)
+                        level += (short)(_gain * 10);
+                    if (!_attAuto)
+                        level -= (short)(_attenuation * 10);
+
+                    switch (_fftMode)
+                    {
+                        case EIFPan_Mode.IFPAN_MODE_MAXHOLD:
+                            _fftData[i] = Math.Max(_fftData[i], level);
+                            break;
+                        case EIFPan_Mode.IFPAN_MODE_MINHOLD:
+                            if (_fftData[i].Equals(int.MinValue))
+                                _fftData[i] = int.MaxValue;
+                            _fftData[i] = Math.Min(_fftData[i], level);
+                            break;
+                        case EIFPan_Mode.IFPAN_MODE_AVERAGE:
+                            if (_fftData[i].Equals(int.MinValue))
+                                _fftData[i] = 0;
+                            _fftData[i] += level;
+                            break;
+                        default:
+                            _fftData[i] = level;
+                            break;
+                    }
+
                 }
-                if (!_gainAuto)
-                    data += (short)(_gain * 10);
-                if (!_attAuto)
-                    data -= (short)(_attenuation * 10);
-                byte[] arr = BitConverter.GetBytes(data);
-                level[i * 2] = arr[1];
-                level[i * 2 + 1] = arr[0];
+                _fftCount++;
+            }
+
+            double measureTime = _measureTime == 0 ? 100 : _measureTime * 1000;
+            if (_fftMode != EIFPan_Mode.IFPAN_MODE_CLRWRITE && DateTime.Now.Subtract(_lastFFTSendTime).TotalMilliseconds < measureTime)
+                return null;
+
+            byte[] data = new byte[dataLen * 2];
+            lock (_lockfftData)
+            {
+                for (int i = 0; i < dataLen; i++)
+                {
+                    short level;
+                    switch (_fftMode)
+                    {
+                        case EIFPan_Mode.IFPAN_MODE_AVERAGE:
+                            level = (short)(((double)_fftData[i]) / _fftCount);
+                            break;
+                        case EIFPan_Mode.IFPAN_MODE_MAXHOLD:
+                        case EIFPan_Mode.IFPAN_MODE_MINHOLD:
+                        default:
+                            level = (short)_fftData[i];
+                            break;
+                    }
+                    _fftData[i] = int.MinValue;
+                    if (AntPreAmp)
+                        level += 300;
+                    byte[] arr = BitConverter.GetBytes(level);
+                    data[i * 2] = arr[1];
+                    data[i * 2 + 1] = arr[0];
+                }
+
+                _lastFFTSendTime = DateTime.Now;
+                _fftCount = 0;
             }
 
             TraceAttributeConventional traceAttribute = new TraceAttributeConventional();
@@ -321,7 +428,7 @@ namespace DeviceSim.Device
             genericAttribute.Length = (ushort)(Marshal.SizeOf(traceAttribute) + Marshal.SizeOf(ifPanHeader) + dataLen * 2);
             genericAttribute.Tag = (ushort)TAGS.IFPAN;
 
-            byte[] buffer = GetData(genericAttribute, traceAttribute, ifPanHeader, level);
+            byte[] buffer = GetData(genericAttribute, traceAttribute, ifPanHeader, data);
 
             return buffer;
         }
@@ -395,12 +502,13 @@ namespace DeviceSim.Device
 
         private byte[] GetDFData(uint totalLen, uint dataLen, uint logChannel, int freqIndex, ulong selectorFlags, ulong startFreq, int numerator, int denominator, int span, bool isLastHop)
         {
+            Random random = new Random(Guid.NewGuid().GetHashCode());
             DFPScanData dFPScanData = new DFPScanData(dataLen);
             for (int i = 0; i < dataLen; i++)
             {
-                short level = (short)_random.Next(_noiseMin * 10, _noiseMax * 10);
-                short azimuth = (short)_random.Next(0, 3599);
-                short quality = (short)_random.Next(0, 500);
+                short level = (short)random.Next(_noiseMin * 10, _noiseMax * 10);
+                short azimuth = (short)random.Next(0, 3599);
+                short quality = (short)random.Next(0, 500);
                 short fstrength = level;
                 short dfLevelCont = level;
                 short elevation = azimuth;
@@ -410,9 +518,9 @@ namespace DeviceSim.Device
                     level -= 100;
                 if (Math.Abs(i - freqIndex) < 10)
                 {
-                    level = (short)_random.Next(_levelMin * 10, _levelMax * 10);
-                    azimuth = (short)_random.Next(_azimuthMin * 10, _azimuthMax * 10);
-                    quality = (short)_random.Next(900, 999);
+                    level = (short)random.Next(_levelMin * 10, _levelMax * 10);
+                    azimuth = (short)random.Next(_azimuthMin * 10, _azimuthMax * 10);
+                    quality = (short)random.Next(900, 999);
                     fstrength = level;
                     dfLevelCont = level;
                     elevation = azimuth;
@@ -427,6 +535,8 @@ namespace DeviceSim.Device
                         level -= 100;
                     if (level < _levelThreshold * 10)
                         return null;
+                    if (AntPreAmp)
+                        level += 300;
                 }
 
                 dFPScanData.DfLevel[i] = level;
@@ -488,16 +598,66 @@ namespace DeviceSim.Device
             uint numerator = step;
             short dataLen = (short)(span / step + 1);
 
+            Random random = new Random(Guid.NewGuid().GetHashCode());
+            if (_fftData == null || _fftData.Length != dataLen)
+                _fftData = Enumerable.Repeat<int>(int.MinValue, dataLen).ToArray();
+            for (int i = 0; i < dataLen; i++)
+            {
+                short level = (short)random.Next(_noiseMin * 10, _noiseMax * 10);
+                if (i == dataLen / 2)
+                    level = (short)random.Next(_levelMin * 10, _levelMax * 10);
+
+                switch (_fftMode)
+                {
+                    case EIFPan_Mode.IFPAN_MODE_MAXHOLD:
+                        _fftData[i] = Math.Max(_fftData[i], level);
+                        break;
+                    case EIFPan_Mode.IFPAN_MODE_MINHOLD:
+                        if (_fftData[i].Equals(int.MinValue))
+                            _fftData[i] = int.MaxValue;
+                        _fftData[i] = Math.Min(_fftData[i], level);
+                        break;
+                    case EIFPan_Mode.IFPAN_MODE_AVERAGE:
+                        if (_fftData[i].Equals(int.MinValue))
+                            _fftData[i] = 0;
+                        _fftData[i] += level;
+                        break;
+                    default:
+                        _fftData[i] = level;
+                        break;
+                }
+            }
+            _fftCount++;
+
+            double measureTime = _measureTime == 0 ? 100 : _measureTime * 1000;
+            if (_fftMode != EIFPan_Mode.IFPAN_MODE_CLRWRITE && DateTime.Now.Subtract(_lastFFTSendTime).TotalMilliseconds < measureTime)
+                return null;
+
             byte[] data = new byte[dataLen * 2];
             for (int i = 0; i < dataLen; i++)
             {
-                short level = (short)_random.Next(_noiseMin * 10, _noiseMax * 10);
-                if (i == dataLen / 2)
-                    level = (short)_random.Next(_levelMin * 10, _levelMax * 10);
+                short level;
+                switch (_fftMode)
+                {
+                    case EIFPan_Mode.IFPAN_MODE_AVERAGE:
+                        level = (short)(((double)_fftData[i]) / _fftCount);
+                        break;
+                    case EIFPan_Mode.IFPAN_MODE_MAXHOLD:
+                    case EIFPan_Mode.IFPAN_MODE_MINHOLD:
+                    default:
+                        level = (short)_fftData[i];
+                        break;
+                }
+                _fftData[i] = int.MinValue;
+                if (AntPreAmp)
+                    level += 300;
                 byte[] arr = BitConverter.GetBytes(level);
                 data[i * 2] = arr[1];
                 data[i * 2 + 1] = arr[0];
             }
+
+            _lastFFTSendTime = DateTime.Now;
+            _fftCount = 0;
 
             OptionalHeaderPScan header = new OptionalHeaderPScan();
             header.StartFrequencyLow = (uint)(startFreq & 0x00000000FFFFFFFF);

@@ -35,6 +35,46 @@
                 </Grid>
             </Expander>
         </DataTemplate>
+        <DataTemplate x:Key="ClientListTemplete" DataType="{x:Type local:ClientInfo}">
+            <Expander MinWidth="100">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="1" Text="{Binding Address.Address}"/>
+                        <TextBlock Margin="1" Text="{Binding Address.Port}"/>
+                        <Border Margin="1" Grid.Column="2" Width="15" Height="15"
+                                Background="Yellow" Visibility="{Binding IsXml,Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Expander.Header>
+                <Grid Margin="25,0,0,0">
+                    <WrapPanel>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsXml,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="XML"/>
+                        </Border>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendAudio,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="AU"/>
+                        </Border>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendCW,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="CW"/>
+                        </Border>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendDF,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="DF"/>
+                        </Border>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendIQ,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="IQ"/>
+                        </Border>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendITU,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="ITU"/>
+                        </Border>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendPScan,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="PS"/>
+                        </Border>
+                        <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendSpectrum,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="SP"/>
+                        </Border>
+                    </WrapPanel>
+                </Grid>
+            </Expander>
+        </DataTemplate>
         <DataTemplate x:Key="DeviceDataTemplete" DataType="{x:Type local:DDF550Device}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -85,29 +125,32 @@
                                         <WrapPanel IsItemsHost="True"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding Client.IsSendAudio,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding AudioSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock Text="音频开关" Foreground="White" Margin="3,1"/>
                                 </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding Client.IsSendSpectrum,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center">
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding SpectrumSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center">
                                     <TextBlock Text="频谱开关" Foreground="White" Margin="3,1"/>
                                 </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding Client.IsSendDF,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding DFSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock Text="测向开关" Foreground="White" Margin="3,1"/>
                                 </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding Client.IsSendIQ,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding IQSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock Text="IQ开关" Foreground="White" Margin="3,1"/>
                                 </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding Client.IsSendCW,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding CWSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock Text="ITU开关" Foreground="White" Margin="3,1"/>
                                 </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding Client.IsSendITU,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding ITUSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock Text="ITU数据" Foreground="White" Margin="3,1"/>
                                 </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding Client.IsSendPScan,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="PScan数据" Foreground="White" Margin="1"/>
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding ScanSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="PScan数据" Foreground="White" Margin="3,1"/>
                                 </Border>
                                 <Border Margin="5,2" CornerRadius="2" Background="{Binding IsUseSquelch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="静噪开关" Foreground="White" Margin="1"/>
+                                    <TextBlock Text="静噪开关" Foreground="White" Margin="3,1"/>
+                                </Border>
+                                <Border Margin="5,2" CornerRadius="2" Background="{Binding AntPreAmp,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="天线放大器" Foreground="White" Margin="3,1"/>
                                 </Border>
                             </ItemsControl>
                         </GroupBox>
@@ -145,6 +188,10 @@
                                     <StackPanel x:Name="spMeasureTime" Orientation="Horizontal">
                                         <TextBlock Text="测量时间(s):"/>
                                         <TextBlock Text="{Binding MeasureTime,Converter={StaticResource dataConverter},ConverterParameter=MeasureTime}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="spFFTMode" Orientation="Horizontal">
+                                        <TextBlock Text="FFT模式:"/>
+                                        <TextBlock Text="{Binding FFTMode,Converter={StaticResource dataConverter}}"/>
                                     </StackPanel>
                                     <StackPanel x:Name="spIntegrationTime" Orientation="Horizontal">
                                         <TextBlock Text="积分时间(ms):"/>
@@ -235,7 +282,14 @@
                     </Grid>
                     <GridSplitter Width="5"/>
                     <Grid Grid.Column="1">
-                        <GroupBox Header="频段列表">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox Header="客户端列表">
+                            <ItemsControl ItemsSource="{Binding ClientList}" ItemTemplate="{StaticResource ClientListTemplete}"/>
+                        </GroupBox>
+                        <GroupBox Grid.Row="1" Header="频段列表">
                             <ItemsControl ItemsSource="{Binding ScanRangeList}" ItemTemplate="{StaticResource ScanRangeTemplete}"/>
                         </GroupBox>
                     </Grid>

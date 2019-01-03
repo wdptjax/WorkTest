@@ -44,8 +44,8 @@ namespace DeviceSim.Device
         private TcpListener _tcpListenerData = null;
         [XmlIgnore]
         private Socket _socketXml = null;
-        [XmlIgnore]
-        private Socket _socketData = null;
+        //[XmlIgnore]
+        //private Socket _socketData = null;
         [XmlIgnore]
         private int _portXml
         {
@@ -58,16 +58,16 @@ namespace DeviceSim.Device
         }
 
         [XmlIgnore]
-        private ClientInfo _client = new ClientInfo();
+        private ObservableCollection<ClientInfo> _clientList = new ObservableCollection<ClientInfo>();
 
         [XmlIgnore]
-        public ClientInfo Client
+        public ObservableCollection<ClientInfo> ClientList
         {
-            get { return _client; }
+            get { return _clientList; }
             set
             {
-                _client = value;
-                OnPropertyChanged(() => this.Client);
+                _clientList = value;
+                OnPropertyChanged(() => this.ClientList);
             }
         }
         [XmlIgnore]
@@ -128,6 +128,8 @@ namespace DeviceSim.Device
         private int _attenuation = -1;
         private bool _attAuto = false;
         private double _ifPanStep = 100;
+        private EIFPan_Mode _fftMode = EIFPan_Mode.IFPAN_MODE_CLRWRITE;
+        private bool _antPreAmp = false;
 
         /// <summary>
         /// 中心频率 MHz
@@ -243,6 +245,26 @@ namespace DeviceSim.Device
             {
                 _attenuation = value;
                 OnPropertyChanged(() => this.Attenuation);
+            }
+        }
+
+        public EIFPan_Mode FFTMode
+        {
+            get { return _fftMode; }
+            set
+            {
+                _fftMode = value;
+                OnPropertyChanged(() => this.FFTMode);
+            }
+        }
+
+        public bool AntPreAmp
+        {
+            get { return _antPreAmp; }
+            set
+            {
+                _antPreAmp = value;
+                OnPropertyChanged(() => this.AntPreAmp);
             }
         }
 
@@ -558,6 +580,54 @@ namespace DeviceSim.Device
 
         #endregion 设备参数
 
+        #region 数据开关
+
+        private bool _cwSwitch = false;
+        private bool _iqSwitch = false;
+        private bool _spectrumSwitch = false;
+        private bool _audioSwitch = false;
+        private bool _dfSwitch = false;
+        private bool _scanSwitch = false;
+        private bool _ituSwitch = false;
+
+        public bool CWSwitch
+        {
+            get { return _cwSwitch; }
+            set { _cwSwitch = value; OnPropertyChanged(() => this.CWSwitch); }
+        }
+        public bool IQSwitch
+        {
+            get { return _iqSwitch; }
+            set { _iqSwitch = value; OnPropertyChanged(() => this.IQSwitch); }
+        }
+        public bool SpectrumSwitch
+        {
+            get { return _spectrumSwitch; }
+            set { _spectrumSwitch = value; OnPropertyChanged(() => this.SpectrumSwitch); }
+        }
+        public bool AudioSwitch
+        {
+            get { return _audioSwitch; }
+            set { _audioSwitch = value; OnPropertyChanged(() => this.AudioSwitch); }
+        }
+        public bool DFSwitch
+        {
+            get { return _dfSwitch; }
+            set { _dfSwitch = value; OnPropertyChanged(() => this.DFSwitch); }
+        }
+        public bool ScanSwitch
+        {
+            get { return _scanSwitch; }
+            set { _scanSwitch = value; OnPropertyChanged(() => this.ScanSwitch); }
+        }
+        public bool ITUSwitch
+        {
+            get { return _ituSwitch; }
+            set { _ituSwitch = value; OnPropertyChanged(() => this.ITUSwitch); }
+        }
+
+        #endregion 数据开关
+
         #endregion 变量/属性
 
         public DDF550Device() : base()
@@ -595,13 +665,14 @@ namespace DeviceSim.Device
                 {
                     if (_socketXml != null)
                         _socketXml.Close();
-                    if (_socketData != null)
-                        _socketData.Close();
+                    //if (_socketData != null)
+                    //    _socketData.Close();
                     Connected = false;
                     IsRunning = false;
                 }
                 _tcpListenerXml.Stop();
                 _tcpListenerData.Stop();
+                ClearClient();
             }
         }
 
@@ -623,9 +694,9 @@ namespace DeviceSim.Device
 
         protected override Stream GetStreamSendData()
         {
-            if (_socketData == null)
+            if (_socketXml == null)
                 return null;
-            return new NetworkStream(_socketData);
+            return new NetworkStream(_socketXml);
         }
 
         #region 私有方法
@@ -641,8 +712,10 @@ namespace DeviceSim.Device
                 SetHeartBeat(_socketXml);
                 Connected = true;
                 IPEndPoint iPEndPoint = _socketXml.RemoteEndPoint as IPEndPoint;
-                Client.AddressXml = iPEndPoint.Address.ToString();
-                Client.PortXml = iPEndPoint.Port;
+                ClientInfo client = new ClientInfo();
+                client.Address = iPEndPoint;
+                client.IsXml = true;
+                _dispatcher?.Invoke(new Action(() => ClientList.Add(client)));
                 Thread thd = new Thread(DataReceiveXml);
                 thd.IsBackground = true;
                 thd.Start();
@@ -651,7 +724,6 @@ namespace DeviceSim.Device
             {
                 _tcpListenerXml.BeginAcceptSocket(new AsyncCallback(XmlClientCallback), _tcpListenerXml);
             }
-
         }
         private void DataClientCallback(IAsyncResult asyncResult)
         {
@@ -659,20 +731,23 @@ namespace DeviceSim.Device
                 return;
             try
             {
-                _socketData = _tcpListenerData.EndAcceptSocket(asyncResult);
+                var socket = _tcpListenerData.EndAcceptSocket(asyncResult);
                 //_socketXml.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive,);
                 Connected = true;
-                IPEndPoint iPEndPoint = _socketData.RemoteEndPoint as IPEndPoint;
-                Client.AddressData = iPEndPoint.Address.ToString();
-                Client.PortData = iPEndPoint.Port;
+                IPEndPoint iPEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                ClientInfo client = new ClientInfo();
+                client.Address = iPEndPoint;
+                client.IsXml = false;
+                client.ClientSocket = socket;
+                _dispatcher?.Invoke(new Action(() => ClientList.Add(client)));
                 Thread thd = new Thread(DataSendSync);
                 thd.IsBackground = true;
-                thd.Start();
+                thd.Start(client);
             }
             catch (Exception)
             {
-                _tcpListenerData.BeginAcceptSocket(new AsyncCallback(DataClientCallback), _tcpListenerData);
             }
+            _tcpListenerData.BeginAcceptSocket(new AsyncCallback(DataClientCallback), _tcpListenerData);
         }
 
         #endregion 私有方法
@@ -689,6 +764,7 @@ namespace DeviceSim.Device
         protected virtual void KeepAlive(object connObject)
         {
             Socket socket = connObject as Socket;
+            IPEndPoint iPEndPoint = socket.RemoteEndPoint as IPEndPoint;
             if (socket == null)
             {
                 return;
@@ -718,21 +794,40 @@ namespace DeviceSim.Device
 
                 if (ex is SocketException)
                 {
-                    CloseConnect();
+                    CloseConnect(iPEndPoint);
                 }
             }
         }
 
-        private void CloseConnect()
+        /// <summary>
+        /// 关闭链接
+        /// </summary>
+        /// <param name="socket"></param>
+
+        private void CloseConnect(IPEndPoint iPEndPoint)
         {
             if (!DeviceInitialized)
                 return;
             _socketXml?.Close();
-            _socketData?.Close();
-            Connected = false;
+            var client = _clientList.FirstOrDefault(i => i.Address.Address.ToString().Equals(iPEndPoint.Address.ToString()) && i.Address.Port == iPEndPoint.Port);
+            if (client != null)
+            {
+                client.Stop();
+                _dispatcher?.Invoke(new Action(() => ClientList.Remove(client)));
+            }
+            if (_clientList.Count == 0)
+                Connected = false;
             _tcpListenerXml.BeginAcceptSocket(new AsyncCallback(XmlClientCallback), _tcpListenerXml);
             _tcpListenerData.BeginAcceptSocket(new AsyncCallback(DataClientCallback), _tcpListenerData);
+        }
 
+        private void ClearClient()
+        {
+            foreach(ClientInfo client in ClientList)
+            {
+                client.Stop();
+            }
+            ClientList.Clear();
         }
 
         #endregion 心跳检测

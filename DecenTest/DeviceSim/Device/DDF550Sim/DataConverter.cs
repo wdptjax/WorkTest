@@ -58,7 +58,10 @@ namespace DeviceSim.Device
 
                 return string.Format("{0}:{1}", (int)mode, mode.ToString().Replace("AUDIO_MODE_", ""));
             }
-
+            if (value != null && value is EIFPan_Mode)
+            {
+                return ((EIFPan_Mode)value).ToString().Replace("IFPAN_MODE_", "");
+            }
             if (value != null && parameter != null && parameter.ToString() == "Gain")
             {
                 int val = (int)value;

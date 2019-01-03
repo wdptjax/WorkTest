@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace DeviceSim.Device
@@ -27,14 +28,13 @@ namespace DeviceSim.Device
     {
     }
 
-    public class ClientInfo : INotifyPropertyChanged
+    public class ClientInfo : INotifyPropertyChanged, IDisposable
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private string _addressXml;
-        private string _addressData;
-        private int _portXml;
-        private int _portData;
+        private IPEndPoint _address;
+        private Socket _socket = null;
 
+        private bool _isXml = false;
         private bool _isSendAudio = false;
         private bool _isSendIQ = false;
         private bool _isSendCW = false;
@@ -43,40 +43,29 @@ namespace DeviceSim.Device
         private bool _isSendITU = false;
         private bool _isSendPScan = false;
 
-        public string AddressXml
+        public IPEndPoint Address
         {
-            get { return _addressXml; }
+            get { return _address; }
             set
             {
-                _addressXml = value;
-                PropertyChanged.Notify(() => this.AddressXml);
+                _address = value;
+                PropertyChanged.Notify(() => this.Address);
             }
         }
-        public int PortXml
+
+        public Socket ClientSocket
         {
-            get { return _portXml; }
-            set
-            {
-                _portXml = value;
-                PropertyChanged.Notify(() => this.PortXml);
-            }
+            get { return _socket; }
+            set { _socket = value; }
         }
-        public string AddressData
+
+        public bool IsXml
         {
-            get { return _addressData; }
+            get { return _isXml; }
             set
             {
-                _addressData = value;
-                PropertyChanged.Notify(() => this.AddressData);
-            }
-        }
-        public int PortData
-        {
-            get { return _portData; }
-            set
-            {
-                _portData = value;
-                PropertyChanged.Notify(() => this.PortData);
+                _isXml = value;
+                PropertyChanged.Notify(() => this.IsXml);
             }
         }
         public bool IsSendAudio
@@ -143,6 +132,33 @@ namespace DeviceSim.Device
                 PropertyChanged.Notify(() => this.IsSendPScan);
             }
         }
+
+        public void SendData(byte[] data)
+        {
+            if (_socket == null || !_socket.Connected)
+                return;
+            _socket.Send(data);
+        }
+
+        public void Stop()
+        {
+            if (_socket != null)
+            {
+                try
+                {
+                    _socket.Close();
+                }
+                catch
+                {
+                    _socket.Dispose();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Stop();
+        }
     }
 
     public class ScanRangeInfo : INotifyPropertyChanged
@@ -155,7 +171,7 @@ namespace DeviceSim.Device
         private double _step = 200;
         private double _span = 200;
         private int _numHops = 1;
-       
+
 
         public int ID
         {

@@ -96,6 +96,7 @@ namespace Test
 
         static void Main(string[] args)
         {
+            int[] k = new int[10];
             //CreateDir("D:\\Testttttt\\");
             //Test2();
             //Test3();
