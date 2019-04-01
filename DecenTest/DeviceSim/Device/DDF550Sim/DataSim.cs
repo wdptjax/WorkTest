@@ -41,14 +41,11 @@ namespace DeviceSim.Device
 
         private bool _canSendAudio = true;
 
-        //ScanDF使用
-        //每包数据的最大长度
-        const uint SCANDF_MAXCNT = 199;
         //当前包第一个频点在本频段的序号
-        uint _hopIndexScanDF = 0;
+        int _hopIndexScanDF = 0;
         //本频段的频点数
-        uint _scanRangeCnt = 0;
-        uint _lastSendCnt = 0;
+        int _scanRangeCnt = 0;
+        int _lastSendCnt = 0;
 
         private FileStream _fsAudio = new FileStream(@"..\bin\Device\audiodata.bin", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         private long _indexAudio = 0;
@@ -452,22 +449,26 @@ namespace DeviceSim.Device
                 int step = numerator / denominator;
                 ulong startFreq = (ulong)(RunningScanRange.StartFrequency * 1000000);
                 ulong stopFreq = (ulong)(RunningScanRange.StopFrequency * 1000000);
-                int span = (int)(stopFreq - startFreq);
-                uint dataLen = (uint)(span / step + 1);
+                ulong span = (ulong)(stopFreq - startFreq);
+                int dataLen = (int)(span / (ulong)step + 1);
                 int freqIndex = (int)dataLen / 2;
                 //freqIndex = -1;
 
+                ulong freqSpan = (ulong)RunningScanRange.Span * 1000;
+                if (freqSpan > span)
+                    freqSpan = span;
+
                 _scanRangeCnt = dataLen;
                 _hopIndexScanDF += _lastSendCnt;
-                uint sendLen = SCANDF_MAXCNT;
+                int sendLen = (int)(freqSpan / (ulong)step) - 1;
                 bool isLast = false;
-                if (_scanRangeCnt - _hopIndexScanDF < SCANDF_MAXCNT)
+                if (_scanRangeCnt - _hopIndexScanDF < sendLen)
                 {
                     sendLen = _scanRangeCnt - _hopIndexScanDF;
                     isLast = true;
                 }
                 freqIndex = freqIndex - (int)_hopIndexScanDF;
-                byte[] data = GetDFData(dataLen, sendLen, _hopIndexScanDF, freqIndex, selectorFlags, startFreq, numerator, denominator, span, isLast);
+                byte[] data = GetDFData(dataLen, (int)sendLen, (uint)_hopIndexScanDF, freqIndex, selectorFlags, startFreq, numerator, denominator, (int)span, isLast);
                 _lastSendCnt = sendLen;
                 if (isLast)
                 {
@@ -493,17 +494,17 @@ namespace DeviceSim.Device
                     denominator = 10 ^ (strStep.Length - index - 1);
                 int numerator = int.Parse(strStep.Replace(".", ""));
                 int step = numerator / denominator;
-                uint dataLen = (uint)(span / step + 1);
+                int dataLen = (int)(span / step + 1);
                 ulong startFreq = freq - (ulong)span / 2;
                 int freqIndex = (int)dataLen / 2;
                 return GetDFData(dataLen, dataLen, 0, freqIndex, selectorFlags, startFreq, numerator, denominator, span, true);
             }
         }
 
-        private byte[] GetDFData(uint totalLen, uint dataLen, uint logChannel, int freqIndex, ulong selectorFlags, ulong startFreq, int numerator, int denominator, int span, bool isLastHop)
+        private byte[] GetDFData(int totalLen, int dataLen, uint logChannel, int freqIndex, ulong selectorFlags, ulong startFreq, int numerator, int denominator, int span, bool isLastHop)
         {
             Random random = new Random(Guid.NewGuid().GetHashCode());
-            DFPScanData dFPScanData = new DFPScanData(dataLen);
+            DFPScanData dFPScanData = new DFPScanData((uint)dataLen);
             for (int i = 0; i < dataLen; i++)
             {
                 short level = (short)random.Next(_noiseMin * 10, _noiseMax * 10);
@@ -552,7 +553,7 @@ namespace DeviceSim.Device
 
             OptionalHeaderDFPScan header = new OptionalHeaderDFPScan();
             header.ScanRangeID = 0;
-            header.ChannelsInScanRange = (int)totalLen;
+            header.ChannelsInScanRange = totalLen;
             header.Frequency = startFreq;
             header.LogChannel = (int)logChannel;
             header.FrequencyStepNumerator = numerator;
@@ -572,7 +573,7 @@ namespace DeviceSim.Device
             header.SRWaveCount = 0;
 
             TraceAttributeAdvanced traceAttribute = new TraceAttributeAdvanced();
-            traceAttribute.NumberOfTraceItems = dataLen;
+            traceAttribute.NumberOfTraceItems = (uint)dataLen;
             traceAttribute.OptionalHeaderLength = (byte)Marshal.SizeOf(header);
             traceAttribute.SelectorFlagsLow = (uint)(selectorFlags & 0x00000000FFFFFFFF);
             traceAttribute.SelectorFlagsHigh = (uint)((selectorFlags & 0xFFFFFFFF00000000) >> 32);

@@ -871,7 +871,7 @@ namespace DeviceSim.Device
             info.StopFrequency = stopFreq;
             info.Span = span;
             info.Step = step;
-            info.NumHops = GetNumHops(info.StartFrequency, info.StopFrequency, info.Step);
+            info.NumHops = GetNumHops(info.StartFrequency, info.StopFrequency, info.Step, info.Span);
             _dispatcher.Invoke(new Action(() => ScanRangeList.Add(info)));
 
             Param param1 = new Param();
@@ -989,7 +989,7 @@ namespace DeviceSim.Device
                 info.Span = span;
             if (stepChanged)
                 info.Step = step;
-            info.NumHops = GetNumHops(info.StartFrequency, info.StopFrequency, info.Step);
+            info.NumHops = GetNumHops(info.StartFrequency, info.StopFrequency, info.Step, info.Span);
 
             Param param5 = new Param();
             param5.Name = "iScanRangeId";
@@ -1159,11 +1159,14 @@ namespace DeviceSim.Device
             return len == data.Length - 12;
         }
 
-        private int GetNumHops(double start, double stop, double step)
+        private int GetNumHops(double start, double stop, double step, double span)
         {
-            int count = (int)(((stop - start) * 1000) / step) + 1;
-            int hops = count / (int)SCANDF_MAXCNT;
-            int num = count % (int)SCANDF_MAXCNT;
+            double span1 = ((stop - start) * 1000);
+            int total = (int)(span1 / step) + 1;
+            double span2 = span > span1 ? span1 : span;
+            int sendlen = (int)(span2 / step - 1);
+            int hops = total / sendlen;
+            int num = total % sendlen;
             if (num > 0)
                 hops++;
             return hops;

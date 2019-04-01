@@ -1,0 +1,2419 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tracker800.Server.Parameters</name>
+    </assembly>
+    <members>
+        <member name="F:Tracker800.Server.Parameters.FreqSegDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.FreqSegDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.FreqSegDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.MScanControlInputDialog">
+            <summary>
+            压制频点参数录入对话框
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlInputDialog.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlInputDialog.ValidateSegFreq(Tracker800.Server.Parameters.PropertyObject,System.Int32,System.Int32)">
+            <summary>
+            发射模式，F=定频， S=扫频， J=跳频
+            压制分为三个不同的端
+            100-500MHz,500-1000MHz,1000-1700MHz
+            每段又分为不同子段
+            100-300MHz,300-500MHz;500-750MHz,750-1000MHz;1000-1250MHz,1250-1500MHz,1500-1700MHz
+            定频：每个子频段最多设置4个频点，每个频段中同时只能有一个子频段发射，系统共可同时发射12个频点
+            跳频：每个子频段最多设置100个频点，每个频段中同时只能有一个子频段发射，系统共可设置300个频点
+            </summary>
+            <param name="freqs">频点信息</param>
+            <param name="totalPointCount">判断的总点数</param>
+            <param name="pointCount">判断的点数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlInputDialog.GetSegFreq(System.Double)">
+            <summary>
+            获取该频点属于哪个频段
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.MScanControlInputDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlInputDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlInputDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.MScanInputDialog">
+            <summary>
+            离散频点参数录入对话框
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanInputDialog.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.MScanInputDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanInputDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanInputDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ScanControlInputDialog">
+            <summary>
+            扫描频段参数录入对话框
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlInputDialog.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlInputDialog.ExistSegment(Tracker800.Server.Parameters.ScanControlItem)">
+            <summary>
+            判断频段是否存在
+            </summary>
+            <param name="segmentItem"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlInputDialog.CheckFrequencySegment(System.Double,System.Double,System.Double,System.Single)">
+            <summary>
+            检查频段输入参数的合法性
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.ScanControlInputDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlInputDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlInputDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlCheckPointCountEventArgs.MaxPointCount">
+            <summary>
+            通过这个属性返回最大点数
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ScanInputDialog">
+            <summary>
+            扫描频段参数录入对话框
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.GetAdjacentValue(Tracker800.Server.Parameters.PropertyObject,System.Decimal)">
+            <summary>
+            获取相邻的值
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.IsNumeric(System.String)">
+            <summary>
+            是否为数字
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.btnImport_Click(System.Object,System.EventArgs)">
+            <summary>
+             批量导入
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.ExistSegment(Tracker800.Server.Parameters.FreqSegment_Info)">
+            <summary>
+            判断频段是否存在
+            </summary>
+            <param name="segmentItem"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.CheckFrequencySegment(System.Double,System.Double,System.Double,System.Single)">
+            <summary>
+            检查频段输入参数的合法性
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.ScanInputDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanInputDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.CheckPointCountEventArgs.MaxPointCount">
+            <summary>
+            通过这个属性返回最大点数
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.HelpService">
+            <summary>
+            参数处理的帮助类
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.HelpService.CreatXmlAttribute(System.Xml.XmlDocument,System.String,System.String)">
+            <summary>
+            创建 Xml 属性
+            </summary>
+            <param name="doc">XmlDocument 对象</param>
+            <param name="attributeName">属性名称</param>
+            <param name="attributeValue">属性值</param>
+            <returns></returns>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.HelpService.ChannelTableDirectory">
+            <summary>
+            信道表保存目录：..\ChannelTable
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.HelpService.SegmentTableDirectory">
+            <summary>
+            频段表保存目录：..\SegmentTable
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.IFMCAInputDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.IFMCAInputDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.IFMCAInputDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.LocalizationResources">
+            <summary>
+              一个强类型的资源类，用于查找本地化的字符串等。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.LocalizationResources.ResourceManager">
+            <summary>
+              返回此类使用的缓存的 ResourceManager 实例。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.LocalizationResources.Culture">
+            <summary>
+              使用此强类型资源类，为所有资源查找
+              重写当前线程的 CurrentUICulture 属性。
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.MScanControlItem">
+            <summary>
+            描述一个与设备无关的信道对象
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlItem.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlItem.Frequency">
+            <summary>
+            获取/设置 频率 MHz
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlItem.Modulation">
+            <summary>
+            获取/设置 调制模式
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlItem.ModulationDisplayValue">
+            <summary>
+            获取/设置 调制模式显示值
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlItem.Modulation1">
+            <summary>
+            调制参数1
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlItem.Modulation2">
+            <summary>
+            调制参数2
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlItem.Modulation3">
+            <summary>
+            调制参数3
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlItem.CompareTo(Tracker800.Server.Parameters.MScanControlItem)">
+            <summary>
+            两个对的比较方法
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.MScanControlITable">
+            <summary>
+            描述一个与设备无关的信道表对象
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlITable.Name">
+            <summary>
+            获取/设置信道表名称
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlITable.Remark">
+            <summary>
+            获取/设置信道表备注信息 通常用于描述这个信道表是如何生成的
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MScanControlITable.Items">
+            <summary>
+            获取/设置 信道集合
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlITable.SaveToXmlString">
+            <summary>
+            把信道表保存到一个 Xml 结构的字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlITable.SaveToXmlFile(System.String)">
+            <summary>
+            把信道表保存为一个 Xml 格式的文件
+            </summary>
+            <param name="fileName">包含全路径的文件名</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlITable.SaveToXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            把信道表保存到一个 Xml 文件，弹出对话框让用户选择文件名
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlITable.LoadFromXmlString(System.String)">
+            <summary>
+            从一个 Xml 字符串加载一个信道表
+            </summary>
+            <param name="xmlString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlITable.LoadFromXmlFile(System.String)">
+            <summary>
+            从一个Xml文件中加载一个信道表
+            </summary>
+            <param name="xmlFileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlITable.LoadFromXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            从一个Xml文件中加载一个信道表，弹出对话框让用户选择文件
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.MScanControlITable.CreateTable(System.Double[],System.String[],System.String[],System.Double[],System.Double[],System.Double[],System.Int32[],System.String,System.String,System.String)">
+            <summary>
+            生成信道表
+            </summary>
+            <param name="freqs">频率数组，单位：MHz</param>
+            <param name="moduls">调制方式</param>
+            <param name="modulDisplayValues">调制方式显示值</param>
+            <param name="moduls_1">调制参数1</param>
+            <param name="moduls_2">调制参数2</param>
+            <param name="moduls_3">调制参数3</param>
+            <param name="emitPower">发射功率</param>
+            <param name="tableName">信道表名称，将作为保存文件名，如：“合法信道表1”</param>
+            <param name="tableRemark"></param>
+            <param name="directory"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ChannelItem">
+            <summary>
+            描述一个与设备无关的信道对象
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelItem.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ChannelItem.Frequency">
+            <summary>
+            获取/设置 频率 MHz
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ChannelItem.BandWidth">
+            <summary>
+            获取/设置 带宽 MHz
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ChannelItem.Demodulation">
+            <summary>
+            获取/设置 解调模式
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelItem.CompareTo(Tracker800.Server.Parameters.ChannelItem)">
+            <summary>
+            两个对的比较方法
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ChannelTable">
+            <summary>
+            描述一个与设备无关的信道表对象
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ChannelTable.Name">
+            <summary>
+            获取/设置信道表名称
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ChannelTable.Remark">
+            <summary>
+            获取/设置信道表备注信息 通常用于描述这个信道表是如何生成的
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ChannelTable.Items">
+            <summary>
+            获取/设置 信道集合
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelTable.SaveToXmlString">
+            <summary>
+            把信道表保存到一个 Xml 结构的字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelTable.SaveToXmlFile(System.String)">
+            <summary>
+            把信道表保存为一个 Xml 格式的文件
+            </summary>
+            <param name="fileName">包含全路径的文件名</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelTable.SaveToXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            把信道表保存到一个 Xml 文件，弹出对话框让用户选择文件名
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelTable.LoadFromXmlString(System.String)">
+            <summary>
+            从一个 Xml 字符串加载一个信道表
+            </summary>
+            <param name="xmlString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelTable.LoadFromXmlFile(System.String)">
+            <summary>
+            从一个Xml文件中加载一个信道表
+            </summary>
+            <param name="xmlFileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelTable.LoadFromXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            从一个Xml文件中加载一个信道表，弹出对话框让用户选择文件
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ChannelTable.CreateTable(System.Double[],System.Double[],System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            生成信道表
+            </summary>
+            <param name="freqs">频率数组，单位：MHz</param>
+            <param name="bws">对应的带宽数组，单位：kHz</param>
+            <param name="tableName">信道表名称，将作为保存文件名，如：“合法信道表1”</param>
+            <param name="tableRemark"></param>
+            <param name="directory"></param>
+            <param name="showSaveDialog"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParameterTable">
+            <summary>
+            服务端参数绑定类，包装服务端的参数操作 继承于 PropertyObject 类
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.ParameterTable._lastItemIsReadonly">
+            <summary>
+            保存原有Readonly状态
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ParameterTable.ReadOnly">
+            <summary>
+            设置ParameterTable是否只读
+            如果设置为true,将所有Item的IsReadonly设置为true,并保存原有值，
+            如果设置为false,恢复原有值
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.GetProfileString">
+            <summary>
+            取得参数简要描述信息，如单频测量：中心频率101.7MHz 带宽100KHz
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.Intersect(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            求交集
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.GetDynamicValues">
+            <summary>
+            获取对象所有动态属性的值 
+            </summary>
+            <returns>所有动态属性、静态属性的值 key - 属性名称 value - 属性值</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.GetDynamicValues(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            获取对象对应分类下所有动态属性的值 
+            </summary>
+            <returns>对应分类下所有动态属性、静态属性的值 key - 属性名称 value - 属性值</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.ParseStandardValues(System.String,System.String@,System.String@)">
+            <summary>
+            "40MHz|40;20MHz|20;10MHz|10;5MHz|5;2.5MHz|2.5;2MHz|2;1.25MHz|1.25;1MkHz|1;800kHz|0.8;600kHz|0.6;500kHz|0.5;400kHz|0.4;300kHz|0.3;250kHz|0.25;200kHz|0.2;150kHz|0.15;125kHz|0.125;100kHz|0.1;80kHz|0.08;60kHz|0.06;50kHz|0.05;40kHz|0.04;30kHz|0.03;25kHz|0.025;20kHz|0.02;15kHz|0.015;12.5kHz|0.0125;10kHz|0.01;8kHz|0.008;6kHz|0.006;5kHz|0.005;4kHz|0.004;3kHz|0.003;2.5kHz|0.0025;2kHz|0.002;1.5kHz|0.0015;1.2kHz|0.0012;1kHz|0.001;0.8kHz|0.0008;0.6kHz|0.0006"
+            返回如：enumString = |FM|AM displayEnumString = |调频|调幅
+            </summary>
+            <param name="standValues"></param>
+            <param name="enumString"></param>
+            <param name="displayEnumString"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName"></param>
+            <param name="itemName"></param>
+            <param name="itemValue"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            序列化成一个xml字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.LoadFromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.FromXmlString(System.String,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一引xml字符串反序列化一个对象
+            </summary>
+            <param name="xmlString">由一个 ParameterTable 实例对象序列化后的字符串</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.GetSchemasOfChildren">
+            <summary>
+            获取子参数项的数据
+            </summary>
+            <returns>返回子参数项的数据结构</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.SetItemsOfChildren(System.Int32,Tracker800.Server.Parameters.PropertyItem[],System.String@)">
+            <summary>
+            设置指定索引子参数的所有参数项
+            </summary>
+            <param name="index">子参数的索引</param>
+            <param name="items">子参数的所有参数项</param>
+            <param name="errorMsg">错误消息</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParameterTable.Recursive(System.String,Tracker800.Server.Parameters.PropertyObject,System.Boolean)">
+            <summary>
+            递归设置参数ReadOnly属性
+            </summary>
+            <param name="parentName">父节点名称</param>
+            <param name="obj"></param>
+            <param name="readOnly"></param>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamsHandlerBaseClass">
+            <summary>
+            测量参数处理器抽象基类
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.ParamsHandlerBaseClass._parameterTable">
+            <summary>
+            服务端参数绑定类
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.#ctor(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.Initialize(System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem}},System.String@)">
+            <summary>
+            初始化
+            </summary>
+            <param name="generalItems">公共参数项</param>
+            <param name="childItems">子参数项</param>
+            <param name="msg">返回的错误信息</param>
+            <returns>true-成功 false-失败</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.Initialize(Tracker800.Server.Parameters.PropertyItem[],System.Collections.Generic.Dictionary{System.String,Tracker800.Server.Parameters.PropertyItem[]},System.Collections.Generic.List{System.String},System.String@)">
+            <summary>
+            初始化多站参数
+            </summary>
+            <param name="publicItems">公共参数项</param>
+            <param name="privateItems">私有参数项</param>
+            <param name="restrictScripts">约束检查代码字符串</param>
+            <param name="msg"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.BindPleaseMakeProfileStringEventHandler">
+            <summary>
+            绑定格式化字符串处理方法
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.GetParamsFromUI">
+            <summary>
+            从 UI 获取测量参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            序列化成 Xml 字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.FromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.GetProfileString">
+            <summary>
+            取得该参数的简要描述字符串
+            </summary>
+            <returns>简要描述字符串</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName"></param>
+            <param name="itemName"></param>
+            <param name="itemValue"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.GetSchemasOfChildren">
+            <summary>
+            获取子参数项的数据
+            </summary>
+            <returns>返回子参数项的数据结构</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerBaseClass.SetItemsOfChildren(System.Int32,Tracker800.Server.Parameters.PropertyItem[],System.String@)">
+            <summary>
+            设置指定索引子参数的所有参数项
+            </summary>
+            <param name="index">子参数的索引</param>
+            <param name="items">子参数的所有参数项</param>
+            <param name="errorMsg">错误消息</param>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamsHandlerGeneral">
+            <summary>
+            一般类型测量参数处理器，继承于测量参数处理器抽象基类 ParamsHandlerBaseClass
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerGeneral.#ctor(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerGeneral.Initialize(System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem}},System.String@)">
+            <summary>
+            初始化
+            </summary>
+            <param name="generaltems">公共参数项</param>
+            <param name="childItems">子参数项</param>
+            <param name="msg">返回的错误信息</param>
+            <returns>true-成功 false-失败</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerGeneral.GetParamsFromUI">
+            <summary>
+            从 UI 获取测量参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerGeneral.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            由参数表生成 Xml 字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerGeneral.FromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerGeneral.GetProfileString">
+            <summary>
+            取得该参数的简要描述字符串
+            </summary>
+            <returns>简要描述字符串</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerGeneral.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName"></param>
+            <param name="itemName">要检查的参数名称</param>
+            <param name="itemValue">要检查的参数值</param>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels">
+            <summary>
+            中频多路子通道参数处理器
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.#ctor(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.#ctor(Tracker800.Server.Parameters.ParameterTable,System.Boolean)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+            <param name="mock">是否不对外公布子参数</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.Initialize(System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem}},System.String@)">
+            <summary>
+            初始化
+            </summary>
+            <param name="generaltems">公共参数项</param>
+            <param name="childItems">子参数项</param>
+            <param name="msg">返回的错误信息</param>
+            <returns>true-成功 false-失败</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.GetParamsFromUI">
+            <summary>
+            从 UI 获取测量参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            由参数表生成 Xml 字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.FromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.GetProfileString">
+            <summary>
+            取得该参数的简要描述字符串
+            </summary>
+            <returns>简要描述字符串</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName">要检查的参数父 ProptetyItem 之Name值，如果该参数为IsNullOrEmpty，则校验所有频点的参数，否则只校验名称为 parentName 的频点参数值</param>
+            <param name="itemName">要检查的参数名称</param>
+            <param name="itemValue">要检查的参数值</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.GetSchemasOfChildren">
+            <summary>
+            获取子参数项的数据
+            </summary>
+            <returns>返回子参数项的数据结构</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerIFMultiChannels.SetItemsOfChildren(System.Int32,Tracker800.Server.Parameters.PropertyItem[],System.String@)">
+            <summary>
+            设置指定索引子参数的所有参数项
+            </summary>
+            <param name="index">子参数的索引</param>
+            <param name="items">子参数的所有参数项</param>
+            <param name="errorMsg">错误</param>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamsHandlerMScan">
+            <summary>
+            离散扫描测量参数处理器，继承于测量参数处理器抽象基类 ParamsHandlerBaseClass
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScan.#ctor(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScan.Initialize(System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem}},System.String@)">
+            <summary>
+            初始化
+            </summary>
+            <param name="generaltems">公共参数项</param>
+            <param name="childItems">子参数项</param>
+            <param name="msg">返回的错误信息</param>
+            <returns>true-成功 false-失败</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScan.GetParamsFromUI">
+            <summary>
+            从 UI 获取测量参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScan.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            由参数表生成 Xml 字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScan.FromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScan.GetProfileString">
+            <summary>
+            取得该参数的简要描述字符串
+            </summary>
+            <returns>简要描述字符串</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScan.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName">要检查的参数父 ProptetyItem 之Name值，如果该参数为IsNullOrEmpty，则校验所有频点的参数，否则只校验名称为 parentName 的频点参数值</param>
+            <param name="itemName">要检查的参数名称</param>
+            <param name="itemValue">要检查的参数值</param>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamsHandlerMScanControl">
+            <summary>
+            无线电管制参数处理器，继承于测量参数处理器抽象基类 ParamsHandlerBaseClass
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.#ctor(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.Initialize(System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem}},System.String@)">
+            <summary>
+            初始化
+            </summary>
+            <param name="generalItems">公共参数项</param>
+            <param name="childItems">子参数项</param>
+            <param name="msg">返回的错误信息</param>
+            <returns>true-成功 false-失败</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.BindPleaseMakeProfileStringEventHandler">
+            <summary>
+            运行时绑定显示字符串
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName">要检查的参数父 ProptetyItem 之Name值，如果该参数为IsNullOrEmpty，则校验所有频段的参数，否则只校验名称为 parentName 的频段参数值</param>
+            <param name="itemName">要检查的参数名称</param>
+            <param name="itemValue">要检查的参数值</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.FromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.GetParamsFromUI">
+            <summary>
+            从 UI 获取测量参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.GetProfileString">
+            <summary>
+            取得该参数的简要描述字符串
+            </summary>
+            <returns>简要描述字符串</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerMScanControl.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            由参数表生成 Xml 字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamsHandlerScan">
+            <summary>
+            频段扫描测量参数处理器，继承于测量参数处理器抽象基类 ParamsHandlerBaseClass
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScan.#ctor(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScan.Initialize(System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem}},System.String@)">
+            <summary>
+            初始化
+            </summary>
+            <param name="generaltems">公共参数项</param>
+            <param name="childItems">子参数项</param>
+            <param name="msg">返回的错误信息</param>
+            <returns>true-成功 false-失败</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScan.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            由参数表生成 Xml 字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScan.FromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScan.GetParamsFromUI">
+            <summary>
+            从 UI 获取测量参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScan.GetProfileString">
+            <summary>
+            取得该参数的简要描述字符串
+            </summary>
+            <returns>简要描述字符串</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScan.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName">要检查的参数父 ProptetyItem 之Name值，如果该参数为IsNullOrEmpty，则校验所有频段的参数，否则只校验名称为 parentName 的频段参数值</param>
+            <param name="itemName">要检查的参数名称</param>
+            <param name="itemValue">要检查的参数值</param>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamsHandlerScanControl">
+            <summary>
+            无线电管制参数处理器，继承于测量参数处理器抽象基类 ParamsHandlerBaseClass
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.#ctor(Tracker800.Server.Parameters.ParameterTable)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="pt">服务端参数绑定类</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.Initialize(System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{Tracker800.Server.Parameters.PropertyItem}},System.String@)">
+            <summary>
+            初始化
+            </summary>
+            <param name="generalItems">公共参数项</param>
+            <param name="childItems">子参数项</param>
+            <param name="msg">返回的错误信息</param>
+            <returns>true-成功 false-失败</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.BindPleaseMakeProfileStringEventHandler">
+            <summary>
+            运行时绑定显示字符串
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName">要检查的参数父 ProptetyItem 之Name值，如果该参数为IsNullOrEmpty，则校验所有频段的参数，否则只校验名称为 parentName 的频段参数值</param>
+            <param name="itemName">要检查的参数名称</param>
+            <param name="itemValue">要检查的参数值</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.FromXmlNode(System.Xml.XmlNode,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一个 Xml 节点生成参数表对象
+            </summary>
+            <param name="itemsNode">参数集合节点，对单频是所有参数集合，对频段扫描是所有段集合，对离散扫描是所有离散点的节点集合</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.GetParamsFromUI">
+            <summary>
+            从 UI 获取测量参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.GetProfileString">
+            <summary>
+            取得该参数的简要描述字符串
+            </summary>
+            <returns>简要描述字符串</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ParamsHandlerScanControl.ToXmlString(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            由参数表生成 Xml 字符串
+            </summary>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ParamNameString">
+            <summary>
+            对于服务端参数的一堆命名约定
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.ParamNameString.Const_StationParamList">
+            <summary>
+            多站参数列表
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.ParamNameString.Const_TDOAPublicParameters">
+            <summary>
+            TDOA公共参数项
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.DateTimeTypeEditor">
+            <summary>
+            用作可放入 PropertyGrid DateTime类型的参数项编辑
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.DialogistUITypeEditor">
+            <summary>
+            提供基于模态对话框的属性值输入界面
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.DialogistUITypeEditor.GetEditStyle(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            重载这个方法通知 PropertyGrid 希望以一个模态对话框的方式进行 Property Value 的修改
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.DialogistUITypeEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            这个方法中进行实际的对话框弹出处理。
+            注意：数据通过 Form.Tag 属性进行传入和传出。
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.EnumTypeWrapper`1">
+            <summary>
+            枚举类型封装器，用于 ComboBox 控件显示一个枚举类型。
+            按照以下方式定义枚举类型：
+            <code>
+            enum Colors
+            {
+            	[ShowName("红色")]
+            	Red,
+            
+            	[ShowName("绿色")]
+            	Green,
+            
+            	[ShowName("蓝色")]
+            	Blue
+            }
+            </code>
+            当需要讲这个枚举类型作为一个 ComboBox 显示时，实例一个对象：
+            <code>
+            EnumTypeWrapper<Colors> colors = new EnumTypeWrapper</Colors>;
+            ComboBox.Items.Add( colors.DisplayNames );
+            </code>
+            
+            
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumTypeWrapper`1.#ctor">
+            <summary>
+            构造一个范型封装枚举对象。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumTypeWrapper`1.Names">
+            <summary>
+            获取枚举类型字符串值数组
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumTypeWrapper`1.DisplayNames">
+            <summary>
+            获取通过 [ShowNameAttribute] 指定的显示名称字符串数组
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumTypeWrapper`1.Remove(System.String)">
+            <summary>
+            移除指定的枚举字符串值
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumTypeWrapper`1.RemoveAt(System.Int32)">
+            <summary>
+            移除指定索引的枚举值
+            </summary>
+            <param name="index"></param>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumTypeWrapper`1.Item(`0)">
+            <summary>
+            返回枚举值字符串的对应索引值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumTypeWrapper`1.Item(System.String)">
+            <summary>
+            返回指定字符串（可以为内部枚举字符串，也可以为通过 [ShowNameAttribute] 指定的显示字符串）的对应索引值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumTypeWrapper`1.Item(System.Int32)">
+            <summary>
+            返回指定索引值的枚举值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumTypeWrapper`1.GetShowName(`0)">
+            <summary>
+            返回枚举值对应的显示字符串
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumTypeWrapper`1.GetShowName(System.String)">
+            <summary>
+            返回字符串 name 为 enumString 的显示名称
+            </summary>
+            <param name="enumString"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.KeyValueWrapper`1">
+            <summary>
+            范型封装 key=string, value=object 的值对，方便将其用于 ComboList, ListBox 等控件的显示。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.KeyValueWrapper`1.#ctor(System.String,`0)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="name">string 类型的名称作为 key</param>
+            <param name="info">范型的 value 作为信息</param>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.KeyValueWrapper`1.Name">
+            <summary>
+            获取其名称
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.KeyValueWrapper`1.Info">
+            <summary>
+            获取取信息
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.KeyValueWrapper`1.ToString">
+            <summary>
+            重载 object 的 ToString
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ShowNameAttribute">
+            <summary>
+            这个 Attribute 描述给枚举的各个字段，表示其本地化字符串信息
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.AdvancedItemAttribute">
+            <summary>
+            这个 Attribute 指定一个字段是否高级选项
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.NumericalAttribute">
+            <summary>
+            描述数值类型属性。包括其最大值、最小值和可选的标准列表
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.EnumStringAttribute">
+            <summary>
+            描述可选择预设值的字符串类型。包含一个内部值列表和显示值列表，当显示值列表为空或者个数与内部值列表不一致时，以内部值列表为准。
+            注意：枚举字符串以首字符串分割！
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumStringAttribute.#ctor(System.String)">
+            <summary>
+            只有一个内部值列表，适用于不需要进行转换的情况
+            </summary>
+            <param name="enumString"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumStringAttribute.#ctor(System.String,System.String)">
+            <summary>
+            分别提供内部值和显示值列表，显示时用显示值列表，当返回对应的内部值。
+            </summary>
+            <param name="enumString"></param>
+            <param name="displayEnumString"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumStringAttribute.#ctor(System.String,System.String,System.Boolean)">
+            <summary>
+            分别提供内部值和显示值列表，显示时用显示值列表，当返回对应的内部值。而且指定只能从列表中进行选择输入。
+            </summary>
+            <param name="enumString"></param>
+            <param name="displayEnumString"></param>
+            <param name="isSelectOnly"></param>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumStringAttribute.EnumStrings">
+            <summary>
+            获取内部值列表
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumStringAttribute.DisplayEnumStrings">
+            <summary>
+            获取显示值列表
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.EnumStringAttribute.IsSelectOnly">
+            <summary>
+            获取一个值，该值指示是否只能从列表中进行选择输入。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumStringAttribute.GetSavedEnumString">
+            <summary>
+            获取原始的内部值字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumStringAttribute.GetSavedDisplayEnumString">
+            <summary>
+            获取原始的显示值字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumStringAttribute.SetEnumString(System.String)">
+            <summary>
+            设置内部值列表字符串
+            </summary>
+            <param name="enumString"></param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.EnumStringAttribute.SetDisplayEnumString(System.String)">
+            <summary>
+            设置显示值列表字符串
+            </summary>
+            <param name="displayEnumString"></param>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.FilePathNameAttribute">
+            <summary>
+            当一个 Property 的值需要通过弹出一个打开文件对话框选择一个文件名时，需要添加两个属性：
+            [EditorAttribute( typeof( DialogistUITypeEditor ), typeof( UITypeEditor ) )]
+            [FilePathNameAttribute()]
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.DirectoryNameAttribute">
+            <summary>
+            当一个 Property 的值需要通过弹出一个打开文件对话框选择一个文件名时，需要添加两个属性：
+            [EditorAttribute( typeof( DialogistUITypeEditor ), typeof( UITypeEditor ) )]
+            [DirectoryNameAttribute()]
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.CustomizeDialogAttribute">
+            <summary>
+            当一个 Property 的值需要通过弹出一个模态对话框的方式进行修改时，需要添加两个属性：
+            [EditorAttribute( typeof( DialogistUITypeEditor ), typeof( UITypeEditor ) )]
+            [CustomizeDialogAttribute( typeof( 你提供的从 Form 派生的对话框类 ) )]
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.DropDownUserControlAttribute">
+            <summary>
+            当一个 Property 的值需要通过下拉出一个自定义控件的方式进行修改时，需要添加两个属性：
+            [EditorAttribute( typeof(DropDownUserControlAttribute), typeof( UITypeEditor ) )]
+            [DropDownUserControlAttribute(typeof(你提供的从 UserControl 派生的自定义控件类))]
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.EnumTypeConverter">
+            <summary>
+            自定义的枚举类型转换器，用于将枚举类型中的字段转换显示为通过 ShowNameAttribute 属性指定的本地化字符串
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.BooleanTypeConverter">
+            <summary>
+            自定义的布尔类型转换器，用于将缺省的 True 和 False 显示为本地化字符串
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.StringDropListConverter">
+            <summary>
+            带预设值下拉列表的字符串类型转换器
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.NumericalDropListConverter">
+            <summary>
+            带预设值下拉列表的字符串类型转换器
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.StandardValuesConverter">
+            <summary>
+            带预设值下拉列表的字符串类型转换器
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.StandardValuesConverter.GetStandardValuesSupported(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            返回此对象是否支持可以从列表中选取的标准值集
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.StandardValuesConverter.GetStandardValues(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>GetStandardValues总是显示空
+            返回此类型转换器设计用于的数据类型的标准值集合
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.StandardValuesConverter.GetStandardValuesExclusive(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            返回从 GetStandardValues 返回的标准值的集合是否为独占列表
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.StandardValuesConverter.CanConvertFrom(System.ComponentModel.ITypeDescriptorContext,System.Type)">
+            <summary>
+            </summary>
+            <param name="context"></param>
+            <param name="sourceType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.StandardValuesConverter.CanConvertTo(System.ComponentModel.ITypeDescriptorContext,System.Type)">
+            <summary>
+            返回此转换器是否可将该对象转换为指定的类型
+            </summary>
+            <param name="context"></param>
+            <param name="destinationType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.StandardValuesConverter.ConvertTo(System.ComponentModel.ITypeDescriptorContext,System.Globalization.CultureInfo,System.Object,System.Type)">
+            <summary>
+            将给定值对象转换为指定的类型
+            </summary>
+            <param name="context"></param>
+            <param name="culture"></param>
+            <param name="value"></param>
+            <param name="destinationType"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.StaticItemDescriptor">
+            <summary>
+            静态字段描述器。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.StaticItemDescriptor.DisplayName">
+            <summary>
+            重载这个属性进行字符串本地化处理
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.StaticItemDescriptor.Description">
+            <summary>
+            重载这个属性进行字符串本地化处理
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.StaticItemDescriptor.Category">
+            <summary>
+            重载这个属性进行字符串本地化处理
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.DynamicItemDescriptor">
+            <summary>
+            动态字段描述器。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.DynamicItemDescriptor.DisplayName">
+            <summary>
+            重载这个属性进行字符串本地化处理
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.DynamicItemDescriptor.Description">
+            <summary>
+            重载这个属性进行字符串本地化处理
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.DynamicItemDescriptor.Category">
+            <summary>
+            重载这个属性进行字符串本地化处理
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItem">
+            <summary>
+            动态字段的描述器。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.ItemKind">
+            <summary>
+            获取/设置动态字段的类型。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.ItemType">
+            <summary>
+            获取/设置动态字段的类型。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.Name">
+            <summary>
+            获取/设置 PropertyItem 的名称，该名称为内部使用的，通常是一个英文字符串。在同一个 PropertyObject.Items 中应保证唯一。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.DisplayName">
+            <summary>
+            获取/设置 PropertyItem 在 PropertyGrid 控件中显示的名称，通常为一个中文字符串。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.Category">
+            <summary>
+            获取/设置 PropertyItem 在 PropertyGrid 控件中的分组显示名称。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.Description">
+            <summary>
+            获取/设置在 PropertyGrid 控件中的帮助描述字符串。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.Value">
+            <summary>
+            获取/设置 PropertyItem 的当前值。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.DisplayValue">
+            <summary>
+            获取/设置 PropertyItem 的当前显示值。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.DefaultValue">
+            <summary>
+            获取/设置 PropertyItem 的初始缺省值。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.EnumString">
+            <summary>
+            获取/设置枚举字符串，各个枚举值之间用首字符分割，如调制模式："|FM|AM|IQ" 或 ",FM,AM,IQ"。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.DisplayEnumString">
+            <summary>
+            获取/设置显示用的枚举字符串，各个枚举值之间用首字符分割，如调制模式："|调频|调幅|原始IQ" 或 ",调频,调幅,原始IQ"。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.MaxValue">
+            <summary>
+            获取/设置最大值，仅在 Style == Numerical 时有效。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.MinValue">
+            获取/设置最小值，仅在 Style == Numerical 时有效。
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.ValueTypeName">
+            <summary>
+            获取/设置 PropertyItem.Value 的全规格类型名称。
+            _item.
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.EditorTypeName">
+            <summary>
+            获取/设置 PropertyItem 使用的 UITypeEditor 派生类的全规格类型名称。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.EditorDialogTypeName">
+            <summary>
+            获取/设置 PropertyItem 的弹出式对话框的全规格类型名称。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.ConverterTypeName">
+            <summary>
+            获取/设置 PropertyItem 使用的 TypeConverter 派生类的全规格类型名称。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.IsBrowsable">
+            <summary>
+            获取/设置这个 PropertyItem 是否在 PropertyGrid 控件中显示。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.IsSelectOnly">
+            <summary>
+            获取/设置一个值，该值指示动态字段是否只能通过下拉列表选择，而不能手工输入。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.IsAdvanced">
+            <summary>
+            获取/设置一个值，该值指示这个参数是否高级参数。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyItem.Tag">
+            <summary>
+            附加信息
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.ParseStrings(System.String,System.String,System.String)">
+            <summary>
+            将枚举值转换为显示值 wgw 20150908增加
+            </summary>
+            <param name="key"></param>
+            <param name="enumString"></param>
+            <param name="enumDisplayString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.CreateAttributes">
+            <summary>
+            派生类通过重载这个方法实现自定义的 Attribute 集。
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.MakeToXmlString(Tracker800.Server.Parameters.PropertyItem)">
+            <summary>
+            将动态字段序列化为一个 XML 字符串。
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.MakeToXmlNode(Tracker800.Server.Parameters.PropertyItem,System.Xml.XmlDocument)">
+            <summary>
+            将动态字段序列化为一个 XML 字符串。
+            </summary>
+            <param name="item"></param>
+            <param name="xmlDoc"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.ParseFromXmlString(System.String)">
+            <summary>
+            从一个 XML 描述字符串创建一个动态字段。
+            </summary>
+            <param name="xmlString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.CompatibleTo(Tracker800.Server.Parameters.PropertyItem,System.Boolean)">
+            <summary>
+            将本实例与另外一个 PorpertiableItem 对象比较兼容性
+            </summary>
+            <param name="otherItem">要比较的另一个对象</param>
+            <param name="includeVaue">比较是否包含当前值</param>
+            <returns>true 比较相等，否则为 false</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.GetItemTypeByValueType(System.Type)">
+            <summary>
+            帮助函数，从值类型得到其对应的动态字段类型
+            </summary>
+            <param name="valueType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItem.GetValueTypeByItemType(Tracker800.Server.Parameters.PropertyItemType)">
+            <summary>
+            帮助函数，从动态字段类型得到其对应的值类型
+            </summary>
+            <param name="itemType"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemType">
+            <summary>
+            动态字段类型枚举定义
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemKind">
+            <summary>
+            动态字段种类枚举定义
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.PropertyItemKind.AllKind">
+            <summary>
+            不分类型
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.PropertyItemKind.Server">
+            <summary>
+            服务端字段
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.PropertyItemKind.Client">
+            <summary>
+            客户端字段
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemBoolean">
+            <summary>
+            Boolean 类型
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemBoolean.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            构造一个 Boolean 类型，只能从生成的下拉列表中选择，而不能手工输入。
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemCustomDialog`2">
+            <summary>
+            弹出自定义对话框类型（范型）
+            TDialog 范型参数为需弹出的对话框类型，TValue 范型参数为保存数据的类型
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemCustomDialog`2.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`1,`1)">
+            <summary>
+            弹出自定义对话框类型，通过弹出一个自定义的对话框进行输入，结果保存在 Value 字段中。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemCustomDialog`2.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemCustomDialog">
+            <summary>
+            弹出自定义对话框类型（object）
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemCustomDialog.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.Type,System.Type,System.Object,System.Object)">
+            <summary>
+            弹出自定义对话框类型，通过弹出一个自定义的对话框进行输入，结果保存在 Value 字段中。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemCustomDialog.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemCustomObject`1">
+            <summary>
+            自定义对象类型（范型）
+            T 范型参数为自定义对象类型。用于处理 .NET 本身已实现的对象，如：Font, Color, Image 等，另外自定义的枚举类型也应该使用这个类型。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemCustomObject`1.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`0,`0)">
+            <summary>
+            自定义对象类型。
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemCustomObject">
+            <summary>
+            自定义对象类型（object）
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemCustomObject.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.Type,System.Object,System.Object)">
+            <summary>
+            自定义对象类型。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemCustomObject.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.String,System.Object,System.Object)">
+            <summary>
+            自定义对象类型。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemDateTime.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.Type,System.Type,System.Object,System.Object)">
+            <summary>
+            弹出自定义对话框类型，通过弹出一个自定义的对话框进行输入，结果保存在 Value 字段中。
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemDirectoryName">
+            <summary>
+            目录名称类型
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemDirectoryName.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.String,System.String)">
+            <summary>
+            构造一个目录名称类型，通过弹出一个 FolderBrowserDialog 选择目录名称。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemDirectoryName.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemEnum`1">
+            <summary>
+            自定义对象类型（范型）
+            T 范型参数为自定义对象类型。用于处理 .NET 本身已实现的对象，如：Font, Color, Image 等，另外自定义的枚举类型也应该使用这个类型。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemEnum`1.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`0,`0)">
+            <summary>
+            自定义对象类型。
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemEnum">
+            <summary>
+            自定义对象类型（object）
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemEnum.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.Type,System.Object,System.Object,System.String,System.String)">
+            <summary>
+            自定义对象类型。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemEnum.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.String,System.Object,System.Object)">
+            <summary>
+            自定义对象类型。
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemFilePathName">
+            <summary>
+            文件路径名类型
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemFilePathName.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.String,System.String)">
+            <summary>
+            构造一个文件路径名类型，通过弹出一个 OpenFileDialog 选择文件。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemFilePathName.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemNumerical`1">
+            <summary>
+            数值类型（范型）
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemNumerical`1.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`0,`0)">
+            <summary>
+            构造一个数值类型，缺省输入范围使用 T 的最大值和最小值
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemNumerical`1.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`0,`0,`0,`0)">
+            <summary>
+            构造一个数值类型，限制输入范围。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemNumerical`1.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`0,`0,`0,`0,System.String,System.String)">
+            <summary>
+            构造一个数值类型，限制输入范围，并提供一个可选择项目的列表。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemNumerical`1.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`0,`0,System.String,System.String)">
+            <summary>
+            构造一个数值类型，提供一个可选择项目的列表，只能从列表中选择数值，不能手工输入。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemNumerical`1.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`0,`0,`0,`0,System.String,System.String,System.Boolean)">
+            <summary>
+            内部帮助构造器。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemNumerical`1.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemNumerical">
+            <summary>
+            数值类型，object
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemNumerical.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemString">
+            <summary>
+            字符串类型
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemString.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.String,System.String,System.String,System.String)">
+            <summary>
+            构造一个字符串类型，如果 enumString 参数不为空则会显示一个下拉列表供选择输入。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemString.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.String,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            构造一个字符串类型，参数 isSelectOnly 控制是否只能从 enumString 生成的下拉列表中选择，而不能手工输入。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemString.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemUserControl`2">
+            <summary>
+            下拉出自定义用户控件类型（范型）
+            TUserControl 范型参数为需下拉出的用户控件类型，TValue 范型参数为保存数据的类型
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemUserControl`2.#ctor(System.String,System.String,System.String,System.String,System.Boolean,`1,`1)">
+            <summary>
+            下拉出自定义用户控件类型，通过用户自定义控件进行输入，结果保存在 Value 字段中。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemUserControl`2.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyItemUserControl">
+            <summary>
+            下拉出自定义用户控件类型（object）
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemUserControl.#ctor(System.String,System.String,System.String,System.String,System.Boolean,System.Type,System.Type,System.Object,System.Object)">
+            <summary>
+            下拉出自定义用户控件类型，通过用户自定义控件进行输入，结果保存在 Value 字段中。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyItemUserControl.CreateAttributes">
+            <summary>
+            生成特定本类型的属性 Attribute 列表。
+            </summary>
+            <returns>特定与本类型的 Attrbiute 列表</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyObject">
+            <summary>
+            支持静态和动态字段的对象基类。对静态对象而言，直接从这个类派生，动态对象则调用 AddItem 添加 Item。
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.PropertyObject._specificAbility">
+            <summary>
+            获取/设置当前参数对应的服务端功能模块的功能类型
+            </summary>
+        </member>
+        <member name="F:Tracker800.Server.Parameters.PropertyObject.itsVersion">
+            <summary>
+            版本号！
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyObject.Items">
+            <summary>
+            这个列表保存动态属性。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyObject.Item(System.String)">
+            <summary>
+            获取指定名称的动态字段PropertyItem
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyObject.Enabled">
+            <summary>
+            获取/设置一个值，该值指示是否运行修改参数
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyObject.ShowAdvancedItems">
+            <summary>
+            获取/设置一个值，该值指定是否显示带有“Advanced" 标志的字段。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyObject.ScriptObject">
+            <summary>
+            获取约束脚本实例对象
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyObject.RestrictMethod">
+            <summary>
+            获取已反射的约束检查函数对象
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.PropertyObject.RestrictScript">
+            <summary>
+            获取/设置字段之间依赖关系的 C# 代码
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.FirstBandingCheck">
+            <summary>
+            第一次绑定到 PropertyGrid，需要进行初始检查依赖关系
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.AddItems(Tracker800.Server.Parameters.PropertyItem[])">
+            <summary>
+            添加一组动态字段
+            </summary>
+            <param name="items"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.AddItem(Tracker800.Server.Parameters.PropertyItem)">
+            <summary>
+            添加一个动态字段
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.AddItemsFromXmlFile(System.String)">
+            <summary>
+            从一个 Xml 文件中加载动态字段，将它们添加到当前对象中。
+            </summary>
+            <param name="xmlFileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.DeleteItem(Tracker800.Server.Parameters.PropertyItem)">
+            <summary>
+            删除一个动态字段
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.DeleteItem(System.String)">
+            <summary>
+            删除指定名称的项
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.InnerCheckRestrict(System.Object,System.Reflection.MethodInfo,System.String,System.Object)">
+            <summary>
+            内部约束检查
+            </summary>
+            <param name="scriptObject">约束对象实例</param>
+            <param name="restrictMethod">约束检查方法</param>
+            <param name="itemName">检查的参数名称</param>
+            <param name="itemValue">检查的参数值</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.CheckRestrict(System.String,System.String,System.Object)">
+            <summary>
+            当一个字段的值被修改后，这个方法被调用来校验或修正该对象各字段之间的依赖、约束关系。
+            派生类通过重载这个方法，可实现自定义的校验或修正逻辑。
+            </summary>
+            <param name="parentName">要检查的参数父 ProptetyItem 之Name值，该参数的使用看各个子类的具体实现</param>
+            <param name="itemName">要检查的参数名称</param>
+            <param name="itemValue">要检查的参数值</param>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetDynamicValues">
+            <summary>
+            获取对象所有动态属性的值 
+            </summary>
+            <returns>所有动态属性、静态属性的值 key - 属性名称 value - 属性值</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetDynamicValues(Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            获取对象对应分类下所有动态属性的值 
+            </summary>
+            <returns>对应分类下所有动态属性、静态属性的值 key - 属性名称 value - 属性值</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetValue(System.String,System.Object)">
+            <summary>
+            设置指定名称的字段（动态和静态）的值
+            </summary>
+            <param name="name">字段名称</param>
+            <param name="value">需要设置的新值</param>
+            <returns>是否成功，返回 false 表示指定的字段不存在</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.RefreshBindingGrid">
+            <summary>
+            刷新绑定的属性表
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetValue``1(System.String,``0@)">
+            <summary>
+            获取指定字段（动态和静态）的当前值
+            </summary>
+            <typeparam name="T">范型参数</typeparam>
+            <param name="name">字段名称</param>
+            <param name="value">接收字段当前值</param>
+            <returns>是否成功，如果指定的字段不存在，则 value 被设置为 default(T)，并返回 false</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetValue``1(System.String)">
+            <summary>
+            获取指定字段（动态和静态）的当前值
+            </summary>
+            <typeparam name="T">范型参数</typeparam>
+            <param name="name">字段名称</param>
+            <returns>字段当前值，如果没有找到指定的字段则返回 default(T)</returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.Contains(System.String)">
+            <summary>
+            检查是否包含指定名称的字段
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.Helper_GetStaticFieldAttribute(System.String,System.Type)">
+            <summary>
+            内部帮助函数，获取指定静态字段的指定属性。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.Helper_GetDynamicField(System.String)">
+            <summary>
+            内部帮助函数，获取指定动态字段的 PropertyItem
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldReadOnly(System.String)">
+            <summary>
+            获取指定字段的只读属性值
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldReadOnly(System.String,System.Boolean)">
+            <summary>
+            设置指定字段的只读属性。注意：对静态字段，一定要保证定义了 [ReadOnlyAttribute(true/false)] 才能设置。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldBrowsable(System.String)">
+            <summary>
+            获取指定字段的可见性
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldBrowsable(System.String,System.Boolean)">
+            <summary>
+            设置指定字段的可见性。注意：对静态字段，一定要保证定义了 [BrowsableAttribute(true/false)] 才能设置。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldDisplayName(System.String)">
+            <summary>
+            获取指定字段的显示名称
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldDisplayName(System.String,System.String)">
+            <summary>
+            设置指定字段的显示名称
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldCategory(System.String)">
+            <summary>
+            获取指定字段的 Category 名称
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldCategory(System.String,System.String)">
+            <summary>
+            设置指定字段的 Category 名称
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldDescription(System.String)">
+            <summary>
+            获取指定字段的 Description 字符串
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldDescription(System.String,System.String)">
+            <summary>
+            设置指定字段的 Description 字符串
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldEnumString(System.String)">
+            <summary>
+            获取指定字段的枚举字符串
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldEnumString(System.String,System.String,System.String)">
+            <summary>
+            设置指定字段的枚举字符串
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldValueRange(System.String,System.Double@,System.Double@)">
+            <summary>
+            获取指定字段的取值范围，仅对数值类型有效
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldValueRange(System.String,System.Double,System.Double)">
+            <summary>
+            设置指定字段的取值范围，仅对数值类型有效。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.GetFieldIsSelectOnly(System.String)">
+            <summary>
+            获取指定字段的 IsSelectOnly 属性值
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SetFieldIsSelectOnly(System.String,System.Boolean)">
+            <summary>
+            设置指定字段的 IsSelectOnly 属性值
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SaveToXmlString">
+            <summary>
+            将一个 PropertiableObject 对象保存为一个 XML 描述字符串。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.SaveToXmlFile(System.String)">
+            <summary>
+            将 PropertiableObject 对象保存为 XML 文件。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.LoadFromXmlString(System.String,Tracker800.Server.Parameters.PropertyItemKind)">
+            <summary>
+            从一引xml字符串反序列化一个对象
+            </summary>
+            <param name="xmlString">由一个 ParameterTable 实例对象序列化后的字符串</param>
+            <param name="itemKind">取何种类型的参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.LoadFromXmlFile(System.String)">
+            <summary>
+            从一个 XML 描述文件中创建一个 PropertiableObject 对象。
+            </summary>
+            <param name="xmlFileName"></param>
+            <returns></returns>
+        </member>
+        <member name="E:Tracker800.Server.Parameters.PropertyObject.CheckRestrictFinish">
+            <summary>
+            参数脚本校验完成事件
+            </summary>
+        </member>
+        <member name="E:Tracker800.Server.Parameters.PropertyObject.PropertyItemGetValueEvent">
+            <summary>
+            当需要获取字段当前值之前，这个事件被触发。通过这个事件可以在运行时动态确定一个字段的当前值。
+            </summary>
+        </member>
+        <member name="E:Tracker800.Server.Parameters.PropertyObject.PropertyItemSetValueEvent">
+            <summary>
+            当设置字段当前值之前，这个事件被触发。通过这个事件可以在字段当前值被改变之前做一些处理。
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.LocalizeString(System.String)">
+            <summary>
+            这个内部帮助函数用将格式为 ${res:字符串} 的通过查表方式替换为本地化字符串
+            </summary>
+            <param name="text"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.ConverToItem(Tracker800.Server.Contract.ParameterItem)">
+            <summary>
+            服务端参数项转换
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+            // ZXZ V9.0
+        </member>
+        <member name="E:Tracker800.Server.Parameters.PropertyObject.PleaseMakeProfileString">
+            <summary>
+            当对象需要 ToString() 时，这个事件被触发
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.ToString">
+            <summary>
+            重载基类的 ToString() 方法返回对象的概要描述信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.PropertyObject.CompatibleTo(Tracker800.Server.Parameters.PropertyObject)">
+            <summary>
+            通过检查版本号和字段个数比较两个对象的兼容性。
+            </summary>
+            <param name="otherObject"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.MakeProfileStringEventArgs.ProfileString">
+            <summary>
+            通过这个属性返回概要描述字符串
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.PropertyObjectCollectionEditor">
+            <summary>
+            对集合类型的参数的编辑器
+            </summary>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.UserControlUITypeEditor">
+            <summary>
+            提供基于模态对话框的属性值输入界面
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.UserControlUITypeEditor.GetEditStyle(System.ComponentModel.ITypeDescriptorContext)">
+            <summary>
+            重载这个方法通知 PropertyGrid 希望以一个下拉用户自定义控件的方式进行 Property Value 的修改
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.UserControlUITypeEditor.EditValue(System.ComponentModel.ITypeDescriptorContext,System.IServiceProvider,System.Object)">
+            <summary>
+            这个方法中进行实际的 UserControl 下拉处理。
+            注意：数据通过 UserControl.Tag 属性进行传入和传出。
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlTable.TableName">
+            <summary>
+            获取/设置频段名称
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlTable.Remark">
+            <summary>
+            获取/设置频段表备注信息 通常用于描述这个频段表是如何生成的
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlTable.Items">
+            <summary>
+            获取/设置 频段集合
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlTable.SaveToXmlString">
+            <summary>
+            把频段表保存到一个 Xml 结构的字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlTable.SaveToXmlFile(System.String)">
+            <summary>
+            把信道表保存为一个 Xml 格式的文件
+            </summary>
+            <param name="fileName">包含全路径的文件名</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlTable.SaveToXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            把信道表保存到一个 Xml 文件，弹出对话框让用户选择文件名
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlTable.LoadFromXmlString(System.String)">
+            <summary>
+            从一个 Xml 字符串加载一个信道表
+            </summary>
+            <param name="xmlString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlTable.LoadFromXmlFile(System.String)">
+            <summary>
+            从一个Xml文件中加载一个频段道表
+            </summary>
+            <param name="xmlFileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlTable.LoadFromXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            从一个Xml文件中加载一个频段表，弹出对话框让用户选择文件
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlTable.CreateTable(System.Double[],System.Double[],System.Double[],System.String[],System.String,System.String)">
+            <summary>
+            生成信道表
+            </summary>
+            <param name="startFreq">起始频率数组，单位：MHz</param>
+            <param name="stopFreq">结束频率数组，单位：MHz</param>
+            <param name="step">频率步进数组，单位：MHz</param>
+            <param name="segmentName">频段名称　例：调频广播</param>
+            <param name="tableName">频段表名称 例：频段表1</param>
+            <param name="directory">保存路径</param>
+            <returns>True:成功 False:失败</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.ScanControlItem">
+            <summary>
+            频段信息
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlItem.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlItem.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="startFreq"></param>
+            <param name="stopFreq"></param>
+            <param name="stepFreq"></param>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlItem.StartFreq">
+            <summary>
+            获取或设置开始频率
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlItem.StopFreq">
+            <summary>
+            获取或设置停止频率 
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlItem.StepFreq">
+            <summary>
+            获取或设置频段步进
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.ScanControlItem.SegmentName">
+            <summary>
+            频段名称
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.ScanControlItem.CompareTo(Tracker800.Server.Parameters.ScanControlItem)">
+            <summary>
+            比较
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.SegmentTable.TableName">
+            <summary>
+            获取/设置频段名称
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.SegmentTable.Remark">
+            <summary>
+            获取/设置频段表备注信息 通常用于描述这个频段表是如何生成的
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.SegmentTable.Items">
+            <summary>
+            获取/设置 频段集合
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.SegmentTable.SaveToXmlString">
+            <summary>
+            把频段表保存到一个 Xml 结构的字符串
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.SegmentTable.SaveToXmlFile(System.String)">
+            <summary>
+            把信道表保存为一个 Xml 格式的文件
+            </summary>
+            <param name="fileName">包含全路径的文件名</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.SegmentTable.SaveToXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            把信道表保存到一个 Xml 文件，弹出对话框让用户选择文件名
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.SegmentTable.LoadFromXmlString(System.String)">
+            <summary>
+            从一个 Xml 字符串加载一个信道表
+            </summary>
+            <param name="xmlString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.SegmentTable.LoadFromXmlFile(System.String)">
+            <summary>
+            从一个Xml文件中加载一个频段道表
+            </summary>
+            <param name="xmlFileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.SegmentTable.LoadFromXmlFile(System.Boolean,System.String,System.String)">
+            <summary>
+            从一个Xml文件中加载一个频段表，弹出对话框让用户选择文件
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.SegmentTable.CreateTable(System.Double[],System.Double[],System.Double[],System.String[],System.String,System.String)">
+            <summary>
+            生成信道表
+            </summary>
+            <param name="startFreq">起始频率数组，单位：MHz</param>
+            <param name="stopFreq">结束频率数组，单位：MHz</param>
+            <param name="step">频率步进数组，单位：MHz</param>
+            <param name="segmentName">频段名称　例：调频广播</param>
+            <param name="tableName">频段表名称 例：频段表1</param>
+            <param name="directory">保存路径</param>
+            <returns>True:成功 False:失败</returns>
+        </member>
+        <member name="T:Tracker800.Server.Parameters.FreqSegment_Info">
+            <summary>
+            频段信息
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.FreqSegment_Info.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.FreqSegment_Info.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="startFreq"></param>
+            <param name="stopFreq"></param>
+            <param name="stepFreq"></param>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.FreqSegment_Info.StartFreq">
+            <summary>
+            获取或设置开始频率
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.FreqSegment_Info.StopFreq">
+            <summary>
+            获取或设置停止频率 
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.FreqSegment_Info.StepFreq">
+            <summary>
+            获取或设置频段步进
+            </summary>
+        </member>
+        <member name="P:Tracker800.Server.Parameters.FreqSegment_Info.SegmentName">
+            <summary>
+            频段名称
+            </summary>
+        </member>
+        <member name="M:Tracker800.Server.Parameters.FreqSegment_Info.CompareTo(Tracker800.Server.Parameters.FreqSegment_Info)">
+            <summary>
+            比较
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

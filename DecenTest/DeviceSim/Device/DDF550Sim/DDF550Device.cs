@@ -664,7 +664,9 @@ namespace DeviceSim.Device
                 if (Connected)
                 {
                     if (_socketXml != null)
+                    {
                         _socketXml.Close();
+                    }
                     //if (_socketData != null)
                     //    _socketData.Close();
                     Connected = false;
@@ -687,16 +689,12 @@ namespace DeviceSim.Device
 
         protected override Stream GetStreamRecvData()
         {
-            if (_socketXml == null)
-                return null;
-            return new NetworkStream(_socketXml);
+            return _socketXml == null ? null : new NetworkStream(_socketXml);
         }
 
         protected override Stream GetStreamSendData()
         {
-            if (_socketXml == null)
-                return null;
-            return new NetworkStream(_socketXml);
+            return _socketXml == null ? null : new NetworkStream(_socketXml);
         }
 
         #region 私有方法
@@ -704,7 +702,10 @@ namespace DeviceSim.Device
         private void XmlClientCallback(IAsyncResult asyncResult)
         {
             if (!DeviceInitialized)
+            {
                 return;
+            }
+
             try
             {
                 _socketXml = _tcpListenerXml.EndAcceptSocket(asyncResult);
@@ -728,7 +729,10 @@ namespace DeviceSim.Device
         private void DataClientCallback(IAsyncResult asyncResult)
         {
             if (!DeviceInitialized)
+            {
                 return;
+            }
+
             try
             {
                 var socket = _tcpListenerData.EndAcceptSocket(asyncResult);
@@ -807,16 +811,25 @@ namespace DeviceSim.Device
         private void CloseConnect(IPEndPoint iPEndPoint)
         {
             if (!DeviceInitialized)
-                return;
-            _socketXml?.Close();
-            var client = _clientList.FirstOrDefault(i => i.Address.Address.ToString().Equals(iPEndPoint.Address.ToString()) && i.Address.Port == iPEndPoint.Port);
-            if (client != null)
             {
-                client.Stop();
-                _dispatcher?.Invoke(new Action(() => ClientList.Remove(client)));
+                return;
+            }
+
+            _socketXml?.Close();
+            var list = _clientList.Where(i => i.Address.Address.ToString().Equals(iPEndPoint.Address.ToString())).ToList();
+            if (list.Count() > 0)
+            {
+                list.ForEach(client =>
+                 {
+                     client.Stop();
+                     _dispatcher?.Invoke(new Action(() => ClientList.Remove(client)));
+                 });
             }
             if (_clientList.Count == 0)
+            {
                 Connected = false;
+            }
+
             _tcpListenerXml.BeginAcceptSocket(new AsyncCallback(XmlClientCallback), _tcpListenerXml);
             _tcpListenerData.BeginAcceptSocket(new AsyncCallback(DataClientCallback), _tcpListenerData);
         }

@@ -90,11 +90,6 @@
       <Name>DeviceSimlib</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\DockingLibrary\DockingLibrary.csproj">
-      <Project>{fa274cd2-57bb-4eb0-b101-a562adb1685e}</Project>
-      <Name>DockingLibrary</Name>
-      <Private>False</Private>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

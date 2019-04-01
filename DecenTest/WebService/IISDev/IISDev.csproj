@@ -80,15 +80,5 @@
   <ItemGroup>
     <Content Include="Dll\Interop.NetFwTypeLib.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\UWS.Configuration\UWS.Configuration.csproj">
-      <Project>{48ab6528-e9da-4254-a446-a4989af10c26}</Project>
-      <Name>UWS.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UWS.RequestProcessor\UWS.RequestProcessor.csproj">
-      <Project>{60fcdd03-f756-43e6-914a-fa28bad5f29a}</Project>
-      <Name>UWS.RequestProcessor</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

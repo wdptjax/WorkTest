@@ -14,17 +14,13 @@
 *********************************************************************************************/
 
 using DeviceSimlib;
-using DockingLibrary;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Ports;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Controls;
-using System.Windows.Threading;
 using System.Xml.Serialization;
 
 namespace DeviceSim.Device
@@ -166,10 +162,7 @@ namespace DeviceSim.Device
             {
                 ComportList.Add(port);
             }
-            if (ComportList.Contains(tmpPort))
-                ComPort = tmpPort;
-            else
-                ComPort = "";
+            ComPort = ComportList.Contains(tmpPort) ? tmpPort : "";
         }
 
         public override void Start()
@@ -211,16 +204,12 @@ namespace DeviceSim.Device
 
         protected override Stream GetStreamSendData()
         {
-            if (_serialPort == null || !_serialPort.IsOpen)
-                return null;
-            return _serialPort.BaseStream;
+            return _serialPort == null || !_serialPort.IsOpen ? null : _serialPort.BaseStream;
         }
 
         protected override Stream GetStreamRecvData()
         {
-            if (_serialPort == null || !_serialPort.IsOpen)
-                return null;
-            return _serialPort.BaseStream;
+            return _serialPort == null || !_serialPort.IsOpen ? null : _serialPort.BaseStream;
         }
 
         protected override UserControl GetControl()
@@ -300,16 +289,23 @@ namespace DeviceSim.Device
                     {
                         int span = (int)DateTime.Now.Subtract(_aliveTime).TotalSeconds;
                         if (_pauseSpan == 0)
+                        {
                             continue;
+                        }
                         else if (span < _pauseSpan)
+                        {
                             continue;
+                        }
                     }
 
                     if (!_isRunning)
                     {
                         int span = (int)DateTime.Now.Subtract(_aliveTime).TotalMilliseconds;
                         if (span < 1000)
+                        {
                             continue;
+                        }
+
                         string sendStr = "A*,*,*,2\r\n";
                         SendStrShow(sendStr);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendStr);
@@ -320,7 +316,10 @@ namespace DeviceSim.Device
                     {
                         int span = (int)DateTime.Now.Subtract(_lastSendTime).TotalMilliseconds;
                         if (span < _interTime)
+                        {
                             continue;
+                        }
+
                         _lastSendTime = DateTime.Now;
                         _aliveTime = DateTime.Now;
 
@@ -342,7 +341,10 @@ namespace DeviceSim.Device
                         int level = _normalLevel + _random.Next(-5, 5);
                         string sendData = string.Format("A{0},{1},{2},{3}\r\n", ddf, quality, time, level);
                         if (_isErr)
+                        {
                             sendData = string.Format("A*,*,*,{3}\r\n", ddf, quality, time, level);
+                        }
+
                         SendStrShow(sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
                         WriteSendData(buffer);
@@ -352,12 +354,11 @@ namespace DeviceSim.Device
                         _isReadCompass = false;
                         _compassPosition += 5;
                         if (_compassPosition == 360)
+                        {
                             _compassPosition = 0;
-                        string sendData = "";
-                        if (_isHasCompass)
-                            sendData = string.Format("C{0}\r\n", _compassPosition);
-                        else
-                            sendData = "C999\r\n";
+                        }
+
+                        string sendData = _isHasCompass ? string.Format("C{0}\r\n", _compassPosition) : "C999\r\n";
                         Console.WriteLine("Send:" + sendData);
                         SendStrShow(sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);

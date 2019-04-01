@@ -11,6 +11,39 @@
     <UserControl.Resources>
         <local:DataConverter x:Key="dataConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Lime"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="3,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" 
+                                SnapsToDevicePixels="true" CornerRadius="2">
+                            <ContentPresenter x:Name="contentPresenter" 
+                                              Focusable="False" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              Margin="{TemplateBinding Padding}" 
+                                              RecognizesAccessKey="True" 
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"  />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="red"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="#FF3FB7FB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="#FF58828F"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <DataTemplate x:Key="ScanRangeTemplete" DataType="{x:Type local:ScanRangeInfo}">
             <Expander MinWidth="100">
                 <Expander.Header>
@@ -48,28 +81,28 @@
                 <Grid Margin="25,0,0,0">
                     <WrapPanel>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsXml,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="XML"/>
+                            <TextBlock Text="XML" Margin="2,0"/>
                         </Border>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendAudio,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="AU"/>
+                            <TextBlock Text="AU" Margin="2,0"/>
                         </Border>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendCW,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="CW"/>
+                            <TextBlock Text="CW" Margin="2,0"/>
                         </Border>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendDF,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="DF"/>
+                            <TextBlock Text="DF" Margin="2,0"/>
                         </Border>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendIQ,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="IQ"/>
+                            <TextBlock Text="IQ" Margin="2,0"/>
                         </Border>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendITU,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="ITU"/>
+                            <TextBlock Text="ITU" Margin="2,0"/>
                         </Border>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendPScan,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="PS"/>
+                            <TextBlock Text="PS" Margin="2,0"/>
                         </Border>
                         <Border CornerRadius="2" Margin="2" Background="Lime" Visibility="{Binding IsSendSpectrum,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="SP"/>
+                            <TextBlock Text="SP" Margin="2,0"/>
                         </Border>
                     </WrapPanel>
                 </Grid>
@@ -98,14 +131,6 @@
                         <Border Margin="3" Width="15" Height="15" Background="{Binding IsRunning, Converter={StaticResource dataConverter},FallbackValue=black}">
                         </Border>
                     </ToolBar>
-                    <ToolBar Visibility="{Binding Connected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="连接信息:" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding Client.AddressXml}" VerticalAlignment="Center"/>
-                        <TextBlock Text=":" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding Client.PortXml}" VerticalAlignment="Center"/>
-                        <TextBlock Text="|" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding Client.PortData}" VerticalAlignment="Center"/>
-                    </ToolBar>
                 </ToolBarTray>
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
@@ -125,33 +150,15 @@
                                         <WrapPanel IsItemsHost="True"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding AudioSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="音频开关" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding SpectrumSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center">
-                                    <TextBlock Text="频谱开关" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding DFSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="测向开关" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding IQSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="IQ开关" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding CWSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="ITU开关" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding ITUSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="ITU数据" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding ScanSwitch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="PScan数据" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding IsUseSquelch,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="静噪开关" Foreground="White" Margin="3,1"/>
-                                </Border>
-                                <Border Margin="5,2" CornerRadius="2" Background="{Binding AntPreAmp,Converter={StaticResource dataConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="天线放大器" Foreground="White" Margin="3,1"/>
-                                </Border>
+                                <Button Content="音频开关" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding AudioSwitch}"/>
+                                <Button Content="频谱开关" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding SpectrumSwitch}"/>
+                                <Button Content="测向开关" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding DFSwitch}"/>
+                                <Button Content="IQ开关" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding IQSwitch}"/>
+                                <Button Content="CW开关" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding CWSwitch}"/>
+                                <Button Content="ITU数据" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding ITUSwitch}"/>
+                                <Button Content="PScan数据" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding ScanSwitch}"/>
+                                <Button Content="静噪开关" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding IsUseSquelch}"/>
+                                <Button Content="天线放大器" Margin="5,2" Style="{StaticResource ButtonStyle}" IsEnabled="{Binding AntPreAmp}"/>
                             </ItemsControl>
                         </GroupBox>
                         <TabControl Grid.Row="1">

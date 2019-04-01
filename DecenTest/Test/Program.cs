@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ODM20181102TJ01;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
@@ -13,9 +14,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 using Tracker800.Server.Device;
 
 namespace Test
@@ -94,6 +92,7 @@ namespace Test
     class Program
     {
 
+
         static void Main(string[] args)
         {
             int[] k = new int[10];
@@ -118,13 +117,26 @@ namespace Test
 
             //EBD195Sim();
             //TestIDRAC();
-            TestDDF550();
+            //TestDDF550();
             //Task.Factory.StartNew(new Action(() => PingStatus()));
             //DDF550SendAsyn();
             //TestReverse();
+
+            Test_ODM20181102TJ01();
             Console.ReadLine();
 
         }
+
+        #region 测试天津项目
+
+        static void Test_ODM20181102TJ01()
+        {
+            ODM20181102TJ01.Test test = new ODM20181102TJ01.Test();
+            test.Test_ODM20181102TJ01();
+        }
+
+
+        #endregion 测试天津项目
 
         #region 测试ping
         static void PingStatus()
@@ -180,7 +192,9 @@ namespace Test
             int[] source = new int[100000];
             Random rd = new Random();
             for (int i = 0; i < 100000; i++)
+            {
                 source[i] = rd.Next();
+            }
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -212,7 +226,9 @@ namespace Test
                 int[] source = new int[100000];
                 Random rd = new Random();
                 for (int i = 0; i < 100000; i++)
+                {
                     source[i] = rd.Next();
+                }
 
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
@@ -238,7 +254,9 @@ namespace Test
 
                 string str = Console.ReadLine();
                 if (!string.IsNullOrEmpty(str))
+                {
                     break;
+                }
             }
         }
 
@@ -302,14 +320,19 @@ namespace Test
                         byte[] buffer = new byte[1024 * 1024];
                         int count = socket.Receive(buffer, SocketFlags.None);
                         if (count == 0)
+                        {
                             break;
+                        }
 
                         int index = buffer.IndexesOf(_xmlHeader, 0);
                         int offset = index;
                         while (offset < count)
                         {
                             if (BitConverter.IsLittleEndian)
+                            {
                                 Array.Reverse(buffer, index + 4, 4);
+                            }
+
                             int datalen = BitConverter.ToInt32(buffer, index + 4);
 
                             byte[] xmlData = new byte[datalen - 1];
@@ -426,7 +449,10 @@ namespace Test
                             byte[] data = _audioData[info.IndexAudio];
                             info.IndexAudio++;
                             if (info.IndexAudio >= _audioData.Count)
+                            {
                                 info.IndexAudio = 0;
+                            }
+
                             socket.Send(data);
                         }
                         if (info.IsSendIQ)
@@ -434,7 +460,10 @@ namespace Test
                             byte[] data = _iqData[info.IndexIQ];
                             info.IndexIQ++;
                             if (info.IndexIQ >= _iqData.Count)
+                            {
                                 info.IndexIQ = 0;
+                            }
+
                             socket.Send(data);
                         }
                         if (info.IsSendITU)
@@ -442,7 +471,10 @@ namespace Test
                             byte[] data = _ituData[info.IndexITU];
                             info.IndexITU++;
                             if (info.IndexITU >= _ituData.Count)
+                            {
                                 info.IndexITU = 0;
+                            }
+
                             socket.Send(data);
                         }
                         if (info.IsSendSpectrum)
@@ -450,7 +482,10 @@ namespace Test
                             byte[] data = _spectrumData[info.IndexSpectrum];
                             info.IndexSpectrum++;
                             if (info.IndexSpectrum >= _spectrumData.Count)
+                            {
                                 info.IndexSpectrum = 0;
+                            }
+
                             socket.Send(data);
                         }
                         if (info.IsSendDF)
@@ -458,7 +493,10 @@ namespace Test
                             byte[] data = _dfData[info.IndexDF];
                             info.IndexDF++;
                             if (info.IndexDF >= _dfData.Count)
+                            {
                                 info.IndexDF = 0;
+                            }
+
                             socket.Send(data);
                         }
                     }
@@ -477,7 +515,10 @@ namespace Test
             int len = cmd.Length + 1;
             byte[] lenArr = BitConverter.GetBytes(len);
             if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(lenArr);
+            }
+
             arr.AddRange(lenArr);
             arr.AddRange(cmd);
             arr.Add(0x00);//添加终止符\0
@@ -516,7 +557,10 @@ namespace Test
             finally
             {
                 if (sr != null)
+                {
                     sr.Dispose();
+                }
+
                 if (fs != null)
                 {
                     fs.Dispose();
@@ -559,7 +603,10 @@ namespace Test
                             offset += Marshal.SizeOf(typeof(GenericAttributeAdvanced));
                         }
                         else
+                        {
                             offset += Marshal.SizeOf(typeof(GenericAttributeConventional));
+                        }
+
                         object obj = null;
                         switch (ga.TraceTag)
                         {
@@ -608,7 +655,7 @@ namespace Test
                         offset += (int)ga.DataLength;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
 
                 }
@@ -629,7 +676,7 @@ namespace Test
 
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -657,7 +704,7 @@ namespace Test
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -707,7 +754,7 @@ namespace Test
 
                 return datas;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -764,7 +811,7 @@ namespace Test
                 //datas.Add(sDataLevel);
                 return datas;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -796,7 +843,7 @@ namespace Test
                 List<object> datas = new List<object>();
                 return datas;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -818,14 +865,18 @@ namespace Test
                 long freq = (long)opt.Frequency;
                 int freqIndex = (int)((98.7 * 1000000 - freq) / (opt.FrequencyStepNumerator / opt.FrequencyStepDenominator));
                 double bandwidth = opt.Bandwidth / 1000.0;
-                if (freqIndex > pCommon.NumberOfTraceItems) freqIndex = 0;
+                if (freqIndex > pCommon.NumberOfTraceItems)
+                {
+                    freqIndex = 0;
+                }
+
                 float level = pLevel[freqIndex];
                 float azimuth = pAzimuth[freqIndex];
                 float quality = pQuality[freqIndex];
 
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -1250,7 +1301,10 @@ namespace Test
                     Array.Reverse(buffer, offset, 2);
                     Level[i] = BitConverter.ToInt16(buffer, offset);
                     if (Level[i] == 2000)
+                    {
                         Level[i] = short.MinValue;
+                    }
+
                     offset += 2;
                 }
                 for (int i = 0; i < dataCnt; i++)
@@ -1258,7 +1312,10 @@ namespace Test
                     Array.Reverse(buffer, offset, 4);
                     FreqOffset[i] = BitConverter.ToInt32(buffer, offset);
                     if (FreqOffset[i] == 10000000)
+                    {
                         FreqOffset[i] = int.MinValue;
+                    }
+
                     offset += 4;
                 }
 
@@ -1269,7 +1326,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 2);
                         FStrength[i] = BitConverter.ToInt16(buffer, offset);
                         if (FStrength[i] == 0x7FFF)
+                        {
                             FStrength[i] = short.MinValue;
+                        }
+
                         offset += 2;
                     }
                 }
@@ -1280,7 +1340,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 2);
                         AMDepth[i] = BitConverter.ToInt16(buffer, offset);
                         if (AMDepth[i] == 0x7FFF)
+                        {
                             AMDepth[i] = short.MinValue;
+                        }
+
                         offset += 2;
                     }
                 }
@@ -1309,7 +1372,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 4);
                         FMDev[i] = BitConverter.ToInt32(buffer, offset);
                         if (FMDev[i] == 0x7FFFFFFF)
+                        {
                             FMDev[i] = int.MinValue;
+                        }
+
                         offset += 4;
                     }
                 }
@@ -1338,7 +1404,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 2);
                         PMDepth[i] = BitConverter.ToInt16(buffer, offset);
                         if (PMDepth[i] == 0x7FFF)
+                        {
                             PMDepth[i] = short.MinValue;
+                        }
+
                         offset += 2;
                     }
                 }
@@ -1349,7 +1418,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 4);
                         BandWidth[i] = BitConverter.ToInt32(buffer, offset);
                         if (BandWidth[i] == 0x7FFFFFFF)
+                        {
                             BandWidth[i] = int.MinValue;
+                        }
+
                         offset += 4;
                     }
                 }
@@ -1441,7 +1513,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 2);
                         DfFstrength[i] = BitConverter.ToInt16(buffer, offset);
                         if (DfFstrength[i] == 0x7FFF || DfFstrength[i] == 0x7FFE)
+                        {
                             DfFstrength[i] = short.MinValue;
+                        }
+
                         offset += 2;
                     }
                 }
@@ -1461,7 +1536,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 2);
                         Elevation[i] = BitConverter.ToInt16(buffer, offset);
                         if (Elevation[i] == 0x7FFF || Elevation[i] == 0x7FFE)
+                        {
                             Elevation[i] = short.MinValue;
+                        }
+
                         offset += 2;
                     }
                 }
@@ -1481,7 +1559,10 @@ namespace Test
                         Array.Reverse(buffer, offset, 2);
                         DfOmniphase[i] = BitConverter.ToInt16(buffer, offset);
                         if (DfOmniphase[i] == 0x7FFF || DfOmniphase[i] == 0x7FFE)
+                        {
                             DfOmniphase[i] = short.MinValue;
+                        }
+
                         offset += 2;
                     }
                 }
@@ -2148,7 +2229,6 @@ namespace Test
         static SerialPort com = new SerialPort("COM4", 19200, Parity.Space, 8, StopBits.One);
         static void TestComport()
         {
-            int count = 0;
             com.Open();
             Task.Factory.StartNew(() =>
             {
@@ -2167,7 +2247,9 @@ namespace Test
                                   while (com.IsOpen)
                                   {
                                       lock (_lock)
+                                      {
                                           com.Write("aaaaaaaaaaaaaaaaaaaaaa");
+                                      }
                                   }
                                   Console.WriteLine("write complete-----");
                               }
@@ -2185,13 +2267,18 @@ namespace Test
                         Thread.Sleep(10);
                         Console.WriteLine("Close");
                         lock (_lock)
+                        {
                             com.Close();
+                        }
+
                         thd.Abort();
                         Thread.Sleep(1);
                         Console.WriteLine("Open");
                         com.Open();
                         if (iserr)
+                        {
                             Console.ReadLine();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -2264,7 +2351,7 @@ namespace Test
             _port.PinChanged += _port_PinChanged;
             //_serialPort.ReceivedBytesThreshold = 1;
 
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew((Action)(() =>
             {
                 DateTime aliveTime = DateTime.Now;
                 while (true)
@@ -2274,9 +2361,15 @@ namespace Test
                     {
                         int span = (int)DateTime.Now.Subtract(aliveTime).TotalMilliseconds;
                         if (span < 1000)
+                        {
                             continue;
+                        }
+
                         if (_isPause && span < _pauseSpan)
+                        {
                             continue;
+                        }
+
                         string sendStr = "A*,*,*,2\r\n";
                         byte[] buffer = Encoding.ASCII.GetBytes(sendStr);
                         _port.Write(buffer, 0, buffer.Length);
@@ -2286,11 +2379,14 @@ namespace Test
                     {
                         int span = (int)DateTime.Now.Subtract(_lastSendTime).TotalMilliseconds;
                         if (span < _interTime)
+                        {
                             continue;
+                        }
+
                         _lastSendTime = DateTime.Now;
                         aliveTime = DateTime.Now;
 
-                        int rd = _random.Next(0, 100);
+                        int rd = Program._random.Next(0, 100);
                         int ddfMin = 0;
                         int ddfMax = 360;
                         int quMin = 0;
@@ -2302,13 +2398,16 @@ namespace Test
                             quMin = 30;
                             quMax = 100;
                         }
-                        int ddf = _random.Next(ddfMin, ddfMax);
-                        int quality = _random.Next(quMin, quMax);
+                        int ddf = Program._random.Next(ddfMin, ddfMax);
+                        int quality = Program._random.Next(quMin, quMax);
                         int time = _interTime;
-                        int level = _random.Next(40, 50);
+                        int level = Program._random.Next(40, 50);
                         string sendData = string.Format("A{0},{1},{2},{3}\r\n", ddf, quality, time, level);
                         if (_isErr)
+                        {
                             sendData = string.Format("A*,*,*,{3}\r\n", ddf, quality, time, level);
+                        }
+
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
                         _port.Write(buffer, 0, buffer.Length);
                     }
@@ -2317,14 +2416,17 @@ namespace Test
                         _isReadCompass = false;
                         _compassPosition += 5;
                         if (_compassPosition == 360)
+                        {
                             _compassPosition = 0;
+                        }
+
                         string sendData = string.Format("C{0}\r\n", _compassPosition);
                         Console.WriteLine("Send:" + sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
                         _port.Write(buffer, 0, buffer.Length);
                     }
                 }
-            });
+            }));
         }
 
         private static void _port_PinChanged(object sender, SerialPinChangedEventArgs e)
@@ -2553,13 +2655,18 @@ namespace Test
         private static void CreateDir(string dir)
         {
             if (Directory.Exists(dir))
+            {
                 return;
+            }
 
             string dir1 = dir.TrimEnd('\\');
             int index = dir1.LastIndexOf('\\');
             string dir2 = dir1;
             if (index > 0)
+            {
                 dir2 = dir1.Substring(0, index).TrimEnd('\\');
+            }
+
             CreateDir(dir2);
             Directory.CreateDirectory(dir1);
         }
@@ -2609,7 +2716,6 @@ namespace Test
                     List,For 520.000
                     Array,lambda 704.000
                     Array,For 421.000       耗时最少
-
                  */
                 DateTime dt = DateTime.Now;
                 for (int i = 0; i < 10000; i++)
@@ -2624,7 +2730,9 @@ namespace Test
                     for (int j = 0; j < list.Count; j++)
                     {
                         if (max < list[j])
+                        {
                             max = list[j];
+                        }
                     }
                 }
                 Console.WriteLine("List,For " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
@@ -2643,7 +2751,9 @@ namespace Test
                     for (int j = 0; j < list.Count; j++)
                     {
                         if (max < arr[j])
+                        {
                             max = arr[j];
+                        }
                     }
                 }
                 Console.WriteLine("Array,For " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));

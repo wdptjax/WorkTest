@@ -44,7 +44,7 @@ namespace DeviceSimlib
                     return xmldes.Deserialize(sr);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
                 return null;
