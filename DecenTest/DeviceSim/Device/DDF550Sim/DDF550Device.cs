@@ -124,7 +124,7 @@ namespace DeviceSim.Device
         private int _integralTime = 100;
         private int _levelThreshold = -20;
         private EAnt_Pol _antPol = EAnt_Pol.POL_VERTICAL;
-        private double _spectrumSpan = 100;
+        private double _spectrumSpan = 2000;
         private int _attenuation = -1;
         private bool _attAuto = false;
         private double _ifPanStep = 100;
@@ -687,12 +687,12 @@ namespace DeviceSim.Device
             return _control;
         }
 
-        protected override Stream GetStreamRecvData()
+        protected override Stream GetStream2()
         {
             return _socketXml == null ? null : new NetworkStream(_socketXml);
         }
 
-        protected override Stream GetStreamSendData()
+        protected override Stream GetStream1()
         {
             return _socketXml == null ? null : new NetworkStream(_socketXml);
         }
@@ -746,7 +746,7 @@ namespace DeviceSim.Device
                 _dispatcher?.Invoke(new Action(() => ClientList.Add(client)));
                 Thread thd = new Thread(DataSendSync);
                 thd.IsBackground = true;
-                thd.Start(client);
+                thd.Start(ClientList);
             }
             catch (Exception)
             {

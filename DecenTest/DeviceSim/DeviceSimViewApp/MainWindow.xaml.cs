@@ -54,7 +54,9 @@ namespace DeviceSimViewApp
                 e.CanExecute = true;
             }
             else
+            {
                 e.CanExecute = false;
+            }
         }
 
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)

@@ -7,7 +7,133 @@ using System.Text;
 namespace ODM20181102TJ01
 {
     /// <summary>
-    /// 公共参数
+    /// 增益参数
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+    internal struct GainParams
+    {
+        /// <summary>
+        /// 增益控制
+        /// </summary>
+        [MarshalAs(UnmanagedType.U4)]
+        public uint GainControl;
+
+        [MarshalAs(UnmanagedType.U4)]
+        public uint AgcDecay;
+
+        [MarshalAs(UnmanagedType.U4)]
+        public uint MgcGain;
+
+        public GainParams(byte[] buffer, int offset)
+        {
+            GainControl = BitConverter.ToUInt32(buffer, offset);
+            offset += 4;
+            AgcDecay = BitConverter.ToUInt32(buffer, offset);
+            offset += 4;
+            MgcGain = BitConverter.ToUInt32(buffer, offset);
+        }
+
+        public byte[] ToBytes()
+        {
+            int len = Marshal.SizeOf(this);
+            byte[] buffer = new byte[len];
+            int offset = 0;
+
+            byte[] data = BitConverter.GetBytes(GainControl);
+            Buffer.BlockCopy(data, 0, buffer, offset, data.Length);
+            offset += data.Length;
+            data = BitConverter.GetBytes(AgcDecay);
+            Buffer.BlockCopy(data, 0, buffer, offset, data.Length);
+            offset += data.Length;
+            data = BitConverter.GetBytes(MgcGain);
+            Buffer.BlockCopy(data, 0, buffer, offset, data.Length);
+            offset += data.Length;
+
+            return buffer;
+        }
+
+        private bool Equals(GainParams other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (GainControl != other.GainControl)
+            {
+                Console.WriteLine(string.Format("GainControl 变化{0}=>{1}", GainControl, other.GainControl));
+                return false;
+            }
+
+            if (AgcDecay != other.AgcDecay)
+            {
+                Console.WriteLine(string.Format("AgcDecay 变化{0}=>{1}", AgcDecay, other.AgcDecay));
+                return false;
+            }
+
+            if (MgcGain != other.MgcGain)
+            {
+                Console.WriteLine(string.Format("MgcGain 变化{0}=>{1}", MgcGain, other.MgcGain));
+                return false;
+            }
+
+            return true;
+        }
+
+        #region 重写基类
+
+        // 重写Equals
+        public override bool Equals(object obj)
+        {
+            // this非空，obj如果为空，则返回false
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            // 如果为同一对象，必然相等
+            if (ReferenceEquals(this, obj))
+            { 
+                return true;
+            }
+
+            // 如果类型不同，则必然不相等
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            // 调用强类型对比
+            return Equals((GainParams)obj);
+        }
+
+        // 重写Equals必须重写GetHashCode
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+        // 重写==操作符
+        public static bool operator ==(GainParams left, GainParams right)
+        {
+            return left.Equals(right);
+        }
+
+        // 重写!=操作符
+        public static bool operator !=(GainParams left, GainParams right)
+        {
+            return !left.Equals(right);
+        }
+
+        #endregion 重写基类
+    }
+
+    /// <summary>
+    /// 一般参数
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     internal struct CommParams
@@ -85,6 +211,11 @@ namespace ODM20181102TJ01
         [MarshalAs(UnmanagedType.U4)]
         public uint QualityThreshold;
 
+        /// <summary>
+        /// 增益控制参数
+        /// </summary>
+        public GainParams GainParams;
+
         public CommParams(byte[] buffer, int offset)
         {
             DfBandWdith = BitConverter.ToUInt32(buffer, offset);
@@ -108,6 +239,9 @@ namespace ODM20181102TJ01
             offset += 4;
             QualityThreshold = BitConverter.ToUInt32(buffer, offset);
             offset += 4;
+
+            GainParams = new GainParams(buffer, offset);
+            offset += Marshal.SizeOf(GainParams);
         }
 
         public byte[] ToBytes()
@@ -142,6 +276,9 @@ namespace ODM20181102TJ01
             data = BitConverter.GetBytes(QualityThreshold);
             Buffer.BlockCopy(data, 0, buffer, offset, data.Length);
             offset += data.Length;
+            byte[] tmpArr = GainParams.ToBytes();
+            Buffer.BlockCopy(tmpArr, 0, buffer, offset, tmpArr.Length);
+            offset += tmpArr.Length;
 
             return buffer;
         }
@@ -257,6 +394,11 @@ namespace ODM20181102TJ01
                 return false;
             }
 
+            if (!GainParams.Equals(other.GainParams))
+            {
+                return false;
+            }
+
             #endregion 判断值变化
 
             //如果基类不是从Object继承，需要调用base.Equals(other)
@@ -363,6 +505,12 @@ namespace ODM20181102TJ01
             if (ReferenceEquals(this, other))
             {
                 return true;
+            }
+
+            if (Frequency != other.Frequency)
+            {
+                Console.WriteLine(string.Format("Frequency 变化{0}=>{1}", Frequency, other.Frequency));
+                return false;
             }
 
             //对比各个字段值
@@ -616,7 +764,7 @@ namespace ODM20181102TJ01
     }
 
     /// <summary>
-    /// 要下发的参数消息
+    /// 参数消息
     /// </summary>
     internal class ParameterMessage
     {

@@ -207,6 +207,10 @@
                                     <StackPanel Orientation="Horizontal">
                                         <CheckBox x:Name="ckhCorrection" Content="相对示向度" IsChecked="{Binding IsCorrection,Mode=TwoWay}"/>
                                     </StackPanel>
+                                    <StackPanel x:Name="spLevelThreshold" Orientation="Horizontal">
+                                        <TextBlock Text="电平门限(dBμV):"/>
+                                        <TextBlock Text="{Binding LevelThreshold}"/>
+                                    </StackPanel>
                                 </UniformGrid>
                             </TabItem>
                             <TabItem Header="全景扫描">

@@ -136,8 +136,13 @@ namespace DeviceSim.Device
         public void SendData(byte[] data)
         {
             if (_socket == null || !_socket.Connected)
+            {
                 return;
-            _socket.Send(data);
+            }
+            if (data != null)
+            {
+                _socket.Send(data);
+            }
         }
 
         public void Stop()

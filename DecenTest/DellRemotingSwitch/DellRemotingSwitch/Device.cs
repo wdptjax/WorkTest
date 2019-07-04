@@ -397,13 +397,20 @@ namespace DellRemotingSwitch
                     //if (DateTime.Now.Subtract(_lastStatusTime).TotalSeconds > 10)
                     {
                         if (SendCmdList.Count == 0 || SendCmdList.Count(i => i.Type == ECommandType.Status) == 0)
+                        {
                             QueryStatus();
+                        }
                         _lastStatusTime = DateTime.Now;
                         if (DateTime.Now.Subtract(lastPowerTime).TotalMinutes > 10)
                         {
                             if (DeviceStatus == true)
+                            {
                                 PowerDown();
-                            else PowerUp();
+                            }
+                            else
+                            {
+                                PowerUp();
+                            }
                             lastPowerTime = DateTime.Now;
                         }
                     }
@@ -411,7 +418,9 @@ namespace DellRemotingSwitch
                     lock (_lockSendList)
                     {
                         if (SendCmdList.Count == 0)
+                        {
                             continue;
+                        }
                         cmd = SendCmdList.First();
                         _dispatcher.BeginInvoke(new Action(() => SendCmdList.Remove(cmd)));
                     }
@@ -422,7 +431,9 @@ namespace DellRemotingSwitch
                     string result = "";
                     AnalysisCmd(msg, type, out result);
                     if (type != ECommandType.Status)
+                    {
                         IsSendingCmd = false;
+                    }
                     AddRecvCmd(msg, type, result);
                     _lastStatusTime = DateTime.Now;
                 }
@@ -438,7 +449,9 @@ namespace DellRemotingSwitch
             lock (_lockSendList)
             {
                 if (type != ECommandType.Status)
+                {
                     IsSendingCmd = true;
+                }
                 _dispatcher.BeginInvoke(new Action(() => SendCmdList.Add(new CmdInfo(msg, type))));
             }
         }
@@ -494,17 +507,28 @@ namespace DellRemotingSwitch
             {
                 string status = str.Substring(index + "Server power status:".Length).Trim();
                 if (status.ToUpper() == "ON")
+                {
                     DeviceStatus = true;
+                }
                 else if (status.ToUpper() == "OFF")
+                {
                     DeviceStatus = false;
-                else DeviceStatus = null;
+                }
+                else
+                {
+                    DeviceStatus = null;
+                }
             }
 
             index = str.IndexOf("SEC0701: Warning: Default username and password are currently in use.");
             if (index >= 0)
+            {
                 PasswordCheckOn = true;
+            }
             else
+            {
                 PasswordCheckOn = false;
+            }
 
 
             int index1 = str.IndexOf("[Key=iDRAC.Embedded.1#DefaultCredentialMitigationConfigGroup.1]");
@@ -512,9 +536,13 @@ namespace DellRemotingSwitch
             if (index1 >= 0 && index2 >= 0)
             {
                 if (index >= 0)
+                {
                     PasswordCheckOn = false;
+                }
                 else
+                {
                     PasswordCheckOn = true;
+                }
             }
 
             if (type == ECommandType.PowerUp || type == ECommandType.PowerDown || type == ECommandType.Restart)
@@ -525,7 +553,9 @@ namespace DellRemotingSwitch
                     result = "操作成功";
                 }
                 else
+                {
                     result = "操作失败";
+                }
             }
         }
     }

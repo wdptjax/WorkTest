@@ -1,0 +1,171 @@
+﻿<UserControl x:Class="DeviceSim.Device.ArgusSimView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DeviceSim.Device"
+             xmlns:sim="clr-namespace:DeviceSimlib;assembly=DeviceSimlib"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" x:Name="userControl">
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="DemMode" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="{x:Type local:EDemMode}"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="Detector" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="{x:Type local:EDetector}"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="RfMode" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="{x:Type local:ERFMode}"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="FFTMode" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="{x:Type local:EFFTMode}"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="MeasMode" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="{x:Type local:EBandMeasureMode}"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="IqMode" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="{x:Type local:EIfRemoteMode}"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <DataTemplate x:Key="ArgusSimVMTemplete" DataType="{x:Type local:ArgusSim}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <WrapPanel>
+                    <Button Margin="5" Content="启动任务" Command="{x:Static sim:Commands.OK}"/>
+                    <Button Margin="5" Content="停止任务" Command="{x:Static sim:Commands.Cancel}"/>
+                    <Border Margin="5" x:Name="bdShowTask" Background="Red" CornerRadius="1"
+                               Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"/>
+                    <StackPanel Margin="5" Orientation="Horizontal">
+                        <TextBlock Text="IP地址:" Margin="5,0" VerticalAlignment="Center"/>
+                        <TextBox MinWidth="100" Text="{Binding IpAddress}"/>
+                    </StackPanel>
+                    <StackPanel Margin="5" Orientation="Horizontal">
+                        <TextBlock Text="TCP端口:" Margin="5,0" VerticalAlignment="Center"/>
+                        <TextBox MinWidth="100" Text="{Binding TcpPort}"/>
+                    </StackPanel>
+                    <StackPanel Margin="5" Orientation="Horizontal">
+                        <TextBlock Text="UDP端口:" Margin="5,0" VerticalAlignment="Center"/>
+                        <TextBox MinWidth="100" Text="{Binding UdpPort}"/>
+                    </StackPanel>
+                </WrapPanel>
+                <WrapPanel Grid.Row="1">
+                    <TextBlock Margin="5" Text="{Binding Level, StringFormat=电平值:\{0:F2\}dBμV,FallbackValue=电平值:0dBμV}" MinWidth="100" VerticalAlignment="Center"/>
+                    <TextBlock Margin="5" Text="{Binding GpsInfo, FallbackValue=GPS信息:N\,E, StringFormat=GPS信息:\{0\}}" MinWidth="100" VerticalAlignment="Center"/>
+                    <TextBlock Margin="5" Text="{Binding IQInfo, FallbackValue=IQ信息:, StringFormat=IQ信息:\{0\}}" MinWidth="100" VerticalAlignment="Center"/>
+                </WrapPanel>
+                <GroupBox Header="参数设置" Margin="5" Grid.Row="2">
+                    <WrapPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="解调模式：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource DemMode}}" Width="100" SelectedItem="{Binding DemMode,Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="解调带宽(KHz)：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <TextBox Width="100" Text="{Binding BandWidth}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="检波方式：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource Detector}}" Width="100" SelectedItem="{Binding Detector,Mode=TwoWay}"/>
+                        </StackPanel>
+                        <CheckBox Margin="5" Width="190" IsChecked="{Binding AttenuationMode}" VerticalAlignment="Center">
+                            <CheckBox.Content>
+                                <TextBlock Margin="5,1,0,0" Text="自动衰减(手动可设置衰减值)" VerticalAlignment="Center"/>
+                            </CheckBox.Content>
+                        </CheckBox>
+                        <StackPanel x:Name="spSetAtt" Margin="5" Orientation="Horizontal" Visibility="Visible">
+                            <TextBlock Text="衰减值：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <TextBox Width="100" Text="{Binding BandWidth}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="射频模式：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource RfMode}}" Width="100" SelectedItem="{Binding RfMode,Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="保持时间(s)：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <TextBox Width="100" Text="{Binding HoldTime}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="频谱带宽(kHz)：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <TextBox Width="100" Text="{Binding SpectrumSpan}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="FFT模式：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource FFTMode}}" Width="100" SelectedValue="{Binding FFTMode,Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="中心频率(MHz)：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <TextBox Width="100" Text="{Binding Frequency}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="带宽测量模式：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource MeasMode}}" Width="100" SelectedValue="{Binding MeasMode,Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="xdB值(dB)：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <TextBox Width="100" Text="{Binding XdBValue}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="beta值(%)：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <TextBox Width="100" Text="{Binding BetaValue}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5" Orientation="Horizontal">
+                            <TextBlock Text="IQ字节数：" Width="90" VerticalAlignment="Center" TextAlignment="Right"/>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource IqMode}}" Width="100" SelectedValue="{Binding IqMode,Mode=TwoWay}"/>
+                        </StackPanel>
+                    </WrapPanel>
+                </GroupBox>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Margin="5,5,7,5" ScrollViewer.VerticalScrollBarVisibility="Visible" ItemsSource="{Binding SendStringList}" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="时间" Binding="{Binding Time}" Width="auto"/>
+                            <DataGridTextColumn Header="内容" Binding="{Binding Message}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <GridSplitter Margin="0,5,0,5" Width="5"/>
+                    <DataGrid Grid.Column="1" Margin="2,5,5,5" ScrollViewer.VerticalScrollBarVisibility="Visible" ItemsSource="{Binding RecvStringList}" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="时间" Binding="{Binding Time}" Width="auto"/>
+                            <DataGridTextColumn Header="内容" Binding="{Binding Message}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsRunning}" Value="true">
+                    <Setter TargetName="bdShowTask" Property="Background" Value="lime"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding AttenuationMode}" Value="true">
+                    <Setter TargetName="spSetAtt" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static sim:Commands.OK}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static sim:Commands.Cancel}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
+    </UserControl.CommandBindings>
+    <Grid>
+        <ContentControl Content="{Binding Device,ElementName=userControl}" ContentTemplate="{StaticResource ArgusSimVMTemplete}"/>
+    </Grid>
+</UserControl>

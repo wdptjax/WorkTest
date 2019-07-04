@@ -202,12 +202,12 @@ namespace DeviceSim.Device
             }
         }
 
-        protected override Stream GetStreamSendData()
+        protected override Stream GetStream1()
         {
             return _serialPort == null || !_serialPort.IsOpen ? null : _serialPort.BaseStream;
         }
 
-        protected override Stream GetStreamRecvData()
+        protected override Stream GetStream2()
         {
             return _serialPort == null || !_serialPort.IsOpen ? null : _serialPort.BaseStream;
         }
@@ -225,7 +225,7 @@ namespace DeviceSim.Device
         {
             byte[] buffer = new byte[_serialPort.ReadBufferSize];
             string data = "";
-            int recvCount = ReadRecvData(buffer, 0, buffer.Length);
+            int recvCount = ReadDataByStream2(buffer, 0, buffer.Length);
             data = System.Text.Encoding.ASCII.GetString(buffer, 0, recvCount);
             RecvStrShow(data);
             Console.WriteLine(string.Format("Time:{0:HH:mm:ss.fff} Data:{1}", DateTime.Now, data));
@@ -309,7 +309,7 @@ namespace DeviceSim.Device
                         string sendStr = "A*,*,*,2\r\n";
                         SendStrShow(sendStr);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendStr);
-                        WriteSendData(buffer);
+                        WriteDataByStream1(buffer);
                         _aliveTime = DateTime.Now;
                     }
                     else
@@ -347,7 +347,7 @@ namespace DeviceSim.Device
 
                         SendStrShow(sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
-                        WriteSendData(buffer);
+                        WriteDataByStream1(buffer);
                     }
                     if (_isReadCompass)
                     {
@@ -362,7 +362,7 @@ namespace DeviceSim.Device
                         Console.WriteLine("Send:" + sendData);
                         SendStrShow(sendData);
                         byte[] buffer = Encoding.ASCII.GetBytes(sendData);
-                        WriteSendData(buffer);
+                        WriteDataByStream1(buffer);
                     }
                 }
                 catch

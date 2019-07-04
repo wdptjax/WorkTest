@@ -26,23 +26,23 @@ namespace ODM20181102TJ01
         /// </summary>
         public void Test_ODM20181102TJ01()
         {
-            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 9999);
-            _tcpListener = new TcpListener(iPEndPoint);
-            _tcpListener.Start();
-            Console.WriteLine(string.Format("{0:HH:mm:ss.fff} 服务开启:{1}", DateTime.Now, iPEndPoint));
+            //IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 9999);
+            //_tcpListener = new TcpListener(iPEndPoint);
+            //_tcpListener.Start();
+            //Console.WriteLine(string.Format("{0:HH:mm:ss.fff} 服务开启:{1}", DateTime.Now, iPEndPoint));
 
-            Thread thd = new Thread(RecvScan);
-            thd.IsBackground = true;
-            thd.Start();
+            //Thread thd = new Thread(RecvScan);
+            //thd.IsBackground = true;
+            //thd.Start();
 
-            Thread thd1 = new Thread(SendScan);
-            thd1.IsBackground = true;
-            thd1.Start();
+            //Thread thd1 = new Thread(SendScan);
+            //thd1.IsBackground = true;
+            //thd1.Start();
 
-            //// 测试
-            //Thread thd2 = new Thread(TestSendParam);
-            //thd2.IsBackground = true;
-            //thd2.Start();
+            // 测试
+            Thread thd2 = new Thread(TestSendParam);
+            thd2.IsBackground = true;
+            thd2.Start();
         }
 
         /// <summary>
@@ -402,17 +402,32 @@ namespace ODM20181102TJ01
         private void TestSendParam()
         {
             TcpClient client = new TcpClient();
-            client.Connect("127.0.0.1", 9999);
-            byte[] buffer = GetParamData();
+            client.Connect("192.168.100.105", 9999);
+            byte[] buffer = GetParamDataScan();
             Socket socket = client.Client;
             socket.Send(buffer);
 
-            Thread.Sleep(10000);
-            ParameterMessage parameter = new ParameterMessage();
-            parameter.MsgMode = EDataMode.MODE_STANDBY;
-            buffer = parameter.ToBytes();
-            socket.Send(buffer);
+            //ParameterMessage parameter = new ParameterMessage();
+            //parameter.MsgMode = EDataMode.MODE_STANDBY;
+            //buffer = parameter.ToBytes();
+            //socket.Send(buffer);
 
+            new Thread(() =>
+            {
+                int count = 0;
+                int top = Console.CursorTop;
+                while (true)
+                {
+                    byte[] bt = new byte[1024 * 1024];
+                    int len = socket.Receive(bt);
+                    count++;
+                    Console.SetCursorPosition(0, top);
+                    Console.WriteLine("接收到数据长度：" + len + ",次数:" + count);
+                }
+            })
+            {
+                IsBackground = true
+            }.Start();
         }
 
         private byte[] GetParamData()
@@ -425,7 +440,7 @@ namespace ODM20181102TJ01
             {
                 AfBandWidth = 120000,
                 DfBandWdith = 100000,
-                AfThreshold = 40,
+                AfThreshold = 10,
                 AverageMode = 2,
                 AfDemod = 3,
                 AntPol = 1,
@@ -435,12 +450,40 @@ namespace ODM20181102TJ01
                 ReadTime = 100,
                 SampleMode = 200,
                 SpectrumTime = 110,
-                Threshold = 50
+                Threshold = 10,
+                QualityThreshold = 10,
             };
             parameter.Parameter = ffmParams;
             return parameter.ToBytes();
         }
-
+        private byte[] GetParamDataScan()
+        {
+            ParameterMessage parameter = new ParameterMessage();
+            parameter.MsgMode = EDataMode.MODE_SCAN;
+            ScanParams scanParam = new ScanParams();
+            scanParam.StartFreq = (uint)(88 * 1000000);
+            scanParam.StopFreq = (uint)(108 * 1000000);
+            scanParam.StepWidth = 25000;
+            scanParam.CommParams = new CommParams()
+            {
+                AfBandWidth = 120000,
+                DfBandWdith = 100000,
+                AfThreshold = 10,
+                AverageMode = 2,
+                AfDemod = 3,
+                AntPol = 1,
+                Bfo = 50,
+                DfMethod = 12,
+                ReadMode = 23,
+                ReadTime = 100,
+                SampleMode = 200,
+                SpectrumTime = 110,
+                Threshold = 10,
+                QualityThreshold = 10,
+            };
+            parameter.Parameter = scanParam;
+            return parameter.ToBytes();
+        }
 
         #endregion 测试发送参数
 

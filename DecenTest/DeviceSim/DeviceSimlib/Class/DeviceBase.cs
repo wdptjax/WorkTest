@@ -28,6 +28,7 @@ using System.Linq.Expressions;
 using System.Xml.Serialization;
 using System.IO;
 using System.Windows.Controls;
+using System.Net.Sockets;
 
 namespace DeviceSimlib
 {
@@ -174,26 +175,39 @@ namespace DeviceSimlib
 
         #endregion 界面展示
 
-        private Stream _deviceStreamSend
+        private Stream _deviceStream1
         {
-            get { return GetStreamSendData(); }
+            get { return GetStream1(); }
         }
 
-        private Stream _deviceStreamRecv
+        private Stream _deviceStream2
         {
-            get { return GetStreamRecvData(); }
+            get { return GetStream2(); }
         }
 
         #endregion 变量/属性
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public DeviceBase()
         {
             Initialize();
         }
 
+        /// <summary>
+        /// 初始化
+        /// </summary>
         public abstract void Initialize();
-
+        
+        /// <summary>
+        /// 启动监听
+        /// </summary>
         public abstract void Start();
+
+        /// <summary>
+        /// 停止监听
+        /// </summary>
         public abstract void Stop();
 
         public abstract void TaskPause(bool pause);
@@ -205,70 +219,110 @@ namespace DeviceSimlib
         { get; }
 
         /// <summary>
-        /// 获取下发参数的流
+        /// 获取数据通道1
         /// </summary>
         /// <returns></returns>
-        protected abstract Stream GetStreamSendData();
+        protected abstract Stream GetStream1();
 
         /// <summary>
-        /// 获取接收数据的流
+        /// 获取数据通道2
         /// </summary>
         /// <returns></returns>
-        protected abstract Stream GetStreamRecvData();
+        protected abstract Stream GetStream2();
 
         protected abstract UserControl GetControl();
 
         /// <summary>
-        /// 通过发送数据通道写数据
+        /// 通过通道1写数据
         /// </summary>
         /// <param name="data"></param>
-        protected virtual void WriteSendData(byte[] data)
+        protected virtual void WriteDataByStream1(byte[] data)
         {
-            if (_deviceStreamSend == null)
+            if (_deviceStream1 == null)
+            {
                 return;
+            }
             if (data == null || data.Length == 0)
+            {
                 return;
-            _deviceStreamSend.Write(data, 0, data.Length);
-            _deviceStreamSend.Flush();
+            }
+            _deviceStream1.Write(data, 0, data.Length);
+            _deviceStream1.Flush();
         }
         /// <summary>
-        /// 通过接收数据通道写数据
+        /// 通过通道2写数据
         /// </summary>
         /// <param name="data"></param>
-        protected virtual void WriteRecvData(byte[] data)
+        protected virtual void WriteDataByStream2(byte[] data)
         {
-            if (_deviceStreamRecv == null)
+            if (_deviceStream2 == null)
+            {
                 return;
+            }
             if (data == null || data.Length == 0)
+            {
                 return;
-            _deviceStreamRecv.Write(data, 0, data.Length);
-            _deviceStreamRecv.Flush();
+            }
+            _deviceStream2.Write(data, 0, data.Length);
+            _deviceStream2.Flush();
         }
         /// <summary>
-        /// 通过发送数据通道读数据
+        /// 通过通道1读数据
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        protected virtual int ReadSendData(byte[] buffer, int offset, int count)
+        protected virtual int ReadDataByStream1(byte[] buffer, int offset, int count)
         {
-            if (_deviceStreamSend == null)
+            if (_deviceStream1 == null)
+            {
                 return 0;
-            return _deviceStreamSend.Read(buffer, offset, count);
+            }
+            return _deviceStream1.Read(buffer, offset, count);
         }
         /// <summary>
-        /// 通过接收数据通道读数据
+        /// 通过通道2读数据
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        protected virtual int ReadRecvData(byte[] buffer, int offset, int count)
+        protected virtual int ReadDataByStream2(byte[] buffer, int offset, int count)
         {
-            if (_deviceStreamRecv == null)
+            if (_deviceStream2 == null)
+            {
                 return 0;
-            return _deviceStreamRecv.Read(buffer, offset, count);
+            }
+            return _deviceStream2.Read(buffer, offset, count);
+        }
+
+        /// <summary>
+        /// 读取指定长度的数据到数组
+        /// </summary>
+        /// <param name="buffer">接收数据缓冲区</param>
+        /// <param name="offset">缓冲区偏移</param>
+        /// <param name="bytesToRead">要读取的字节数</param>
+        /// <param name="socket">要接收数据的套接字</param>
+        protected void ReceiveData(byte[] buffer, int offset, int bytesToRead, Socket socket)
+        {
+            // 当前已接收到的字节数
+            int totalRecvLen = 0;
+
+            // 循环接收数据，确保接收完指定字节数
+            while (totalRecvLen < bytesToRead)
+            {
+                int recvLen = socket.Receive(buffer, offset + totalRecvLen, bytesToRead - totalRecvLen, SocketFlags.None);
+                if (recvLen <= 0)
+                {
+                    // 远程主机使用close或shutdown关闭连接，并且所有数据已被接收的时候，此处不会抛异常而是立即返回0
+                    // 为避免出现此情况将导致该函数列循环，此处直接抛SocketException异常
+                    // 10054:远程主机强迫关闭了一个现在连接
+                    throw new SocketException(10054);
+                }
+
+                totalRecvLen += recvLen;
+            }
         }
 
         protected virtual void SendStrShow(string msg)
@@ -277,7 +331,9 @@ namespace DeviceSimlib
             {
                 SendStringList.Add(new MessageInfo(msg.TrimEnd(new char[] { '\r', '\n' })));
                 if (SendStringList.Count > 1000)
+                {
                     SendStringList.RemoveAt(0);
+                }
             }));
         }
 
@@ -287,7 +343,9 @@ namespace DeviceSimlib
             {
                 RecvStringList.Add(new MessageInfo(msg.TrimEnd(new char[] { '\r', '\n' })));
                 if (RecvStringList.Count > 1000)
+                {
                     RecvStringList.RemoveAt(0);
+                }
             }));
         }
 

@@ -56,15 +56,21 @@ namespace DeviceSim.Device
                         byte[] data = new byte[len + 12];
                         Buffer.BlockCopy(buffer, 0, data, 0, data.Length);
                         if (!CheckXMLCommand(data))
+                        {
                             continue;
+                        }
                         //offset += recBytes;
                         // 从尾部查找0x00,Xml反序列化的时候不能正确识别截止符,因此需要将截止符去掉
                         for (int i = data.Length - 5; i >= 0; i--)
                         {
                             if (data[i] == 0x00)
+                            {
                                 len--;
+                            }
                             else
+                            {
                                 break;
+                            }
                         }
                         byte[] xmlData = new byte[len];
                         Buffer.BlockCopy(data, 8, xmlData, 0, len);
@@ -114,7 +120,7 @@ namespace DeviceSim.Device
         {
             byte[] buffer = XmlWrapper.SerializeObject(reply);
             byte[] cmd = PackedXMLCommand(buffer);
-            WriteRecvData(cmd);
+            WriteDataByStream2(cmd);
         }
 
         private void ProcessXml(Request request)
@@ -342,7 +348,9 @@ namespace DeviceSim.Device
                                 Attenuation = -1;
                             }
                             else
+                            {
                                 _attAuto = false;
+                            }
                         }
                         else
                         {
@@ -355,9 +363,13 @@ namespace DeviceSim.Device
                         if (int.TryParse(para.Value, out attVal))
                         {
                             if (!_attAuto)
+                            {
                                 Attenuation = attVal;
+                            }
                             else
+                            {
                                 Attenuation = -1;
+                            }
                         }
                         else
                         {
@@ -370,7 +382,9 @@ namespace DeviceSim.Device
                         if (Enum.TryParse(para.Value, out ifPanStep))
                         {
                             if (ifPanStep == EIFPan_Step.IFPAN_STEP_AUTO)
+                            {
                                 ifPanStep = GetAutoIfBandWidth();
+                            }
                             IfPanStep = ((ulong)ifPanStep) / 100000d;
                         }
                         else
@@ -515,32 +529,44 @@ namespace DeviceSim.Device
                     case "eBwMeasurementMode":
                         EMeasureMode mode = EMeasureMode.MEASUREMODE_XDB;
                         if (Enum.TryParse(para.Value, out mode))
+                        {
                             ItuMeasureMode = mode;
+                        }
                         break;
                     case "iConfigBwXdB":
                         int xdb = 0;
                         if (int.TryParse(para.Value, out xdb))
+                        {
                             XdbBandWidth = xdb / 10d;
+                        }
                         break;
                     case "iConfigBwBeta":
                         int beta = 0;
                         if (int.TryParse(para.Value, out beta))
+                        {
                             BetaBandWidth = beta / 10d;
+                        }
                         break;
                     case "bUseAutoBandwidthLimits":
                         bool isUse = false;
                         if (bool.TryParse(para.Value, out isUse))
+                        {
                             UseAutoBandwidthLimits = isUse;
+                        }
                         break;
                     case "iLowerBandwidthLimit":
                         int lower = 0;
                         if (int.TryParse(para.Value, out lower))
+                        {
                             LowerBandwidthLimit = lower / 1000d;
+                        }
                         break;
                     case "iUpperBandwidthLimit":
                         int upper = 0;
                         if (int.TryParse(para.Value, out upper))
+                        {
                             UpperBandwidthLimit = upper / 1000d;
+                        }
                         break;
                     default:
                         break;
@@ -557,32 +583,44 @@ namespace DeviceSim.Device
                     case "eDemodulation":
                         EDemodulation mode = EDemodulation.MOD_AM;
                         if (Enum.TryParse(para.Value, out mode))
+                        {
                             DemMode = mode;
+                        }
                         break;
                     case "iAfFrequency":
                         long freq = 101700000;
                         if (long.TryParse(para.Value, out freq))
+                        {
                             DemFrequency = freq / 1000000d;
+                        }
                         break;
                     case "eAfBandwidth":
                         EAf_BandWidth bw = EAf_BandWidth.BW_120;
                         if (Enum.TryParse(para.Value, out bw))
+                        {
                             DemBandWidth = (uint)bw / 1000d;
+                        }
                         break;
                     case "iAfThreshold":
                         int threshold = 0;
                         if (int.TryParse(para.Value, out threshold))
+                        {
                             SquelchThreshold = threshold;
+                        }
                         break;
                     case "bUseAfThreshold":
                         bool isUse = false;
                         if (bool.TryParse(para.Value, out isUse))
+                        {
                             IsUseSquelch = isUse;
+                        }
                         break;
                     case "eLevelIndicator":
                         ELevel_Indicatir detector = ELevel_Indicatir.LEVEL_INDICATOR_FAST;
                         if (Enum.TryParse(para.Value, out detector))
+                        {
                             Detector = detector;
+                        }
                         break;
                     case "eGainSelect":
                         EGain_Control ctrl = EGain_Control.GAIN_AUTO;
@@ -594,7 +632,9 @@ namespace DeviceSim.Device
                                 Gain = -100;
                             }
                             else
+                            {
                                 _gainAuto = false;
+                            }
                         }
                         break;
                     case "iGainValue":
@@ -602,9 +642,13 @@ namespace DeviceSim.Device
                         if (int.TryParse(para.Value, out gain))
                         {
                             if (!_gainAuto)
+                            {
                                 Gain = gain;
+                            }
                             else
+                            {
                                 Gain = -100;
+                            }
                         }
                         break;
                     case "eGainTiming":
@@ -795,7 +839,9 @@ namespace DeviceSim.Device
                         }
                         _dispatcher.Invoke(new Action(() => ScanRangeList.Remove(info)));
                         if (info.ID == RunningScanRange.ID)
+                        {
                             RunningScanRange = null;
+                        }
                         break;
                     default:
                         break;
@@ -860,7 +906,9 @@ namespace DeviceSim.Device
 
             int id = 0;
             if (_scanRangeList.Count == 0)
+            {
                 id = 0;
+            }
             else
             {
                 id = _scanRangeList.Max(i => i.ID) + 1;
@@ -982,13 +1030,21 @@ namespace DeviceSim.Device
                 }
             }
             if (startChanged)
+            {
                 info.StartFrequency = start;
+            }
             if (stopChanged)
+            {
                 info.StopFrequency = stop;
+            }
             if (spanChanged)
+            {
                 info.Span = span;
+            }
             if (stepChanged)
+            {
                 info.Step = step;
+            }
             info.NumHops = GetNumHops(info.StartFrequency, info.StopFrequency, info.Step, info.Span);
 
             Param param5 = new Param();
@@ -1093,7 +1149,9 @@ namespace DeviceSim.Device
             int len = cmd.Length + 1;
             byte[] lenArr = BitConverter.GetBytes(len);
             if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(lenArr);
+            }
             arr.AddRange(lenArr);
             arr.AddRange(cmd);
             arr.Add(0x00);//添加终止符\0
@@ -1154,7 +1212,9 @@ namespace DeviceSim.Device
             byte[] lenData = new byte[4];
             Buffer.BlockCopy(data, 4, lenData, 0, 4);
             if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(lenData);
+            }
             int len = BitConverter.ToInt32(lenData, 0);
             return len == data.Length - 12;
         }
@@ -1168,7 +1228,9 @@ namespace DeviceSim.Device
             int hops = total / sendlen;
             int num = total % sendlen;
             if (num > 0)
+            {
                 hops++;
+            }
             return hops;
         }
     }

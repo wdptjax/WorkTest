@@ -97,7 +97,9 @@ namespace TestWinform
 
                     index++;
                     if (index == 3)
+                    {
                         index = 0;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -109,16 +111,25 @@ namespace TestWinform
         private void dataGridView1_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0)
+            {
                 return;
-            if (dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == null) return;
+            }
+            if (dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == null)
+            {
+                return;
+            }
             if (e.ColumnIndex == 0)
             {
                 string str = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
                 if (!str.EndsWith("%"))
+                {
                     return;
+                }
                 float val = 0;
                 if (!float.TryParse(str.TrimEnd('%'), out val))
+                {
                     return;
+                }
                 // 设置进度条的前景色以及背景色，与表格的颜色相反
                 Brush forColor = new Pen(dataGridView1.BackgroundColor).Brush;
                 Brush backColor = new Pen(dataGridView1.ForeColor).Brush;
@@ -130,7 +141,9 @@ namespace TestWinform
                     e.PaintBackground(e.CellBounds, true);// 绘制背景色
                 }
                 else
+                {
                     e.PaintBackground(e.CellBounds, false);// 绘制背景色
+                }
                 // 设置绘图区域
                 Rectangle rect = new Rectangle(e.CellBounds.X, e.CellBounds.Y, e.CellBounds.Width - 1, e.CellBounds.Height - 1);
                 // 设置字体格式-垂直居中显示，不换行
@@ -159,10 +172,14 @@ namespace TestWinform
             {
                 string str = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
                 if (!str.EndsWith("%"))
+                {
                     return;
+                }
                 float val = 0;
                 if (!float.TryParse(str.TrimEnd('%'), out val))
+                {
                     return;
+                }
                 if (!progressBars.ContainsKey(e.RowIndex))
                 {
                     ProgressBar progressBar = new ProgressBar();
@@ -184,7 +201,10 @@ namespace TestWinform
 
         private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
 
         }
     }

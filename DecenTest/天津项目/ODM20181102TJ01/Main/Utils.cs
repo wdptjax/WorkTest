@@ -19,11 +19,9 @@ namespace ODM20181102TJ01
             ulong uTime = (ulong)(time.ToUniversalTime().Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds * 1000);
             uint low = (uint)(uTime & 0xFFFFFFFF);
             uint high = (uint)((uTime & 0xFFFFFFFF00000000) >> 32);
-            TimeInTwoWords bigTime = new TimeInTwoWords
-            {
-                HiOrderBits = high,
-                LoOrderBits = low
-            };
+            TimeInTwoWords bigTime = new TimeInTwoWords();
+            bigTime.HiOrderBits = high;
+            bigTime.LoOrderBits = low;
             return bigTime;
         }
 
