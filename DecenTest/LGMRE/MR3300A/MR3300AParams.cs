@@ -17,7 +17,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Globalization;
-
+using Common;
 
 namespace MR3300A
 {

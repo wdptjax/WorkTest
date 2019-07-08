@@ -11,19 +11,19 @@
  * 备    注:		MR3000A系列接收机天线控制与配置
  *                                            
 *********************************************************************************************/
+using Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Tracker800.Server.BasicDefine;
-using Tracker800.Server.Contract;
 
-namespace Tracker800.Server.Device
+namespace MR3300A
 {
-    public partial class MR3300A : IAntennaController
+    public partial class MR3300A
     {
         #region 成员变量
 
+        private const string ANTENNA_CONFIG_FILE = "MR3300AAntenna.ini";
         private Guid _antennaID = Guid.Empty;   // 天线编号
         private AntennaInfoEx[] _monitorAntennas;
 
@@ -54,55 +54,19 @@ namespace Tracker800.Server.Device
             catch (Exception ex)
             {
                 var errorInfo = string.Format("天线码值解析失败,天线名: {0}, 天线码: {1}", antennaInfo.Name, antennaInfo.ControlCode);
-                var item = new LogItem(errorInfo, ex);
-                LogManager.Add(item);
+                //var item = new LogItem(errorInfo, ex);
+                //LogManager.Add(item);
                 return false;
             }
         }
 
+        #endregion
 
         #region 安装属性（监测天线配置）
-
-        private bool _isPublic = true;
-        [Parameter(IsInstallation = true)]
-        [Category(PropertyCategoryNames.Installation)]
-        [DisplayName("天线是否为公共参数")]
-        [Description("天线参数是否公布为功能模板的公共参数,如频段扫描功能中天线参数是每个频段私有可独立设置还是所有频段公用.")]
-        [DefaultValue(true)]
-        [PropertyOrder(29)]
-        public bool IsPublic
-        {
-            get { return _isPublic; }
-            set { _isPublic = value; }
-        }
-
-        private Dictionary<string, object>[] _antennaTemplates;
-        /// <summary>
-        /// 天线集合，集合中每一个元素都是一个字典类型，保存了天线信息的键值对
-        /// </summary>
-        [Parameter(IsInstallation = true, Template = typeof(AntennaInfo))]
-        [Category(PropertyCategoryNames.Installation)]
-        [DisplayName("监测天线集合")]
-        [Description("配置当前设备可用的所有天线。其中天线码的配置以\"|\"方式分隔十六进制节符的方式表示，如：0x01|0x02|0x03|0xFF，或01|02|03|FF")]
-        [PropertyOrder(30)]
-        public Dictionary<string, object>[] AntennaTemplates
-        {
-            get { return _antennaTemplates; }
-            set
-            {
-                _antennaTemplates = value;
-                _monitorAntennas = Array.ConvertAll(value, item => AntennaInfoEx.Create((AntennaInfo)item));
-            }
-        }
 
         // 监测天线信息扩展类，为天线信息添加索引
         private class AntennaInfoEx : AntennaInfo
         {
-            /// <summary>
-            /// 天线索引
-            /// </summary>
-            public int Index { get; set; }
-
             /// <summary>
             /// 按要求转换为符合添加天线的协议格式
             /// </summary>
@@ -162,6 +126,5 @@ namespace Tracker800.Server.Device
 
         #endregion
 
-        #endregion
     }
 }

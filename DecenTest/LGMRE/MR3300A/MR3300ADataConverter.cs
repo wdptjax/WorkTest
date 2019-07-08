@@ -13,14 +13,12 @@
  *                                            
 *********************************************************************************************/
 
+using Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Tracker800.DBServer.Entity;
-using Tracker800.Server.Audio;
-using Tracker800.Server.Contract;
 
 namespace MR3300A
 {
@@ -459,7 +457,6 @@ namespace MR3300A
                 Angle = (((raw.Heading / 10.0f) + _compassInstallingAngle) % 360 + 360) % 360
             };
 
-            SendMessage(MessageDomain.Network, MessageType.MonNodeCompassChange, compass);
         }
 
         // 处理DDC监测数据
@@ -538,7 +535,7 @@ namespace MR3300A
             }
             if (result.Count > 0)
             {
-                SendData(result);
+                OnDataArrived(result);
             }
         }
 
@@ -613,7 +610,7 @@ namespace MR3300A
             }
             if (result.Count > 0)
             {
-                SendData(result);
+                OnDataArrived(result);
             }
         }
 
@@ -641,7 +638,7 @@ namespace MR3300A
                 var timespan = currentTimeStamp - previousTimeStamp;
                 if (distance > 2 || timespan.TotalMilliseconds > 10000)
                 {
-                    SendMessage(MessageDomain.Network, MessageType.MonNodeGPSChange, gps[0]);
+                    //SendMessage(MessageDomain.Network, MessageType.MonNodeGPSChange, gps[0]);
                     previousTimeStamp = currentTimeStamp;
                     bufferedGPS = gps[0];
                 }

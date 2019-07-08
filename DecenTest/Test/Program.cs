@@ -95,18 +95,6 @@ namespace Test
 
         static void Main(string[] args)
         {
-            DateTime dttt = DateTime.Now;
-
-            byte[] arr = new byte[]
-            {
-                (byte)dttt.Year,
-                (byte)(dttt.Year>>8)
-            };
-
-            sbyte sb = -1;
-            byte bb = (byte)sb;
-            sbyte sb1 = (sbyte)bb;
-
             //CreateDir("D:\\Testttttt\\");
             //Test2();
             //Test3();
@@ -134,14 +122,17 @@ namespace Test
             //TestReverse();
 
             //Test_ODM20181102TJ01();
-            Test11();
-            DateTime dt = new DateTime(1970, 1, 1);
-            DateTime dt1 = dt.AddTicks(15574770320000000);
-            DateTime dt2 = dt.AddTicks(15555681977986528);
-            TimeSpan ts = dt1 - dt2;
+            //Test11();
+            //DateTime dt = new DateTime(1970, 1, 1);
+            //DateTime dt1 = dt.AddTicks(15574770320000000);
+            //DateTime dt2 = dt.AddTicks(15555681977986528);
+            //TimeSpan ts = dt1 - dt2;
             //Test_ReadText();
             //TestParseDataCount();
-            Test_Socket();
+            //Test_Socket();
+
+            var instance = Common.DeviceFactory.CreateDeviceInstance("MR3300A.MR3300A");
+            var ants = Common.AntennaHelper.GetAntennaInfos("MR3300AAntenna.ini");
             Console.ReadLine();
 
         }

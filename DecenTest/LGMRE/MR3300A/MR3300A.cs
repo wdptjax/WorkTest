@@ -26,12 +26,28 @@ using System.Net.Sockets;
 using System.Xml;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Common;
+using System.Collections.Concurrent;
+using System.Reflection;
+using System.Net.NetworkInformation;
 
 namespace MR3300A
 {
-    public partial class MR3300A : ReceiverBase
+    public partial class MR3300A : IDevice, IDisposable
     {
         #region 成员变量
+
+        public Guid ID { get; private set; }
+
+        /// <summary>
+        /// 当前任务状态
+        /// </summary>
+        protected volatile TaskState _taskState = TaskState.Stop;
+
+        /// <summary>
+        /// 当前正在执行的功能
+        /// </summary>
+        protected SpecificAbility _curAbility = SpecificAbility.Unknown;
 
         private readonly int MAX_DDC_COUNT = 32;
 
@@ -60,7 +76,7 @@ namespace MR3300A
         private IDictionary<string, Socket> _channels; // 数据回传通道集合
         private IDictionary<string, Thread> _captures; // 数据接收线程集合
         private IDictionary<string, Thread> _dispatches; // 数据转发线程集合
-        private IDictionary<string, MQueue<byte[]>> _queues; // 数据队列集合
+        private IDictionary<string, ConcurrentQueue<byte[]>> _queues; // 数据队列集合
 
         //
         // DDC
@@ -89,6 +105,9 @@ namespace MR3300A
         private SDataGPS _bufferedGPS; // 缓存GPS数据
         private DateTime _preGPSTimeStamp; // 缓存GPS时间戳
 
+        public event DataArrivedDelegate DataArrivedEvent;
+        public event DeviceStatusChangedDelegate DeviceStatusChangedEvent;
+
 #if WRITE_SCAN
 		private Stream _stream;
 		private StreamWriter _writer;
@@ -98,31 +117,29 @@ namespace MR3300A
 
         #region 构造函数
 
-        public MR3300A(Guid id) : base(id) { }
+        public MR3300A()
+        {
+            ID = Guid.NewGuid();
+        }
 
         #endregion
 
-        #region 重写父类方法
+        #region IDevice
 
         // 初始化
-        public override bool Initialize(ModuleInfo moduleInfo)
+        public bool Initialize()
         {
             try
             {
-                bool result = base.Initialize(moduleInfo);
-                if (result)
-                {
-                    InitMiscs();
-                    InitNetworks();
-                    InitAntennas();
-                    InitChannels();
-                    InitThreads();
-                    //InitDDC();
+                InitMiscs();
+                InitNetworks();
+                InitAntennas();
+                InitChannels();
+                InitThreads();
 
-                    SetHeartBeat(WritingChannel);
-                }
+                SetHeartBeat(WritingChannel);
 
-                return result;
+                return true;
             }
             catch
             {
@@ -134,13 +151,8 @@ namespace MR3300A
         }
 
         // 启动测量功能
-        public override bool Start()
+        public bool Start()
         {
-            if (!base.Start())
-            {
-                return false;
-            }
-
             InitChannels();
             ClearAll();
             PreSet();
@@ -152,7 +164,7 @@ namespace MR3300A
         }
 
         // 停止测量功能
-        public override bool Stop()
+        public bool Stop()
         {
             PreReset();
             ResetDataByAbility();
@@ -160,23 +172,23 @@ namespace MR3300A
             ClearAll();
             PostReset();
 
-            return base.Stop();
+            return true;
         }
 
         // 修改测量功能参数
-        public override void SetParameter(string name, object value)
+        public void SetParameter(string name, object value)
         {
             if (_taskState == TaskState.Start)
             {
                 // 当前做法纯属胡扯
                 RequestTask(DataType.None);
                 Thread.Sleep(100);
-                base.SetParameter(name, value);
+                SetParameterValue(name, value);
                 RequestTask(_subscribedData);
             }
             else
             {
-                base.SetParameter(name, value);
+                SetParameterValue(name, value);
             }
 
             if (_taskState == TaskState.Start)
@@ -190,10 +202,148 @@ namespace MR3300A
         }
 
         // 销毁资源
-        public override void Dispose()
+        public void Close()
+        {
+            Dispose();
+        }
+
+        public void SetParameters(Dictionary<string, object> parameters)
+        {
+            foreach (var pairs in parameters)
+            {
+                SetParameter(pairs.Key, pairs.Value);
+            }
+        }
+
+        public object GetParameter(string name)
+        {
+            PropertyInfo property = this.GetType().GetProperty(name);
+            if (property == null)
+            {
+                string info = string.Format("获取参数值 {0} 错误:, 未找到名称为 {0} 的参数", name);
+                throw new Exception(info);
+            }
+
+            try
+            {
+                object value = property.GetValue(this, null);
+                return value;
+            }
+            catch (Exception ex)
+            {
+                string info = string.Format("获取参数值 {0} 错误: {1}", name, ex.Message);
+                Exception ex1 = new Exception(info, ex);
+                throw ex1;
+            }
+        }
+
+        public void Dispose()
         {
             ReleaseResource();
-            base.Dispose();
+        }
+
+        #region 事件
+
+        private void OnDeviceStateChanged(DeviceStatus status, string message)
+        {
+            if (DeviceStatusChangedEvent != null)
+            {
+                DeviceStatusChangedEvent(status, message);
+            }
+        }
+
+        private void OnDataArrived(List<object> data)
+        {
+            if (DataArrivedEvent != null)
+            {
+                DataArrivedEvent(data);
+            }
+        }
+
+        #endregion 事件
+
+        #endregion IDevice
+
+        #region 心跳检测
+
+        protected void SetHeartBeat(Socket tcpSocket)
+        {
+            if (tcpSocket == null)
+            {
+                return;
+            }
+
+            //设置TCP-keepalive模式，若1秒钟之内没有收到探测包回复则再尝试以500ms为间隔发送10次，如果一直都没有回复则认为TCP连接已经断开（为了检测网线断连等异常情况）
+            byte[] bytes = new byte[] { 0x01, 0x00, 0x00, 0x00, 0xE8, 0x03, 0x00, 0x00, 0xF4, 0x01, 0x00, 0x00 };
+            tcpSocket.IOControl(IOControlCode.KeepAliveValues, bytes, null);
+            tcpSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+            //启动TCP连接检查线程
+            Thread thHeartBeat = new Thread(KeepAlive);
+            thHeartBeat.IsBackground = true;
+            thHeartBeat.Name = "KeepAlive Thread";
+            thHeartBeat.Start(tcpSocket);
+        }
+
+        /// <summary>
+        /// 心跳检查线程函数
+        /// 实现 tcp 连接的心跳检查；子类可重载此方法，实现其它连接方式的心跳检查
+        /// </summary>
+        /// <param name="connObject">tcp连接对象</param>
+        protected virtual void KeepAlive(object connObject)
+        {
+            Socket socket = connObject as Socket;
+            if (socket == null)
+            {
+                return;
+            }
+
+            while (true)
+            {
+                if (!IsSocketConnected(socket))
+                {
+                    break;
+                }
+                Thread.Sleep(1000);
+            }
+
+            OnDeviceStateChanged(DeviceStatus.Fault, "设备连接异常");
+            //SendMessage(MessageDomain.Local, MessageType.DeviceRestart, "设备连接异常");
+        }
+
+        /// <summary>
+        /// 检查当前TCP连接的状态
+        /// </summary>
+        /// <param name="socket">目标tcp连接</param>
+        /// <param name="maxRetry">寻找目标连接的最大尝试次数</param>
+        /// <returns></returns>
+        protected bool IsSocketConnected(Socket socket, int maxRetry = 3)
+        {
+            if (socket == null || maxRetry == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                var localEndPoint = socket.LocalEndPoint.ToString();
+                var remoteEndPoint = socket.RemoteEndPoint.ToString();
+                var validConnection = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().FirstOrDefault(item => item.LocalEndPoint.ToString().Equals(localEndPoint) && item.RemoteEndPoint.ToString().Equals(remoteEndPoint));
+                if (validConnection != null)
+                {
+                    return validConnection.State == TcpState.Established;
+                }
+            }
+            catch
+            {
+                // 理论上此处不会抛出任何异常
+                // 异常:
+                // T:System.Net.NetworkInformation.NetworkInformationException: Win32 函数 GetTcpTable 失败。
+            }
+
+            Thread.Sleep(1000);
+
+            return IsSocketConnected(socket, --maxRetry);
         }
 
         #endregion
@@ -208,7 +358,7 @@ namespace MR3300A
             _channels = new Dictionary<string, Socket>();
             _captures = new Dictionary<string, Thread>();
             _dispatches = new Dictionary<string, Thread>();
-            _queues = new Dictionary<string, MQueue<byte[]>>();
+            _queues = new Dictionary<string, ConcurrentQueue<byte[]>>();
 
             _preGPSTimeStamp = DateTime.MinValue;
             _bufferedGPS = new SDataGPS();
@@ -357,13 +507,11 @@ namespace MR3300A
             //
             // 添加天线数量
             var antennaCount = 0;
+            List<AntennaInfo> ants = AntennaHelper.GetAntennaInfos(ANTENNA_CONFIG_FILE);
+            _monitorAntennas = Array.ConvertAll(ants.ToArray(), ant => AntennaInfoEx.Create(ant));
             if (_monitorAntennas != null)
             {
                 antennaCount += _monitorAntennas.Length;
-            }
-            if (_dfindAntennas != null)
-            {
-                antennaCount += _dfindAntennas.Length;
             }
             if (antennaCount > 0)
             {
@@ -418,25 +566,13 @@ namespace MR3300A
         {
             foreach (var identifier in DATA_IDENTIFIERS)
             {
-                _captures[identifier] = new Thread(CapturePacket) { IsBackground = true, Name = string.Format("{0}({1})_{2}_capture", _moduleInfo.Name, _moduleID, identifier) };
+                _captures[identifier] = new Thread(CapturePacket) { IsBackground = true, Name = string.Format("{0}_capture", identifier) };
                 _captures[identifier].Start(identifier);
 
-                _dispatches[identifier] = new Thread(DispatchPacket) { IsBackground = true, Name = string.Format("{0}({1})_{2}_dispatch", _moduleInfo.Name, _moduleID, identifier) };
+                _dispatches[identifier] = new Thread(DispatchPacket) { IsBackground = true, Name = string.Format("{0}_dispatch", identifier) };
                 _dispatches[identifier].Start(identifier);
             }
         }
-
-        //// 初始化DDC
-        //private void InitDDC()
-        //{
-        //	if (_ifmchCount > 0)
-        //	{
-        //		for (var index = 0; index < _ifmchCount; ++index)
-        //		{
-        //			SendCommand(string.Format("DDC:CONT {0},101.7 MHz,200 kHz,FM,None", index));
-        //		}
-        //	}
-        //}
 
         #endregion
 
@@ -614,7 +750,7 @@ namespace MR3300A
             SendCommand(string.Format("FREQ:STOP {0} MHz", _stopFrequency));
             SendCommand(string.Format("FREQ:STEP {0} kHz", _stepFrequency));
 
-            _scanDataLength = ScanCalculateFunctions.GetTotalCount(_startFrequency, _stopFrequency, _stepFrequency);
+            _scanDataLength = Utils.GetTotalCount(_startFrequency, _stopFrequency, _stepFrequency);
             _subscribedData |= DataType.SCAN;
         }
 
@@ -739,6 +875,28 @@ namespace MR3300A
 
         #region 任务处理
 
+        // 设置参数
+        private void SetParameterValue(string name, object value)
+        {
+            PropertyInfo property = this.GetType().GetProperty(name);
+            if (property == null)
+            {
+                string info = string.Format("设置参数 {0} = {1} 错误:, 未找到名称为 {2} 的参数", name, value.ToString(), name);
+                throw new Exception(info);
+            }
+
+            try
+            {
+                property.SetValue(this, value, null);
+            }
+            catch (Exception ex)
+            {
+                string info = string.Format("设置参数 {0} 错误: {1}", name, value.ToString());
+                Exception ex1 = new Exception(info, ex);
+                throw ex1;
+            }
+        }
+
         // 接受业务数据请求
         private void AcceptDataRequest(DataType dataType)
         {
@@ -814,7 +972,11 @@ namespace MR3300A
             {
                 if (_queues.ContainsKey(identifier) && _queues[identifier] != null)
                 {
-                    _queues[identifier].Clear();
+                    while (!_queues[identifier].IsEmpty)
+                    {
+                        byte[] datas;
+                        _queues[identifier].TryDequeue(out datas);
+                    }
                 }
             }
         }
@@ -892,8 +1054,11 @@ namespace MR3300A
             {
                 if (_queues.ContainsKey(identifier) && _queues[identifier] != null)
                 {
-                    try { _queues[identifier].Dispose(); }
-                    catch { }
+                    byte[] datas;
+                    while (!_queues[identifier].IsEmpty)
+                    {
+                        _queues[identifier].TryDequeue(out datas);
+                    }
                     _queues[identifier] = null;
                 }
             }
@@ -907,7 +1072,7 @@ namespace MR3300A
         private void CapturePacket(object obj)
         {
             var identifier = obj.ToString();
-            MQueue<byte[]> queue = null;
+            ConcurrentQueue<byte[]> queue = null;
             Socket socket = null;
 
             lock (_identifierLock)
@@ -915,7 +1080,7 @@ namespace MR3300A
                 socket = _channels[identifier];
                 if (!_queues.ContainsKey(identifier))
                 {
-                    _queues[identifier] = new MQueue<byte[]>();
+                    _queues[identifier] = new ConcurrentQueue<byte[]>();
                 }
                 queue = _queues[identifier];
             }
@@ -942,7 +1107,7 @@ namespace MR3300A
 
                     if (_taskState == TaskState.Start || identifier.ToLower().Equals("device"))
                     {
-                        queue.EnQueue(receivedBuffer);
+                        queue.Enqueue(receivedBuffer);
                     }
                     else
                     {
@@ -964,8 +1129,8 @@ namespace MR3300A
                     }
                     else
                     {
-                        var item = new LogItem(ex);
-                        LogManager.Add(item);
+                        //var item = new LogItem(ex);
+                        //LogManager.Add(item);
                     }
                 }
             }
@@ -975,13 +1140,13 @@ namespace MR3300A
         private void DispatchPacket(object obj)
         {
             var identifier = obj.ToString();
-            MQueue<byte[]> queue = null;
+            ConcurrentQueue<byte[]> queue = null;
 
             lock (_identifierLock)
             {
                 if (!_queues.ContainsKey(identifier))
                 {
-                    _queues[identifier] = new MQueue<byte[]>();
+                    _queues[identifier] = new ConcurrentQueue<byte[]>();
                 }
                 queue = _queues[identifier];
             }
@@ -990,7 +1155,8 @@ namespace MR3300A
             {
                 try
                 {
-                    var buffer = queue.DeQueue();
+                    byte[] buffer;
+                    queue.TryDequeue(out buffer);
                     if (buffer == null)
                     {
                         Thread.Sleep(1);
@@ -1014,10 +1180,10 @@ namespace MR3300A
                     }
                     else
                     {
-                        var item = new LogItem(ex);
-                        LogManager.Add(item);
-#warning 现阶段先推送详细信息到客户端，等稳定以后再改为简略信息
-                        SendMessage(MessageDomain.Task, MessageType.Warning, "解析数据错误！" + ex.ToString());
+                        //                        var item = new LogItem(ex);
+                        //                        LogManager.Add(item);
+                        //#warning 现阶段先推送详细信息到客户端，等稳定以后再改为简略信息
+                        //                        SendMessage(MessageDomain.Task, MessageType.Warning, "解析数据错误！" + ex.ToString());
                     }
                 }
             }
@@ -1147,7 +1313,7 @@ namespace MR3300A
 						_writer.Flush();
 					}
 #endif
-                SendData(result);
+                OnDataArrived(result);
             }
         }
 

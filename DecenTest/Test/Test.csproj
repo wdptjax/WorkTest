@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -52,6 +52,10 @@
     <Compile Include="XmlWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LGMRE\Common\Common.csproj">
+      <Project>{46fcd4fa-3f69-4a8a-8908-690dffe8ec4e}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\天津项目\ODM20181102TJ01\ODM20181102TJ01.csproj">
       <Project>{986a5631-8196-48a9-889e-4eaf7b9f6c63}</Project>
       <Name>ODM20181102TJ01</Name>
