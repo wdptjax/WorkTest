@@ -33,7 +33,7 @@ using System.Net.NetworkInformation;
 
 namespace MR3300A
 {
-    public partial class MR3300A : IDevice, IDisposable
+    public partial class MR3300A : IDevice
     {
         #region 成员变量
 
@@ -56,7 +56,7 @@ namespace MR3300A
         // 数据/网络通道/数据处理线程标识符，分别标识音频、DDC、普通业务数据
         private readonly string[] DATA_IDENTIFIERS = new string[] { "audio", "ddc", "data", "device" };
         // 模块配置文件
-        private readonly string CONFIG_PATH = @"Device\Receiver\MR3300A.ini";
+        private readonly string CONFIG_PATH = @"Device\MR3300A.ini";
 
         //
         // 同步锁
@@ -120,6 +120,12 @@ namespace MR3300A
         public MR3300A()
         {
             ID = Guid.NewGuid();
+
+            _ip = Utils.ReadIniFiles("Client", "IP", "127.0.0.1", "MR3300AConfig.ini");
+            _port = Utils.ReadIniFiles("Client", "Port", 5025, "MR3300AConfig.ini");
+            _enableGPS = Utils.ReadIniFiles("Client", "EnableGPS", false, "MR3300AConfig.ini");
+            _enableCompass = Utils.ReadIniFiles("Client", "EnableCompass", false, "MR3300AConfig.ini");
+            _compassInstallingAngle = Utils.ReadIniFiles("Client", "CompassInstallingAngle", 0, "MR3300AConfig.ini");
         }
 
         #endregion
@@ -507,7 +513,7 @@ namespace MR3300A
             //
             // 添加天线数量
             var antennaCount = 0;
-            List<AntennaInfo> ants = AntennaHelper.GetAntennaInfos(ANTENNA_CONFIG_FILE);
+            List<AntennaInfo> ants = Utils.GetAntennaInfos(ANTENNA_CONFIG_FILE);
             _monitorAntennas = Array.ConvertAll(ants.ToArray(), ant => AntennaInfoEx.Create(ant));
             if (_monitorAntennas != null)
             {

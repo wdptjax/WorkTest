@@ -130,9 +130,24 @@ namespace Test
             //Test_ReadText();
             //TestParseDataCount();
             //Test_Socket();
+            SerialPort port = new SerialPort();
+            port.PortName = "COM2";
+            port.BaudRate = 57600;
+            port.StopBits = StopBits.One;
+            port.DataBits = 8;
+            port.Parity = Parity.None;
+            port.Open();
 
-            var instance = Common.DeviceFactory.CreateDeviceInstance("MR3300A.MR3300A");
-            var ants = Common.AntennaHelper.GetAntennaInfos("MR3300AAntenna.ini");
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    byte[] bt = BitConverter.GetBytes(66);
+                    port.Write(bt, 0, bt.Length);
+                    Thread.Sleep(1000);
+                }
+            });
+
             Console.ReadLine();
 
         }

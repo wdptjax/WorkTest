@@ -6,7 +6,7 @@ using System.Text;
 namespace Common
 {
 
-    public interface IDevice
+    public interface IDevice : IDisposable
     {
         /// <summary>
         /// 初始化设备

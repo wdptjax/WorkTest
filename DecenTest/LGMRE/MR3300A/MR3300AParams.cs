@@ -27,6 +27,10 @@ namespace MR3300A
         #region 常规参数
 
         private double _frequency;
+
+        /// <summary>
+        /// 中心频率
+        /// </summary>
         public double Frequency
         {
             get { lock (_parameterLock) { return _frequency; } }
@@ -49,6 +53,10 @@ namespace MR3300A
         }
 
         private double _spectrumSpan;
+
+        /// <summary>
+        /// 频谱带宽
+        /// </summary>
         public double SpectrumSpan
         {
             get { return _spectrumSpan; }
@@ -60,6 +68,10 @@ namespace MR3300A
         }
 
         private double _ifBandWidth;
+
+        /// <summary>
+        /// 滤波带宽/中频带宽
+        /// </summary>
         public double IFBandWidth
         {
             get { return _ifBandWidth; }
@@ -71,6 +83,10 @@ namespace MR3300A
         }
 
         private RFMode _rfMode;
+
+        /// <summary>
+        /// 射频模式
+        /// </summary>
         public RFMode RFMode
         {
             get { return _rfMode; }
@@ -82,6 +98,10 @@ namespace MR3300A
         }
 
         private string _autoAttenuation;
+
+        /// <summary>
+        /// 衰减
+        /// </summary>
         public string AutoAttenuation
         {
             get { return _autoAttenuation; }
@@ -102,6 +122,10 @@ namespace MR3300A
         }
 
         private int _rfAttenuation;
+
+        /// <summary>
+        /// 射频衰减
+        /// </summary>
         public int RFAttenuation
         {
             get { return _rfAttenuation; }
@@ -120,6 +144,10 @@ namespace MR3300A
         }
 
         private int _ifAttenuation;
+
+        /// <summary>
+        /// 中频衰减
+        /// </summary>
         public int IFAttenuation
         {
             get { return _ifAttenuation; }
@@ -134,6 +162,10 @@ namespace MR3300A
         }
 
         private double _startFrequency;
+
+        /// <summary>
+        /// 起始频率
+        /// </summary>
         public double StartFrequency
         {
             get { return _startFrequency; }
@@ -148,6 +180,10 @@ namespace MR3300A
         }
 
         private double _stopFrequency;
+
+        /// <summary>
+        /// 结束频率
+        /// </summary>
         public double StopFrequency
         {
             get { return _stopFrequency; }
@@ -162,6 +198,10 @@ namespace MR3300A
         }
 
         private double _stepFrequency;
+
+        /// <summary>
+        /// 步进
+        /// </summary>
         public double StepFrequency
         {
             get { return _stepFrequency; }
@@ -176,6 +216,10 @@ namespace MR3300A
         }
 
         private ScanMode _scanMode;
+
+        /// <summary>
+        /// 扫描模式
+        /// </summary>
         public ScanMode ScanMode
         {
             get { return _scanMode; }
@@ -198,6 +242,10 @@ namespace MR3300A
         }
 
         private DemoduMode _demMode;
+
+        /// <summary>
+        /// 解调模式
+        /// </summary>
         public DemoduMode DemMode
         {
             get { return _demMode; }
@@ -209,6 +257,10 @@ namespace MR3300A
         }
 
         private int _squelchThreshold;
+
+        /// <summary>
+        /// 静噪门限
+        /// </summary>
         public int SquelchThreshold
         {
             get { return _squelchThreshold; }
@@ -224,6 +276,10 @@ namespace MR3300A
         #region 高级参数
 
         private float _holdTime;
+
+        /// <summary>
+        /// 等待时间
+        /// </summary>
         public float HoldTime
         {
             get { return _holdTime; }
@@ -235,6 +291,10 @@ namespace MR3300A
         }
 
         private float _dwellTime;
+
+        /// <summary>
+        /// 驻留时间
+        /// </summary>
         public float DwellTime
         {
             get { return _dwellTime; }
@@ -246,6 +306,10 @@ namespace MR3300A
         }
 
         private DetectMode _detector;
+
+        /// <summary>
+        /// 检波方式
+        /// </summary>
         public DetectMode Detector
         {
             get { return _detector; }
@@ -284,6 +348,10 @@ namespace MR3300A
         }
 
         private float _measureTime;
+
+        /// <summary>
+        /// 测量时间
+        /// </summary>
         public float MeasureTime
         {
             get { return _measureTime; }
@@ -296,6 +364,10 @@ namespace MR3300A
         }
 
         private float _xdB;
+
+        /// <summary>
+        /// XdB带宽
+        /// </summary>
         public float XdB
         {
             get { return _xdB; }
@@ -307,6 +379,10 @@ namespace MR3300A
         }
 
         private float _beta;
+
+        /// <summary>
+        /// beta带宽
+        /// </summary>
         public float Beta
         {
             get { return _beta; }
@@ -544,6 +620,10 @@ namespace MR3300A
         #region 安装属性（网络地址）
 
         private string _ip;
+
+        /// <summary>
+        /// IP地址
+        /// </summary>
         public string IP
         {
             get { return _ip; }
@@ -551,6 +631,10 @@ namespace MR3300A
         }
 
         private int _port;
+
+        /// <summary>
+        /// 端口
+        /// </summary>
         public int Port
         {
             get { return _port; }
@@ -558,6 +642,10 @@ namespace MR3300A
         }
 
         private bool _enableGPS;
+
+        /// <summary>
+        /// 启用GPS
+        /// </summary>
         public bool EnableGPS
         {
             get { return _enableGPS; }
@@ -565,6 +653,10 @@ namespace MR3300A
         }
 
         private bool _enableCompass;
+
+        /// <summary>
+        /// 启用罗盘
+        /// </summary>
         public bool EnableCompass
         {
             get { return _enableCompass; }
@@ -572,6 +664,10 @@ namespace MR3300A
         }
 
         private float _compassInstallingAngle;
+
+        /// <summary>
+        /// 罗盘安装夹角
+        /// </summary>
         public float CompassInstallingAngle
         {
             get { return _compassInstallingAngle; }

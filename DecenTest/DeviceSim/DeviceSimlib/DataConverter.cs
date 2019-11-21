@@ -21,7 +21,7 @@ using System.Text;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace DeviceSim.Device
+namespace DeviceSimlib
 {
     public class DataConverter : IValueConverter
     {

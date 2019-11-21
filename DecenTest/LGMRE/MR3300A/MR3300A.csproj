@@ -52,6 +52,9 @@
     <Compile Include="Script.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MR3300AConfig.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="MR3300AAntenna.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

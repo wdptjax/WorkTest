@@ -11,6 +11,11 @@ namespace Common
         private static object _lockDeviceList = new object();
         private static List<IDevice> _deviceList = new List<IDevice>();
 
+        /// <summary>
+        /// 创建设备实例
+        /// </summary>
+        /// <param name="deviceType"></param>
+        /// <returns></returns>
         public static IDevice CreateDeviceInstance(string deviceType)
         {
             Type type = PluginsManager.GetTye(deviceType);
@@ -37,12 +42,16 @@ namespace Common
             return null;
         }
 
+        /// <summary>
+        /// 注销设备
+        /// </summary>
+        /// <param name="device"></param>
         public static void DisposeDevice(IDevice device)
         {
             device.Close();
-            lock(_lockDeviceList)
+            lock (_lockDeviceList)
             {
-                if(_deviceList.Contains(device))
+                if (_deviceList.Contains(device))
                 {
                     _deviceList.Remove(device);
                 }

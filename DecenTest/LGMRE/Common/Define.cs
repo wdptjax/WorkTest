@@ -351,7 +351,6 @@ namespace Common
         Stop = 2
     }
 
-
     /// <summary>
     /// 具体功能类型定义 支持与、或位运算
     /// </summary>

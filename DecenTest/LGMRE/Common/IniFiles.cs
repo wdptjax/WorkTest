@@ -11,7 +11,7 @@ namespace Common
     /// <summary>
     /// IniFiles的类
     /// </summary>
-    public class IniFiles
+    internal class IniFiles
     {
         public string FileName; //INI文件名
                                 //string path   =   System.IO.Path.Combine(Application.StartupPath,"pos.ini");

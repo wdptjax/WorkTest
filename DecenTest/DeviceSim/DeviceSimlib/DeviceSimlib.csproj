@@ -47,6 +47,7 @@
     <Compile Include="Class\DeviceBase.cs" />
     <Compile Include="Class\MessageInfo.cs" />
     <Compile Include="Commands.cs" />
+    <Compile Include="DataConverter.cs" />
     <Compile Include="DeviceManager.cs" />
     <Compile Include="Extensions\NotificationExtensions.cs" />
     <Compile Include="PluginsManager.cs" />
