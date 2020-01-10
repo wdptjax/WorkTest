@@ -66,7 +66,6 @@ namespace TestSharpDx
                     _d2DRenderTarget.EndDraw();
                 }));
 
-
                 _device.ImmediateContext.Flush();// 这句代码是等待元素绘制完毕,如果没有这句代码,频繁刷新图像的时候会出现图像显示不完全的情况
             });
             _d3D.Lock();

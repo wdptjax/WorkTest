@@ -91,10 +91,34 @@ namespace Test
 
     class Program
     {
-
+        private static AutoResetEvent m_hReceivedEvent = new AutoResetEvent(false);
+        private static ManualResetEvent m_hBreakEvent = new ManualResetEvent(false);
 
         static void Main(string[] args)
         {
+            Task.Factory.StartNew(new Action(() =>
+            {
+                if (0 == WaitHandle.WaitAny(new WaitHandle[] { m_hBreakEvent, m_hReceivedEvent }))
+                {
+                    return;
+                }
+                else
+                {
+
+                }
+            }));
+
+            string str = Console.ReadLine();
+            if (str == "1")
+            {
+                m_hBreakEvent.Set();
+            }
+            else if (str == "2")
+            {
+                m_hReceivedEvent.Set();
+            }
+            str = Console.ReadLine();
+
             //CreateDir("D:\\Testttttt\\");
             //Test2();
             //Test3();
@@ -151,6 +175,7 @@ namespace Test
             Console.ReadLine();
 
         }
+
 
         static void Test11()
         {

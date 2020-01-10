@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWPF", "TestWPF\TestWPF.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSharpDx", "TestSharpDx\TestSharpDx.csproj", "{97124545-7D93-4FFD-ABAA-EF9185973B9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestInteractiveDataDisplay", "TestInteractiveDataDisplay\TestInteractiveDataDisplay.csproj", "{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -359,6 +361,18 @@ Global
 		{97124545-7D93-4FFD-ABAA-EF9185973B9F}.Release|x64.Build.0 = Release|Any CPU
 		{97124545-7D93-4FFD-ABAA-EF9185973B9F}.Release|x86.ActiveCfg = Release|Any CPU
 		{97124545-7D93-4FFD-ABAA-EF9185973B9F}.Release|x86.Build.0 = Release|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Debug|x64.Build.0 = Debug|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Debug|x86.Build.0 = Debug|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Release|x64.ActiveCfg = Release|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Release|x64.Build.0 = Release|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Release|x86.ActiveCfg = Release|Any CPU
+		{2B0F45A4-B6BF-4F13-93A1-FC14BC02401C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

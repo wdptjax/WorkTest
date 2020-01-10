@@ -1,0 +1,31 @@
+﻿<Window x:Class="TestInteractiveDataDisplay.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TestInteractiveDataDisplay"
+        xmlns:d3="clr-namespace:InteractiveDataDisplay.WPF;assembly=InteractiveDataDisplay.WPF"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" WindowState="Maximized">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- BarGraph -->
+        <d3:Chart Grid.Row="0">
+            <d3:Chart.Title>
+                <TextBlock Text="WPF Bar Chart" HorizontalAlignment="Center" FontSize="18" Margin="0, 5"/>
+            </d3:Chart.Title>
+            <d3:BarGraph x:Name="BarChart" Description="BarChart" Stroke="Red" StrokeThickness="1"/>
+        </d3:Chart>
+        <!-- LineGraph -->
+        <d3:Chart x:Name="LinePlot" Grid.Row="1">
+            <d3:Chart.Title>
+                <TextBlock Text="WPF Line Chart" HorizontalAlignment="Center" FontSize="18" Margin="0, 5"/>
+            </d3:Chart.Title>
+            <d3:LineGraph x:Name="LineChart" Description="LineChart" Stroke="Green" StrokeThickness="1"/>
+        </d3:Chart>
+    </Grid>
+</Window>
