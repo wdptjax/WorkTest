@@ -35,10 +35,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DocumentFormat.OpenXml.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Microsoft.VisualStudio.OLE.Interop.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -64,25 +60,12 @@
     <Compile Include="ShowProgress.xaml.cs">
       <DependentUpon>ShowProgress.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Word\OpenXmlEmbeddedObject.cs" />
-    <Compile Include="Word\OpenXmlHelper.cs" />
-    <Compile Include="Word\WordReportExportBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="ShowProgress.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Microsoft.VisualStudio.OLE.Interop.dll" />
-    <Content Include="ole32.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\OpenXmlCidGenerator\OpenXmlCidGenerator.csproj">
-      <Project>{db7fbf65-ff65-4965-a6ff-e12c34b38219}</Project>
-      <Name>OpenXmlCidGenerator</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

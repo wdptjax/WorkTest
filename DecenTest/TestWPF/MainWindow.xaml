@@ -18,5 +18,22 @@
                 <local:SharpDXDraw x:Name="KsyosqStmckfy"></local:SharpDXDraw>
             </Image.Source>
         </Image>
+        <Path Data="M100,100 L 200,100 
+              A 20,10 0 0 0 100,100 
+              A 200,200 0 0 0 200,100" Stroke="Black"/>
+        <Path Data="M150,106 L150,220" Stroke="Black" StrokeThickness="4"/>
+        
+        <Path Data="M90,130 L210,170" Stroke="Black"  StrokeThickness="2"/>
+        <Path Data="M90,100 L90,160" Stroke="Black"  StrokeThickness="2"/>
+        <Path Data="M210,140 L210,200" Stroke="Black"  StrokeThickness="2"/>
+
+        <Path Data="M70,150 L230,150" Stroke="Black"  StrokeThickness="2"/>
+        <Path Data="M70,120 L70,180" Stroke="Black"  StrokeThickness="2"/>
+        <Path Data="M230,120 L230,180" Stroke="Black"  StrokeThickness="2"/>
+
+        <Path Data="M92,170 L208,130" Stroke="Black"  StrokeThickness="2"/>
+        <Path Data="M92,140 L92,200" Stroke="Black"  StrokeThickness="2"/>
+        <Path Data="M208,100 L208,150" Stroke="Black"  StrokeThickness="2"/>
+
     </Grid>
 </Window>

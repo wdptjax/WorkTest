@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data.cs" />
+    <Compile Include="DDF200MProtocol.cs" />
     <Compile Include="IAntennaControllerNew.cs" />
     <Compile Include="IAntennaController.cs" />
     <Compile Include="Program.cs" />

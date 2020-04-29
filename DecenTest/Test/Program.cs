@@ -93,9 +93,17 @@ namespace Test
     {
         private static AutoResetEvent m_hReceivedEvent = new AutoResetEvent(false);
         private static ManualResetEvent m_hBreakEvent = new ManualResetEvent(false);
-
+        class test
+        {
+            public int num { get; set; }
+        }
         static void Main(string[] args)
         {
+            TestEB200();
+            List<test> listT = new List<test>();
+            listT.Add(new test() { num = 10 });
+            var nList = listT.ToArray().ToList();
+            nList[0].num = 11;
             Task.Factory.StartNew(new Action(() =>
             {
                 if (0 == WaitHandle.WaitAny(new WaitHandle[] { m_hBreakEvent, m_hReceivedEvent }))
@@ -3004,5 +3012,337 @@ namespace Test
                 Console.WriteLine("Array,For " + DateTime.Now.Subtract(dt).TotalMilliseconds.ToString("0.000"));
             }
         }
+
+
+        #region 测试EB200
+
+        static string _strData = "00-0E-B2-00-00-63-00-02-00-01-00-00-00-00-02-EC-05-79-02-D8-00-65-00-72-A0-00-38-00-00-0E-27-07-00-00-00-00-00-2D-31-01-02-00-00-00-EC-FF-FF-FF-C0-D4-01-00-40-0D-03-00-64-00-00-00-01-00-00-00-00-00-FF-FF-FE-7F-00-00-32-00-00-00-00-0E-27-07-00-00-00-00-3E-AF-71-7F-88-CB-FB-15-00-00-FF-FF-4E-00-00-00-00-00-00-00-45-00-00-00-00-00-00-00-00-00-80-BF-40-0D-03-00-01-00-00-00-00-0E-27-07-00-00-00-00-AC-00-FE-7F-FE-7F-FE-7F-FE-7F-A1-00-A7-00-A7-00-AB-00-A9-00-AB-00-A6-00-AA-00-AA-00-AE-00-B2-00-B8-00-BC-00-C2-00-C3-00-C5-00-C2-00-C0-00-BB-00-BA-00-B6-00-B3-00-B3-00-B0-00-A7-00-A4-00-9C-00-9C-00-95-00-95-00-98-00-9D-00-A1-00-A6-00-A2-00-A3-00-98-00-93-00-8C-00-94-00-95-00-9B-00-99-00-9C-00-98-00-9E-00-A1-00-A7-00-A6-00-A9-00-AC-00-A8-00-A8-00-AC-00-B2-00-B7-00-BB-00-BF-00-BE-00-BE-00-BB-00-B6-00-B2-00-B2-00-B4-00-B7-00-BA-00-B9-00-B5-00-B2-00-B1-00-B2-00-B3-00-B4-00-B4-00-B9-00-AD-00-AA-00-AB-00-AD-00-B0-00-AE-00-AF-00-A6-00-A7-00-A2-00-A8-00-A7-00-AB-00-A9-00-AA-00-A6-00-A3-00-A0-00-A3-00-A7-00-AA-00-B0-00-B2-00-B2-00-AE-00-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F-FE-7F";
+        private static void TestEB200()
+        {
+            string[] split = _strData.Split('-');
+            byte[] mediaData = new byte[split.Length];
+            for (int i = 0; i < mediaData.Length; i++)
+            {
+                mediaData[i] = Convert.ToByte(split[i], 16);
+            }
+
+            List<object> sendDatas = new List<object>();
+            int offset = Marshal.SizeOf(typeof(EB200DatagramFormat));
+            while (offset < mediaData.Length)
+            {
+                GenericAttribute ga = new GenericAttribute(mediaData, offset);
+                offset += Marshal.SizeOf(typeof(GenericAttribute));
+                object obj = null;
+                switch (ga.tag)
+                {
+                    case (int)Tracker800.Server.Device.TAGS.AUDIO:
+                        //obj = ToAudio(mediaData, offset, pcm22050);
+                        break;
+                    case (int)Tracker800.Server.Device.TAGS.IFPAN:
+                        obj = ToSpectrum(mediaData, offset);
+                        break;
+                    case (int)Tracker800.Server.Device.TAGS.IF:
+                        obj = ToIQ(mediaData, offset);
+                        break;
+                    case (int)Tracker800.Server.Device.TAGS.FSCAN:
+                        //obj = ToFScan(mediaData, offset);
+                        break;
+                    case (int)Tracker800.Server.Device.TAGS.PSCAN:
+                        //obj = ToPScan(mediaData, offset);
+                        break;
+                    //case (int)TAGS.MSCAN:
+                    //    obj = ToMScan(mediaData, offset);
+                    //    break;
+                    case (int)Tracker800.Server.Device.TAGS.DFPan:
+                        obj = ToDFPan(mediaData, offset);
+                        break;
+                    default:
+                        break;
+                }
+                if (obj != null)
+                {
+                    if ((obj as List<object>) != null)
+                    {
+                        sendDatas.AddRange(obj as List<object>);
+                    }
+                    else
+                    {
+                        sendDatas.Add(obj);
+                    }
+                }
+                offset += ga.length;
+            }
+            sendDatas.RemoveAll(item => item == null);
+        }
+
+        /// <summary>
+        /// 解析测向数据(宽带测向、单频测向)
+        /// </summary>
+        /// <param name="buffer">设备接收数据</param>
+        /// <param name="offset">偏移量</param>
+        private static object ToDFPan(byte[] buffer, int offset)
+        {
+            try
+            {
+                TraceAttribute pCommon = new TraceAttribute(buffer, offset);
+                offset += Marshal.SizeOf(typeof(TraceAttribute));
+                OptionalHeaderDFPan opt = new OptionalHeaderDFPan(buffer, offset);
+                offset += pCommon.optional_header_length;
+                //int dffstrength = opt.AntennaFactor;
+                float[] pLevel = new float[pCommon.number_of_trace_items];
+                float[] pAzimuth = new float[pCommon.number_of_trace_items];
+                float[] pQuality = new float[pCommon.number_of_trace_items];
+
+                FLAGS flag = FLAGS.DF_LEVEL;
+                while (flag != FLAGS.OPTIONAL_HEADER)
+                {
+                    if ((pCommon.selectorFlags & (uint)flag) > 0)
+                    {
+                        switch (flag)
+                        {
+                            case FLAGS.DF_LEVEL:
+                                for (int i = 0; i < pLevel.Length; i++)
+                                {
+                                    pLevel[i] = BitConverter.ToInt16(buffer, offset) / 10f;
+                                    offset += 2;
+                                }
+                                break;
+                            case FLAGS.AZIMUTH:
+                                for (int i = 0; i < pAzimuth.Length; i++)
+                                {
+                                    pAzimuth[i] = BitConverter.ToInt16(buffer, offset) / 10f;
+                                    if (pAzimuth[i] >= 3276.6)//当门限过大，会返回3276.6无效数据
+                                    {
+                                        pAzimuth[i] = float.MinValue;
+                                    }
+                                    offset += 2;
+                                }
+                                break;
+                            case FLAGS.DF_QUALITY:
+                                for (int i = 0; i < pQuality.Length; i++)
+                                {
+                                    pQuality[i] = BitConverter.ToInt16(buffer, offset) / 10f;
+                                    if (pQuality[i] >= 3276.6)//当门限过大，会返回3276.6无效数据
+                                    {
+                                        pQuality[i] = float.MinValue;
+                                    }
+                                    offset += 2;
+                                }
+                                break;
+                        }
+                    }
+
+                    flag = (FLAGS)((uint)flag << 1);
+                }
+
+                long freq = ((long)opt.Freq_low | ((long)opt.Freq_high) << 32);
+                int freqIndex = opt.DemodFreqChannel;
+                double frequency = freq / 1000000d;
+                var _media = MediaType.DFIND | MediaType.LEVEL | MediaType.SPECTRUM;
+                if ((_media & (MediaType.DFIND | MediaType.DFPAN)) > 0)
+                {
+                    List<object> result = new List<object>();
+
+                    if ((_media & MediaType.LEVEL) > 0)
+                    {
+                        SDataLevel dataLevel = new SDataLevel();
+                        dataLevel.Data = pLevel[freqIndex];
+                        //dataLevel.Frequency = _frequency;
+                        //dataLevel.IFBandWidth = _ifbandwidth;
+                        result.Add(dataLevel);
+                    }
+                    if ((_media & MediaType.SPECTRUM) > 0)
+                    {
+                        SDataSpectrum dataSpectrum = new SDataSpectrum();
+                        //dataSpectrum.SpectrumSpan = _curAbility == SpecificAbility.FixDF ? _fixdfSpectrumSpan : SpectrumSpan;
+                        dataSpectrum.Frequency = frequency;
+                        dataSpectrum.Datas = pLevel;
+                        result.Add(dataSpectrum);
+                    }
+                    if ((_media & MediaType.DFIND) > 0)
+                    {
+                        SDataDFind dataDFind = new SDataDFind();
+                        dataDFind.Frequency = frequency;
+                        //dataDFind.DFBandwidth = _dfBandWidth;
+                        dataDFind.Azimuth = pAzimuth[freqIndex];
+                        dataDFind.Quality = pQuality[freqIndex];
+                        result.Add(dataDFind);
+                    }
+                    if ((_media & MediaType.DFPAN) > 0)
+                    {
+                        SDataWBDF dataWBDF = new SDataWBDF();
+                        dataWBDF.Frequency = frequency;
+                        //dataWBDF.DFBandwidth = _spectrumspan;
+                        dataWBDF.Azimuth = pAzimuth;
+                        dataWBDF.Quality = pQuality;
+                        result.Add(dataWBDF);
+                    }
+
+                    return result;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+      
+                return null;
+            }
+        }
+
+        public enum MediaType
+        {
+            /// <summary>
+            /// 无
+            /// </summary>
+            None = 0,
+            /// <summary>
+            /// IQ数据
+            /// </summary>
+            IQ = 1,
+            /// <summary>
+            /// 电平数据
+            /// </summary>
+            LEVEL = IQ << 1,
+            /// <summary>
+            /// 频谱数据
+            /// </summary>
+            SPECTRUM = LEVEL << 1,
+            /// <summary>
+            /// 单频测向数据
+            /// </summary>
+            DFIND = SPECTRUM << 1,
+            /// <summary>
+            /// 宽带测向数据
+            /// </summary>
+            DFPAN = DFIND << 1,
+            /// <summary>
+            /// 音频数据
+            /// </summary>
+            AUDIO = DFPAN << 1,
+            /// <summary>
+            /// ITU测量数据
+            /// </summary>
+            ITU = AUDIO << 1,
+            /// <summary>
+            /// 扫描数据
+            /// </summary>
+            SCAN = ITU << 1,
+            /// <summary>
+            /// TDOA数据
+            /// </summary>
+            TDOA = SCAN << 1,
+            /// <summary>
+            /// 亚音频解调数据
+            /// </summary>
+            CTCSS = TDOA << 1,
+            /// <summary>
+            /// GPS数据
+            /// </summary>
+            GPS = CTCSS << 1,
+            /// <summary>
+            /// 罗盘数据
+            /// </summary>
+            COMPASS = GPS << 1,
+            /// <summary>
+            /// 天线因子数据
+            /// </summary>
+            ANTFACTOR = COMPASS << 1
+        }
+
+        /// <summary>
+        /// 电平数据
+        /// </summary>
+        [Serializable]
+        public class SDataLevel
+        {
+            /// <summary>
+            /// 中心频率,单位:MHz
+            /// </summary>
+            public double Frequency;
+            /// <summary>
+            /// 滤波带宽,单位:kHz
+            /// </summary>
+            public double IFBandWidth;
+            /// <summary>
+            /// 电平,单位:dBuV
+            /// </summary>
+            public float Data;
+        }
+        /// <summary>
+        /// 频谱数据
+        /// </summary>
+        [Serializable]
+        public class SDataSpectrum
+        {
+            /// <summary>
+            /// 中心频率 MHz
+            /// </summary>
+            public double Frequency;
+
+            /// <summary>
+            /// 频谱带宽，单位 kHz
+            /// </summary>
+            public double SpectrumSpan;
+
+            /// <summary>
+            /// 频谱数据
+            /// </summary>
+            public float[] Datas;
+        }
+
+        /// <summary>
+        /// 单频测向示向度数据
+        /// </summary>
+        [Serializable]
+        public class SDataDFind
+        {
+            /// <summary>
+            /// 中心频率 MHz
+            /// </summary>
+            public double Frequency;
+
+            /// <summary>
+            /// 测向带宽，单位 kHz
+            /// </summary>
+            public double DFBandwidth;
+
+            /// <summary>
+            /// 示相度，单位:度°
+            /// </summary>
+            public float Azimuth;
+
+            /// <summary>
+            /// 测向质量，单位%
+            /// </summary>
+            public float Quality;
+        }
+        /// <summary>
+        /// 宽带(FFT)测向数据
+        /// </summary>
+        [Serializable]
+        public class SDataWBDF
+        {
+            /// <summary>
+            /// 中心频率 MHz
+            /// </summary>
+            public double Frequency;
+
+            /// <summary>
+            /// 测向带宽，单位 kHz
+            /// </summary>
+            public double DFBandwidth;
+
+            /// <summary>
+            /// 示相度，单位:度°
+            /// </summary>
+            public float[] Azimuth;
+
+            /// <summary>
+            /// 测向质量，单位%
+            /// </summary>
+            public float[] Quality;
+        }
+        #endregion
     }
 }
